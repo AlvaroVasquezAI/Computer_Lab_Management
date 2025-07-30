@@ -12,7 +12,7 @@ const SubjectList = ({ subjects, onDelete, onEdit }) => {
                 <span>{t('signup.name')}</span>
                 <span>{t('signup.action')}</span>
             </div>
-            {subjects.length === 0 && <div className="empty-list-message">No subjects added yet.</div>}
+            {subjects.length === 0 && <div className="empty-list-message">{t('signup.empty_subject_list')}</div>}
             {subjects.map((subject, index) => (
                 <div key={index} className="list-table-row">
                     <span>

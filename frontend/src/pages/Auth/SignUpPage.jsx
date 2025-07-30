@@ -136,6 +136,12 @@ const SignUpPage = () => {
                 <button onClick={handleSubmit} className="submit-button" disabled={loading}>
                     {loading ? 'Creating Account...' : t('signup.save_changes_button')}
                 </button>
+                <p className="tertiary-action">
+                    {t('signup.go_to_login_prompt')}{' '}
+                    <Link to="/login" className="form-link">
+                        {t('signup.go_to_login_link')}
+                    </Link>
+                </p>
             </footer>
         </div>
     );

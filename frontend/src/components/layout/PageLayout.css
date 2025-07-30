@@ -1,13 +1,75 @@
-.page-layout {
-  padding-left: 260px; 
+.page-container {
+  position: relative;
+  min-height: 100vh;
+}
+
+.content-wrapper {
+  padding-left: 280px; 
   transition: padding-left 0.3s ease;
 }
-.page-layout.sidebar-collapsed {
-  padding-left: 80px;
+
+.content-wrapper.sidebar-collapsed {
+  padding-left: 90px;
 }
 
 .content-area {
   width: 100%;
   padding: 30px;
   background-color: var(--background-page);
+  box-sizing: border-box;
+}
+
+.mobile-nav-toggle,
+.mobile-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding-left: 0;
+  }
+
+  .content-area {
+    padding: 20px;
+    padding-top: 70px;
+  }
+
+  /* Hamburger Icon Styling */
+  .mobile-nav-toggle {
+    display: flex;
+    position: absolute; 
+    top: 15px;
+    left: 15px;
+    z-index: 999;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 990;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .page-container.mobile-nav-is-open .mobile-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
 }

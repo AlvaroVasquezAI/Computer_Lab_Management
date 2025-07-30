@@ -1,24 +1,26 @@
 import React, { Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 
-import './i18n/config'; 
-import { AuthProvider } from './context/AuthContext.jsx';
-import { ThemeProvider } from './context/ThemeContext.jsx'; // --- 1. IMPORT ---
+// Context Providers
+import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+
+// i18n configuration
+import './i18n/config.js';
+
+// Global Styles
 import './styles/main.css';
+import './styles/themes.css'; 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Suspense fallback={<div>Loading...</div>}>
-        {/* --- 2. WRAP THE APP --- */}
-        <ThemeProvider>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </ThemeProvider>
-      </Suspense>
-    </BrowserRouter>
-  </React.StrictMode>,
-)
+    <Suspense fallback="loading...">
+      <ThemeProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
+    </Suspense>
+  </React.StrictMode>
+);

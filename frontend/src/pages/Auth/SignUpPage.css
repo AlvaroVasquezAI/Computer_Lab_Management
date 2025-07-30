@@ -129,7 +129,7 @@
     border: 1.5px solid var(--text-on-card); 
     background: transparent;
     color: var(--text-on-card); 
-    border-radius: 999px;
+    border-radius: 9999px;
     cursor: pointer;
     display: inline-block;
 }
@@ -242,4 +242,59 @@
     text-align: center;
     color: var(--text-secondary);
     padding: 20px;
+}
+
+.tertiary-action {
+  margin-top: 25px;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.form-link {
+  color: var(--text-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.form-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 992px) {
+  .signup-page {
+    padding: 20px;
+  }
+
+  .signup-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .signup-header h1 {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-page {
+    padding: 20px 15px;
+  }
+
+  .schedule-header, .schedule-row {
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 5px;
+  }
+
+  .schedule-row span {
+    padding-left: 5px; 
+    font-size: 0.9rem; 
+  }
+
+  .details-form input,
+  .subject-input, 
+  .group-input, 
+  .schedule-table select {
+    padding: 12px 15px; 
+  }
+
+  .card {
+    padding: 20px;
+  }
 }

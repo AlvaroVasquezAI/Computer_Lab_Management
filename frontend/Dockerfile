@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Copy the package.json file first. This is a key Docker optimization.
 # The 'npm install' step will only be re-run if this file changes.
-COPY package.json ./
+COPY package*.json ./
 
 # Install project dependencies. This will also create package-lock.json inside the container.
 RUN npm install

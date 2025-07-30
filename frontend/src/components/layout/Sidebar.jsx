@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import { FaRegSun } from "react-icons/fa6";
 
-const Sidebar = ({ isCollapsed, onToggle }) => {
+const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
   const { user, logout } = useAuth();
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
@@ -20,8 +20,23 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
     i18n.changeLanguage(i18n.language === 'en' ? 'es' : 'en');
   };
 
+  const handleToggleClick = () => {
+    if (window.innerWidth <= 768) { 
+      onMobileClose();
+    } else {
+      onToggle();
+    }
+  };
+
+  const sidebarClasses = [
+    'sidebar',
+    isCollapsed ? 'collapsed' : '',
+    isMobileOpen ? 'mobile-open' : ''
+  ].join(' ');
+
+
   return (
-    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <aside className={sidebarClasses}>
       <div className="sidebar-top">
         <div className="sidebar-header">
           {!isCollapsed && (
@@ -30,7 +45,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
               <span>{t('sidebar.title_line2')}</span>
             </div>
           )}
-          <button onClick={onToggle} className="toggle-button">
+          <button onClick={handleToggleClick} className="toggle-button">
             <FaArrowLeft />
           </button>
         </div>

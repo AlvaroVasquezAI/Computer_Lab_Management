@@ -63,6 +63,9 @@
     },
     "edit_subject": "Edit Subject",
     "update_subject": "Update Subject",
-    "update_group": "Update Group"
+    "update_group": "Update Group",
+    "go_to_login_prompt": "Already have an account?",
+    "go_to_login_link": "Sign In",
+    "empty_subject_list": "No subjects added yet."
   }
 }

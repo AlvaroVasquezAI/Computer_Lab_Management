@@ -49,11 +49,13 @@ services:
       # We'll access the UI at http://localhost:5173
       - "5173:5173"
     volumes:
-      # Syncs our local frontend code with the container for hot-reloading.
-      - ./frontend:/app
-      # An important optimization: prevents the huge node_modules folder from being overwritten
-      # by an empty one from our local machine.
-      - /app/node_modules
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.js:/app/vite.config.js
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/package-lock.json:/app/package-lock.json
+      - ./frontend/eslint.config.js:/app/eslint.config.js
     env_file:
       - ./frontend/.env
     command: npm run dev -- --host

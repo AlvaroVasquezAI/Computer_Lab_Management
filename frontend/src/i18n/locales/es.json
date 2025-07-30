@@ -63,6 +63,9 @@
     },
     "edit_subject": "Editar Materia",
     "update_subject": "Actualizar Materia",
-    "update_group": "Actualizar Grupo"
+    "update_group": "Actualizar Grupo",
+    "go_to_login_prompt": "¿Ya tienes una cuenta?",
+    "go_to_login_link": "Iniciar Sesión",
+    "empty_subject_list": "Aún no se han añadido materias."
   }
 }
