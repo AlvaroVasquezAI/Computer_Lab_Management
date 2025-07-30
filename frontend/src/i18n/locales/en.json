@@ -1,0 +1,68 @@
+{
+  "sidebar": {
+    "title_line1": "Computer",
+    "title_line2": "Laboratory",
+    "home": "Home",
+    "workspace": "Workspace",
+    "status": "Status",
+    "administration": "Administration",
+    "logout": "Log Out"
+  },
+  "login": {
+    "welcome": "Welcome back!",
+    "email_placeholder": "email",
+    "password_placeholder": "password",
+    "login_button": "Log In",
+    "forgot_password": "Forgot password?",
+    "new_user": "Are you new?",
+    "signup": "Sign Up"
+  },
+  "landing": {
+    "title_line1": "COMPUTER",
+    "title_line2": "LABORATORY",
+    "start_button": "Start"
+  },
+  "forgot_password": {
+    "title": "Forgot Password?",
+    "description": "Enter your email address and we will send you a new temporary password.",
+    "email_placeholder": "your.email@example.com",
+    "submit_button": "Send Password",
+    "submit_button_loading": "Sending...",
+    "success_message": "If an account with this email exists, a password reset email has been sent.",
+    "error_message": "An error occurred. Please try again later.",
+    "remembered_password": "Remembered your password?",
+    "login_link": "Log In"
+  },
+  "signup": {
+    "title": "Sign Up",
+    "signin_button": "Sign In",
+    "details": "Details",
+    "name_placeholder": "Name",
+    "email_placeholder": "Email",
+    "password_placeholder": "Password",
+    "subjects": "Subjects",
+    "id": "ID",
+    "name": "Name",
+    "action": "Action",
+    "all_groups": "All groups",
+    "add_subject": "Add subject",
+    "subject_placeholder": "Select or type a subject",
+    "add_button": "Add",
+    "add_group_schedule": "Add group and schedule",
+    "group_name_placeholder": "Group Name (e.g., Group A)",
+    "day": "Day",
+    "start": "Start",
+    "end": "End",
+    "add_group_button": "Add group",
+    "groups": "Groups",
+    "edit_group_button": "Edit group",
+    "save_changes_button": "Create profile & sign in",
+    "days": {
+      "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday",
+      "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday"
+    },
+    "edit_subject": "Edit Subject",
+    "update_subject": "Update Subject",
+    "update_group": "Update Group"
+  }
+}

@@ -1,0 +1,131 @@
+.login-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--background-page);
+}
+
+.login-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 320px;
+}
+
+.form-title {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  /* --- FIX #1: Center the title text --- */
+  text-align: center;
+}
+
+.input-card {
+  background-color: var(--background-card-auth);
+  padding: 30px 25px;
+  border-radius: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-card .form-group:first-of-type {
+  margin-bottom: 15px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 9999px;
+  border: none;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  box-sizing: border-box;
+  text-align: center;
+}
+.form-group input::placeholder {
+  color: #000000;
+}
+
+.form-description {
+  color: var(--sidebar-text);
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.error-message {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  margin-top: 15px;
+  text-align: center;
+}
+
+form {
+  width: 100%;
+}
+
+.primary-button, .secondary-button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 9999px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  box-sizing: border-box;
+}
+
+.primary-button {
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border: none;
+  margin-top: 25px;
+}
+.primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  background-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border: 1.5px solid var(--button-secondary-border);
+  margin-top: 15px;
+}
+
+.tertiary-action {
+  margin-top: 25px;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.signup-link {
+  color: var(--text-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.signup-link:hover {
+  text-decoration: underline;
+}
+
+.secondary-button-link {
+  text-decoration: none;
+  width: 100%;
+}
+
+.success-message {
+  color: #16a34a;
+  background-color: #f0fdf4;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 15px;
+  text-align: center;
+}
+
+body[data-theme='dark'] .success-message {
+  color: #4ade80;
+  background-color: #166534;
+}

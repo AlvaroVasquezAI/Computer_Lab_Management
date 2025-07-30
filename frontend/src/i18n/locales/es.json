@@ -1,0 +1,68 @@
+{
+  "sidebar": {
+    "title_line1": "Laboratorio de",
+    "title_line2": "Cómputo",
+    "home": "Inicio",
+    "workspace": "Workspace",
+    "status": "Estado",
+    "administration": "Administración",
+    "logout": "Cerrar Sesión"
+  },
+  "login": {
+    "welcome": "¡Bienvenido de nuevo!",
+    "email_placeholder": "correo electrónico",
+    "password_placeholder": "contraseña",
+    "login_button": "Iniciar Sesión",
+    "forgot_password": "¿Olvidaste tu contraseña?",
+    "new_user": "¿Eres nuevo?",
+    "signup": "Regístrate"
+  },
+  "landing": {
+    "title_line1": "LABORATORIO DE",
+    "title_line2": "COMPUTO",
+    "start_button": "Iniciar"
+  },
+  "forgot_password": {
+    "title": "¿Olvidaste tu contraseña?",
+    "description": "Ingresa tu correo electrónico y te enviaremos una nueva contraseña temporal.",
+    "email_placeholder": "tu.correo@ejemplo.com",
+    "submit_button": "Enviar Contraseña",
+    "submit_button_loading": "Enviando...",
+    "success_message": "Si existe una cuenta con este correo, se ha enviado un correo para restablecer la contraseña.",
+    "error_message": "Ocurrió un error. Por favor, inténtalo de nuevo más tarde.",
+    "remembered_password": "¿Recordaste tu contraseña?",
+    "login_link": "Iniciar Sesión"
+  },
+  "signup": {
+    "title": "Regístrate",
+    "signin_button": "Iniciar Sesión",
+    "details": "Detalles",
+    "name_placeholder": "Nombre",
+    "email_placeholder": "Correo Electrónico",
+    "password_placeholder": "Contraseña",
+    "subjects": "Materias",
+    "id": "ID",
+    "name": "Nombre",
+    "action": "Acción",
+    "all_groups": "Todos los grupos",
+    "add_subject": "Añadir materia",
+    "subject_placeholder": "Selecciona o escribe una materia",
+    "add_button": "Añadir",
+    "add_group_schedule": "Añadir grupo y horario",
+    "group_name_placeholder": "Nombre del Grupo (ej. Grupo A)",
+    "day": "Día",
+    "start": "Inicio",
+    "end": "Fin",
+    "add_group_button": "Añadir grupo",
+    "groups": "Grupos",
+    "edit_group_button": "Editar grupo",
+    "save_changes_button": "Crear perfil e iniciar sesión",
+    "days": {
+      "monday": "Lunes", "tuesday": "Martes", "wednesday": "Miércoles",
+      "thursday": "Jueves", "friday": "Viernes", "saturday": "Sábado"
+    },
+    "edit_subject": "Editar Materia",
+    "update_subject": "Actualizar Materia",
+    "update_group": "Actualizar Grupo"
+  }
+}

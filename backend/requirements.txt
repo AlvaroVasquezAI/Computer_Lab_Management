@@ -1,0 +1,22 @@
+# FastAPI and Server
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy
+psycopg2-binary
+alembic
+
+# Pydantic for data validation and settings management
+pydantic[email]
+python-dotenv
+
+# PDF Analysis and File Handling
+PyMuPDF
+Pillow
+fpdf2
+python-multipart
+
+# Security
+passlib[bcrypt]
+python-jose[cryptography]

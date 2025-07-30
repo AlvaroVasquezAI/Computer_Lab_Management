@@ -1,0 +1,13 @@
+.page-layout {
+  padding-left: 260px; 
+  transition: padding-left 0.3s ease;
+}
+.page-layout.sidebar-collapsed {
+  padding-left: 80px;
+}
+
+.content-area {
+  width: 100%;
+  padding: 30px;
+  background-color: var(--background-page);
+}

@@ -1,0 +1,85 @@
+/* --- LIGHT MODE (DEFAULT) --- */
+:root {
+  /* Backgrounds */
+  --background-page: #FFFFFF;
+  --background-card-auth: #831843;
+  --background-card-main: #831843;
+  --sub-card-bg: rgba(0, 0, 0, 0.1);
+  --sidebar-bg: #831843;
+  --input-bg: #FFFFFF;
+  --landing-bg-image: url('../assets/images/wavy-grid.png');
+
+  /* Text */
+  --text-primary: #111827;
+  --text-primary-inverted: #FFFFFF;
+  --text-secondary: #6b7280;
+  --text-on-card: #ffffff;
+  --text-accent: #831843;
+  --input-text: #111827;
+  --placeholder-text: #9ca3af;
+
+  /* Sidebar Specific */
+  --sidebar-text: #FFFFFF;
+  --sidebar-text-muted: #f3e8ff;
+  --sidebar-active-bg: #FFFFFF;
+  --sidebar-active-text: #831843;
+  --sidebar-hover-bg: rgba(255, 255, 255, 0.1);
+
+  /* Buttons & Borders */
+  --button-primary-bg: #831843;
+  --button-primary-text: #FFFFFF;
+  --button-secondary-bg: #FFFFFF;
+  --button-secondary-text: #111827;
+  --button-secondary-border: #111827;
+}
+
+/* --- DARK MODE OVERRIDES --- */
+body[data-theme='dark'] {
+  /* Backgrounds */
+  --background-page: #000000;
+  --background-card-auth: #1e1e1e;
+  --background-card-main: #1e1e1e;
+  --sub-card-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-bg: #1e1e1e;
+  --input-bg: #d1d5db; /* A light gray for dark mode inputs */
+  --landing-bg-image: url('../assets/images/wavy-grid-black.png');
+
+  /* Text */
+  --text-primary: #e5e7eb;
+  --text-primary-inverted: #000000;
+  --text-secondary: #9ca3af;
+  --text-on-card: #e5e7eb;
+  --text-accent: #FFFFFF;
+  --input-text: #111827; /* Text inside inputs is always dark */
+  --placeholder-text: #6b7280;
+
+  /* Sidebar Specific */
+  --sidebar-text-muted: #9ca3af;
+  --sidebar-active-bg: #4a5568;
+  --sidebar-active-text: #FFFFFF;
+  --sidebar-hover-bg: #4a5568;
+
+  /* Buttons & Borders */
+  --button-primary-bg: #FFFFFF;
+  --button-primary-text: #000000;
+  --button-secondary-bg: transparent;
+  --button-secondary-text: #FFFFFF;
+  --button-secondary-border: #FFFFFF;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background-page);
+  color: var(--text-primary);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+input, button, select {
+  font-family: var(--font-family);
+  font-size: 1rem;
+}
