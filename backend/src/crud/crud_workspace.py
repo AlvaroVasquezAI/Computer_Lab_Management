@@ -198,6 +198,7 @@ def get_practice_details(db: Session, practice_id: int, teacher_id: int):
         db.query(
             group.Group.group_name,
             room.Room.room_name,
+            room.Room.room_id,
             booking.Booking.practice_date,
             booking.Booking.start_time,
             booking.Booking.end_time
@@ -217,7 +218,7 @@ def get_practice_details(db: Session, practice_id: int, teacher_id: int):
         "created_at": db_practice.created_at,
         "file_url": db_practice.file_url,
         "bookings": [
-            { "group_name": b.group_name, "room_name": b.room_name, "practice_date": b.practice_date, "start_time": b.start_time, "end_time": b.end_time } 
+            { "group_name": b.group_name, "room_name": b.room_name, "room_id": b.room_id, "practice_date": b.practice_date, "start_time": b.start_time, "end_time": b.end_time } 
             for b in bookings_query
         ]
     }
@@ -269,3 +270,14 @@ def is_practice_editable(db: Session, practice_id: int, teacher_id: int) -> bool
     end_datetime = datetime.strptime(latest_end_datetime, '%Y-%m-%d %H:%M:%S')
     
     return end_datetime > datetime.utcnow()
+
+def delete_future_bookings_for_practice(db: Session, practice_id: int):
+    """
+    Deletes bookings for a practice that are scheduled for today or a future date.
+    Past bookings are preserved.
+    """
+    today = date.today()
+    db.query(booking.Booking).filter(
+        booking.Booking.practice_id == practice_id,
+        booking.Booking.practice_date >= today
+    ).delete()

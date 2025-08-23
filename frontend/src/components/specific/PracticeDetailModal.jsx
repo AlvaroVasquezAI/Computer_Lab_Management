@@ -17,7 +17,7 @@ const PracticeDetailModal = ({ details, onClose }) => {
         setIsLoadingPreview(true);
         try {
             const response = await apiClient.get(
-                `/practices/practices/${details.practice_id}/download`,
+                `/practices/practices/${details.practice_id}/download?v=${new Date().getTime()}`,
                 { responseType: 'blob' }
             );
             const file = new Blob([response.data], { type: 'application/pdf' });
@@ -70,7 +70,7 @@ const PracticeDetailModal = ({ details, onClose }) => {
                         {details.bookings.map((booking, index) => (
                             <div key={index} className="group-schedule-card">
                                 <p><strong>{booking.group_name}</strong> {t('consult_practices.modal_session_in')} <strong>{booking.room_name}</strong></p>
-                                <p>{new Date(booking.practice_date).toLocaleDateString()} | {booking.start_time.substring(0,5)} - {booking.end_time.substring(0,5)}</p>
+                                <p>{new Date(booking.practice_date + 'T00:00:00').toLocaleDateString()} | {booking.start_time.substring(0,5)} - {booking.end_time.substring(0,5)}</p>
                             </div>
                         ))}
                     </>

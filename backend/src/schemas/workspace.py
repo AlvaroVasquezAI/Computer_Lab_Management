@@ -82,6 +82,7 @@ class PracticeListItem(BaseModel):
 class BookingDetail(BaseModel):
     group_name: str
     room_name: str
+    room_id: int
     practice_date: date
     start_time: time
     end_time: time

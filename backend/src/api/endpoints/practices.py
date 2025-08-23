@@ -177,6 +177,7 @@ def get_subject_bookings(
         db, teacher_id=current_teacher.teacher_id, subject_id=subject_id
     )
 
+
 @router.put("/practices/{practice_id}", status_code=status.HTTP_200_OK)
 def update_practice(
     practice_id: int,
@@ -195,28 +196,31 @@ def update_practice(
 
     if not crud_workspace.is_practice_editable(db, practice_id=practice_id, teacher_id=current_teacher.teacher_id):
         raise HTTPException(status_code=403, detail="This practice can no longer be edited as all its sessions have passed.")
+    
+    old_file_path = db_practice.file_url
+    new_file_path_on_disk = None
 
     try:
         update_data: workspace_schema.PracticeUpdate = workspace_schema.PracticeUpdate.parse_raw(update_data_str)
 
         if file:
-            if os.path.exists(db_practice.file_url):
-                os.remove(db_practice.file_url)
-            
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
             safe_name = "".join(c if c.isalnum() else "_" for c in update_data.name)
             filename = f"{timestamp}_{current_teacher.teacher_id}_{update_data.subject_id}_{safe_name}_{file.filename}"
             teacher_dir = os.path.join(UPLOADS_DIR, str(current_teacher.teacher_id))
-            file_path_on_disk = os.path.join(teacher_dir, filename)
-            with open(file_path_on_disk, "wb") as buffer:
+            os.makedirs(teacher_dir, exist_ok=True) 
+
+            new_file_path_on_disk = os.path.join(teacher_dir, filename)
+            with open(new_file_path_on_disk, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
-            db_practice.file_url = file_path_on_disk
+            
+            db_practice.file_url = new_file_path_on_disk
 
         db_practice.title = update_data.name
         db_practice.description = update_data.objective
         db_practice.subject_id = update_data.subject_id
 
-        crud_workspace.delete_bookings_for_practice(db, practice_id=practice_id)
+        crud_workspace.delete_future_bookings_for_practice(db, practice_id=practice_id)
 
         for booking_info in update_data.bookings:
             conflict = crud_workspace.check_group_booking_conflict(
@@ -245,11 +249,15 @@ def update_practice(
             db.add(new_booking)
 
         db.commit()
+
+        if file and old_file_path and os.path.exists(old_file_path):
+            os.remove(old_file_path)
+
         return {"message": "Practice updated successfully."}
 
     except Exception as e:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred during update: {str(e)}"
-        )
+        if new_file_path_on_disk and os.path.exists(new_file_path_on_disk):
+            os.remove(new_file_path_on_disk)
+        
+        raise e

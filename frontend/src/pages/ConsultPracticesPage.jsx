@@ -110,11 +110,13 @@ const ConsultPracticesPage = () => {
                                     <div className="action-buttons">
                                         <button onClick={() => handleVisualize(practice.practice_id)} title={t('consult_practices.visualize_tooltip')}><FaEye /></button>
                                         
-                                        <Link to={`/workspace/edit-practice/${practice.practice_id}`}>
-                                            <button title={t('edit_practice.edit_tooltip')} disabled={!practice.is_editable}>
-                                                <FaEdit />
-                                            </button>
-                                        </Link>
+                                        {practice.is_editable && (
+                                            <Link to={`/workspace/edit-practice/${practice.practice_id}`}>
+                                                <button title={t('edit_practice.edit_tooltip')}>
+                                                    <FaEdit />
+                                                </button>
+                                            </Link>
+                                        )}
 
                                         <button onClick={() => handleDownloadOrPreview(practice.practice_id, false)} title={t('consult_practices.download_tooltip')}><FaDownload /></button>
                                     </div>

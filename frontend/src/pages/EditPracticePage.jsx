@@ -11,7 +11,7 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings, 
     const { t } = useTranslation();
     
     const initialDate = useMemo(() => 
-        initialBooking ? new Date(`${initialBooking.practice_date}T00:00:00Z`) : null,
+        initialBooking ? new Date(initialBooking.practice_date + 'T00:00:00') : null,
         [initialBooking]
     );
     
@@ -50,14 +50,14 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings, 
 
     useEffect(() => {
         if (initialDate) {
-            const dayOfWeek = initialDate.getUTCDay();
+            const dayOfWeek = initialDate.getDay(); 
             const schedule = group.schedules.find(s => s.day_of_week === dayOfWeek);
             setScheduleForDate(schedule);
             if (schedule) {
                 checkAvailability(initialDate, schedule);
             }
         }
-    }, [initialDate, group.schedules]);
+    }, [initialDate, group.schedules, checkAvailability]);
 
     useEffect(() => {
         if (initialBooking && availableRooms.length > 0) {
@@ -71,28 +71,32 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings, 
     const highlightDates = useMemo(() => {
         const dates = [];
         const scheduledDaysOfWeek = group.schedules.map(s => s.day_of_week);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+
         for (let i = 0; i < 15; i++) {
-            const date = new Date();
-            date.setUTCDate(date.getUTCDate() + i);
-            if (scheduledDaysOfWeek.includes(date.getUTCDay())) {
-                dates.push(date);
+            const futureDate = new Date(today);
+            futureDate.setDate(today.getDate() + i); 
+
+            if (scheduledDaysOfWeek.includes(futureDate.getDay())) { 
+                dates.push(futureDate);
             }
         }
         return dates;
     }, [group.schedules]);
 
+
     const excludedDates = useMemo(() => {
         return existingBookings
             .filter(booking => booking.group_id === group.group_id && (!initialBooking || booking.date !== initialBooking.practice_date))
             .map(booking => {
-                const [year, month, day] = booking.date.split('-').map(Number);
-                return new Date(Date.UTC(year, month - 1, day));
+                return new Date(booking.date + 'T00:00:00');
             });
     }, [existingBookings, group.group_id, initialBooking]);
 
     const handleDateChange = (date) => {
         setSelectedDate(date);
-        const dayOfWeek = date.getUTCDay();
+        const dayOfWeek = date.getDay(); 
         const schedule = group.schedules.find(s => s.day_of_week === dayOfWeek);
         setScheduleForDate(schedule);
         setSelectedRoomId('');
@@ -147,17 +151,17 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings, 
                     onChange={handleDateChange}
                     highlightDates={highlightDates}
                     excludeDates={excludedDates}
-                    minDate={today}
+                    minDate={today} 
                     maxDate={twoWeeksFromNow}
                     placeholderText="mm/dd/yyyy"
                     dateFormat="MM/dd/yyyy"
                     className="custom-datepicker-input"
                     filterDate={(date) => {
-                        const day = date.getUTCDay();
+                        const day = date.getDay();
                         return group.schedules.some(s => s.day_of_week === day);
                     }}
                     dayClassName={date =>
-                        date.getUTCDate() === new Date().getUTCDate() && date.getUTCMonth() === new Date().getUTCMonth()
+                        date.getDate() === new Date().getDate() && date.getMonth() === new Date().getMonth()
                         ? "custom-today-date"
                         : undefined
                     }
@@ -202,6 +206,7 @@ const EditPracticePage = () => {
     const [pageLoading, setPageLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
     
     const [initialData, setInitialData] = useState(null);
     const [practiceName, setPracticeName] = useState('');
@@ -235,7 +240,7 @@ const EditPracticePage = () => {
                 const groupsPromise = apiClient.get(`/practices/subjects/${subjectId}/groups`);
                 const existingBookingsPromise = apiClient.get(`/practices/subjects/${subjectId}/bookings`);
                 const roomsPromise = apiClient.post('/practices/availability', { practice_date: '1970-01-01', start_time: '00:00', end_time: '00:01' });
-                const filePromise = apiClient.get(`/practices/practices/${practiceId}/download`, { responseType: 'blob' });
+                const filePromise = apiClient.get(`/practices/practices/${practiceId}/download?v=${new Date().getTime()}`, { responseType: 'blob' });
 
                 const [groupsRes, bookingsRes, roomsRes, fileResponse] = await Promise.all([groupsPromise, existingBookingsPromise, roomsPromise, filePromise]);
 
@@ -247,9 +252,8 @@ const EditPracticePage = () => {
                 const initialBookingsMap = {};
                 practiceData.bookings.forEach(b => {
                     const group = groupsRes.data.find(g => g.group_name === b.group_name);
-                    const room = roomsRes.data.find(r => r.room_name === b.room_name);
-                    if (group && room) {
-                        initialBookingsMap[group.group_id] = { ...b, room_id: room.room_id, group_id: group.group_id };
+                    if (group) {
+                        initialBookingsMap[group.group_id] = { ...b, group_id: group.group_id };
                     }
                 });
                 setGroupBookings(initialBookingsMap);
@@ -279,14 +283,25 @@ const EditPracticePage = () => {
     }, []);
 
     const isFormValid = useMemo(() => {
-        if (!initialBookings || initialBookings.length === 0) return false;
+        if (!practiceName || !practiceObjective || !selectedSubjectId) {
+            return false;
+        }
 
-        const bookings = Object.values(groupBookings).filter(Boolean);
         const editableGroups = groupsForSubject.filter(g => {
             const ib = initialBookings.find(b => b.group_name === g.group_name);
             return !ib || new Date(ib.practice_date + 'T' + ib.end_time) >= new Date();
         });
-        return practiceName && practiceObjective && selectedSubjectId && editableGroups.length > 0 && bookings.length === editableGroups.length;
+
+        if (editableGroups.length === 0) {
+            return true; 
+        }
+
+        const allEditableGroupsAreScheduled = editableGroups.every(
+            eg => groupBookings[eg.group_id]
+        );
+
+        return allEditableGroupsAreScheduled;
+
     }, [practiceName, practiceObjective, selectedSubjectId, groupBookings, groupsForSubject, initialBookings]);
 
     const renderedGroupSchedulers = useMemo(() => {
@@ -316,17 +331,29 @@ const EditPracticePage = () => {
         setSuccess('');
 
         const formData = new FormData();
+
+        const editableGroupIds = groupsForSubject
+            .filter(g => {
+                const ib = initialBookings.find(b => b.group_name === g.group_name);
+                return !ib || new Date(ib.practice_date + 'T' + ib.end_time) >= new Date();
+            })
+            .map(g => g.group_id);
+
+        const bookingsToSend = Object.values(groupBookings)
+            .filter(b => b && editableGroupIds.includes(b.group_id))
+            .map(b => ({
+                group_id: b.group_id,
+                room_id: b.room_id,
+                practice_date: b.practice_date,
+                start_time: b.start_time,
+                end_time: b.end_time,
+            }));
+
         const updatePayload = {
             name: practiceName,
             objective: practiceObjective,
             subject_id: parseInt(selectedSubjectId),
-            bookings: Object.values(groupBookings).filter(Boolean).map(b => ({
-                group_id: b.group_id,
-                room_id: b.room_id,
-                practice_date: b.practice_date || b.date,
-                start_time: b.start_time,
-                end_time: b.end_time,
-            }))
+            bookings: bookingsToSend 
         };
         formData.append('update_data_str', JSON.stringify(updatePayload));
         
