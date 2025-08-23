@@ -1,9 +1,8 @@
 from datetime import date, datetime, time, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import func, distinct
-from src.models import schedule, subject, group, practice, teacher
+from src.models import schedule, subject, group, practice, teacher, room, booking
 from collections import defaultdict
-from src.models import room, booking, group
 
 def get_subjects_by_teacher(db: Session, teacher_id: int):
     """
@@ -172,16 +171,25 @@ def get_practices_for_teacher(db: Session, teacher_id: int):
         .order_by(practice.Practice.created_at.desc())
         .all()
     )
-    return [
-        {
+    results = []
+    for p_id, p_title, s_name, p_date in practices_query:
+        earliest_start = db.query(
+            func.min(func.concat(booking.Booking.practice_date, ' ', booking.Booking.start_time))
+        ).filter(booking.Booking.practice_id == p_id).scalar()
+
+        latest_end = db.query(
+            func.max(func.concat(booking.Booking.practice_date, ' ', booking.Booking.end_time))
+        ).filter(booking.Booking.practice_id == p_id).scalar()
+
+        results.append({
             "practice_id": p_id,
             "title": p_title,
             "subject_name": s_name,
             "created_at": p_date,
-            "is_editable": is_practice_editable(db, practice_id=p_id, teacher_id=teacher_id)
-        }
-        for p_id, p_title, s_name, p_date in practices_query
-    ]
+            "earliest_session_start": earliest_start, # e.g., "2025-08-28 09:00:00" or None
+            "latest_session_end": latest_end,       # e.g., "2025-09-02 15:30:00" or None
+        })
+    return results
 
 def get_practice_details(db: Session, practice_id: int, teacher_id: int):
     db_practice = db.query(practice.Practice).filter(
@@ -255,21 +263,34 @@ def delete_bookings_for_practice(db: Session, practice_id: int):
     db.query(booking.Booking).filter(booking.Booking.practice_id == practice_id).delete()
 
 def is_practice_editable(db: Session, practice_id: int, teacher_id: int) -> bool:
-    latest_end_datetime = db.query(
-        func.max(func.concat(booking.Booking.practice_date, ' ', booking.Booking.end_time))
-    ).join(
-        practice.Practice, booking.Booking.practice_id == practice.Practice.practice_id
-    ).filter(
-        practice.Practice.practice_id == practice_id,
-        practice.Practice.teacher_id == teacher_id
-    ).scalar()
+    """
+    Checks if a practice is editable. A practice is editable as long as the end time
+    of its latest scheduled session is in the future.
+    """
+    latest_booking = db.query(booking.Booking).filter(
+        booking.Booking.practice_id == practice_id
+    ).order_by(
+        booking.Booking.practice_date.desc(),
+        booking.Booking.end_time.desc()
+    ).first()
 
-    if not latest_end_datetime:
+    if not latest_booking:
         return True 
 
-    end_datetime = datetime.strptime(latest_end_datetime, '%Y-%m-%d %H:%M:%S')
-    
-    return end_datetime > datetime.utcnow()
+    now = datetime.utcnow()
+    today_utc = now.date()
+    now_time_utc = now.time()
+
+    booking_date = latest_booking.practice_date
+    booking_end_time = latest_booking.end_time
+
+    if booking_date > today_utc:
+        return True
+
+    if booking_date < today_utc:
+        return False
+
+    return booking_end_time > now_time_utc
 
 def delete_future_bookings_for_practice(db: Session, practice_id: int):
     """
@@ -281,3 +302,34 @@ def delete_future_bookings_for_practice(db: Session, practice_id: int):
         booking.Booking.practice_id == practice_id,
         booking.Booking.practice_date >= today
     ).delete()
+
+def is_practice_deletable(db: Session, practice_id: int) -> bool:
+    """
+    Checks if a practice can be deleted. A practice is deletable only if the start
+    time of its earliest scheduled session is in the future.
+    """
+    earliest_booking = db.query(booking.Booking).filter(
+        booking.Booking.practice_id == practice_id
+    ).order_by(
+        booking.Booking.practice_date.asc(),
+        booking.Booking.start_time.asc()
+    ).first()
+
+    if not earliest_booking:
+        return True 
+
+    now = datetime.utcnow()
+    today_utc = now.date()
+    now_time_utc = now.time()
+
+    booking_date = earliest_booking.practice_date
+    booking_start_time = earliest_booking.start_time
+
+    if booking_date > today_utc:
+        return True
+    
+    if booking_date < today_utc:
+        return False
+
+    return booking_start_time > now_time_utc
+

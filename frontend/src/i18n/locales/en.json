@@ -158,5 +158,13 @@
     "error_message": "Failed to update practice.",
     "session_passed": "This session has already passed and cannot be edited.",
     "edit_tooltip": "Edit Practice"
+  },
+  "delete_modal": {
+    "title": "Are you sure you want to delete this practice?",
+    "prompt_part1": "To confirm, please type",
+    "prompt_part2": "in the box below.",
+    "placeholder": "Practice Name",
+    "confirm_button": "Confirm Deletion",
+    "deleting_button": "Deleting..."
   }
 }

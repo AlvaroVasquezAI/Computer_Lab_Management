@@ -158,5 +158,13 @@
     "error_message": "Error al actualizar la práctica.",
     "session_passed": "Esta sesión ya ha pasado y no se puede editar.",
     "edit_tooltip": "Editar Práctica"
+  },
+  "delete_modal": {
+    "title": "¿Estás seguro de que quieres eliminar esta práctica?",
+    "prompt_part1": "Para confirmar, por favor escribe",
+    "prompt_part2": "en el campo de abajo.",
+    "placeholder": "Nombre de la Práctica",
+    "confirm_button": "Confirmar Eliminación",
+    "deleting_button": "Eliminando..."
   }
 }

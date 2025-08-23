@@ -136,3 +136,64 @@
 .modal-back-button:hover {
   color: var(--text-primary);
 }
+
+.modal-title.warning {
+  color: #ef4444; 
+}
+
+.practice-summary-card {
+  background-color: var(--sub-card-bg);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border: 1px solid #ef4444;
+}
+.practice-summary-card h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.practice-summary-card p {
+  margin: 0.25rem 0 0 0;
+}
+
+.confirmation-prompt {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.confirmation-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--sidebar-hover-bg);
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+}
+
+.confirm-delete-button {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #dc2626; 
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.confirm-delete-button:hover {
+  opacity: 0.9;
+}
+
+.confirm-delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #9ca3af; 
+}

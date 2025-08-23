@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'; 
 import apiClient from '../services/api';
 import './ConsultPracticesPage.css';
-import { FaDownload, FaEye, FaEdit } from 'react-icons/fa'; 
+import { FaDownload, FaEye, FaEdit, FaTrash } from 'react-icons/fa'; 
 import PracticeDetailModal from '../components/specific/PracticeDetailModal';
+import DeleteConfirmationModal from '../components/specific/DeleteConfirmationModal';
 
 const ConsultPracticesPage = () => {
     const { t } = useTranslation();
@@ -14,6 +15,9 @@ const ConsultPracticesPage = () => {
     
     const [selectedPractice, setSelectedPractice] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [practiceToDelete, setPracticeToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         const fetchPractices = async () => {
@@ -81,6 +85,27 @@ const ConsultPracticesPage = () => {
         }
     };
 
+    const handleDelete = (practice) => {
+        setPracticeToDelete(practice);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!practiceToDelete) return;
+
+        setIsDeleting(true);
+        try {
+            await apiClient.delete(`/practices/practices/${practiceToDelete.practice_id}`);
+            setPractices(currentPractices => 
+                currentPractices.filter(p => p.practice_id !== practiceToDelete.practice_id)
+            );
+            setPracticeToDelete(null); 
+        } catch (err) {
+            console.error("Failed to delete practice", err);
+            alert("An error occurred while trying to delete the practice. Please try again.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     if (loading) return <div>{t('consult_practices.loading')}</div>;
     if (error) return <div className="error-message">{error}</div>;
@@ -100,29 +125,51 @@ const ConsultPracticesPage = () => {
                     {practices.length === 0 ? (
                         <div className="empty-list-message">{t('consult_practices.empty_message')}</div>
                     ) : (
-                        practices.map((practice) => (
-                            <div key={practice.practice_id} className="list-table-row">
-                                <div className="practice-title-mobile">{practice.title}</div>
-                                <div><span className="mobile-label">{t('consult_practices.header_subject')}: </span>{practice.subject_name}</div>
-                                <div><span className="mobile-label">{t('consult_practices.header_date')}: </span>{new Date(practice.created_at).toLocaleDateString()}</div>
-                                <div className="action-buttons-wrapper">
-                                    <span className="mobile-label">{t('consult_practices.header_actions')}: </span>
-                                    <div className="action-buttons">
-                                        <button onClick={() => handleVisualize(practice.practice_id)} title={t('consult_practices.visualize_tooltip')}><FaEye /></button>
-                                        
-                                        {practice.is_editable && (
-                                            <Link to={`/workspace/edit-practice/${practice.practice_id}`}>
-                                                <button title={t('edit_practice.edit_tooltip')}>
-                                                    <FaEdit />
-                                                </button>
-                                            </Link>
-                                        )}
+                        practices.map((practice) => {
+                            const now = new Date();
 
-                                        <button onClick={() => handleDownloadOrPreview(practice.practice_id, false)} title={t('consult_practices.download_tooltip')}><FaDownload /></button>
+                            const is_deletable = practice.earliest_session_start
+                                ? new Date(practice.earliest_session_start + 'Z') > now
+                                : true;
+
+                            const is_editable = practice.latest_session_end
+                                ? new Date(practice.latest_session_end + 'Z') > now
+                                : true;
+
+                            return (
+                                <div key={practice.practice_id} className="list-table-row">
+                                    <div className="practice-title-mobile">{practice.title}</div>
+                                    <div><span className="mobile-label">{t('consult_practices.header_subject')}: </span>{practice.subject_name}</div>
+                                    <div><span className="mobile-label">{t('consult_practices.header_date')}: </span>{new Date(practice.created_at).toLocaleDateString()}</div>
+                                    <div className="action-buttons-wrapper">
+                                        <span className="mobile-label">{t('consult_practices.header_actions')}: </span>
+                                        <div className="action-buttons">
+                                            <button onClick={() => handleVisualize(practice.practice_id)} title={t('consult_practices.visualize_tooltip')}><FaEye /></button>
+                                            
+                                            {is_editable && (
+                                                <Link to={`/workspace/edit-practice/${practice.practice_id}`}>
+                                                    <button title={t('edit_practice.edit_tooltip')}>
+                                                        <FaEdit />
+                                                    </button>
+                                                </Link>
+                                            )}
+
+                                            <button onClick={() => handleDownloadOrPreview(practice.practice_id, false)} title={t('consult_practices.download_tooltip')}><FaDownload /></button>
+                                            
+                                            {is_deletable && (
+                                                <button
+                                                    onClick={() => handleDelete(practice)}
+                                                    className="delete-button"
+                                                    title="Delete Practice"
+                                                >
+                                                    <FaTrash />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                 </div>
             </div>
@@ -131,6 +178,15 @@ const ConsultPracticesPage = () => {
                     details={selectedPractice} 
                     onClose={() => setIsModalOpen(false)}
                     onPreview={() => handleDownloadOrPreview(selectedPractice.practice_id, true)}
+                />
+            )}
+
+            {practiceToDelete && (
+                <DeleteConfirmationModal
+                    practice={practiceToDelete}
+                    onConfirm={handleConfirmDelete}
+                    onClose={() => setPracticeToDelete(null)}
+                    isDeleting={isDeleting}
                 />
             )}
         </>

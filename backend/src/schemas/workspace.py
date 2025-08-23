@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import date, datetime, time
 
 class PracticeStats(BaseModel):
@@ -74,7 +74,9 @@ class PracticeListItem(BaseModel):
     title: str
     subject_name: str
     created_at: datetime
-    is_editable: bool 
+
+    earliest_session_start: Optional[str] = None
+    latest_session_end: Optional[str] = None
 
     class Config:
         from_attributes = True

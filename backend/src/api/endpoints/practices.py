@@ -193,9 +193,6 @@ def update_practice(
 
     if not db_practice:
         raise HTTPException(status_code=404, detail="Practice not found.")
-
-    if not crud_workspace.is_practice_editable(db, practice_id=practice_id, teacher_id=current_teacher.teacher_id):
-        raise HTTPException(status_code=403, detail="This practice can no longer be edited as all its sessions have passed.")
     
     old_file_path = db_practice.file_url
     new_file_path_on_disk = None
@@ -261,3 +258,34 @@ def update_practice(
             os.remove(new_file_path_on_disk)
         
         raise e
+    
+@router.delete("/practices/{practice_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_practice(
+    practice_id: int,
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher)
+):
+    db_practice = db.query(Practice).filter(
+        Practice.practice_id == practice_id,
+        Practice.teacher_id == current_teacher.teacher_id
+    ).first()
+    if not db_practice:
+        raise HTTPException(status_code=404, detail="Practice not found.")
+
+    file_path_to_delete = db_practice.file_url
+
+    try:
+        db.delete(db_practice)
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(...)
+    
+    if file_path_to_delete and os.path.exists(file_path_to_delete):
+        try:
+            os.remove(file_path_to_delete)
+        except Exception as e:
+            print(f"Warning: Could not delete file {file_path_to_delete}. Error: {e}")
+            
+    return

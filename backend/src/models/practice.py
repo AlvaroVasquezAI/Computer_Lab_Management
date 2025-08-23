@@ -16,4 +16,4 @@ class Practice(Base):
     # Relationships
     teacher = relationship("Teacher", back_populates="practices")
     subject = relationship("Subject", back_populates="practices")
-    bookings = relationship("Booking", back_populates="practice")
+    bookings = relationship("Booking", back_populates="practice", cascade="all, delete-orphan")

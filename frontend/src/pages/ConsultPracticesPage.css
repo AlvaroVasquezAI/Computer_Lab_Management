@@ -71,6 +71,25 @@
   opacity: 0.8;
 }
 
+.action-buttons .delete-button {
+  background-color: #fee2e2; 
+  color: #b91c1c; 
+}
+
+.action-buttons .delete-button:hover {
+  background-color: #fecaca;
+  opacity: 1;
+}
+
+body[data-theme='dark'] .action-buttons .delete-button {
+  background-color: #450a0a;
+  color: #fca5a5;
+}
+
+body[data-theme='dark'] .action-buttons .delete-button:hover {
+  background-color: #7f1d1d;
+}
+
 @media (max-width: 768px) {
     .list-table-header {
         display: none; 
