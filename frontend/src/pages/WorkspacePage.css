@@ -1,0 +1,225 @@
+/* Overall page container */
+.workspace-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: calc(100vh - 100px); 
+  padding: 2rem;
+}
+
+.workspace-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 4rem;
+  color: var(--text-primary);
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  width: 100%;
+}
+
+.workspace-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: var(--background-card-main);
+  border-radius: 24px;
+  padding: 2rem;
+  width: 75%;
+  height: 75%;
+  justify-self: center;
+  align-self: center;
+  min-height: 250px;
+}
+
+.workspace-card .section-title,
+.workspace-card p,
+.workspace-card .stats-subtitle {
+  color: var(--text-on-card);
+}
+
+.stats-card {
+    justify-content: flex-start;
+}
+.stats-subtitle {
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+}
+.stats-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    justify-items: center;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.pie-chart-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.pie-chart {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.pie-chart-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 50%;
+    background: var(--background-card-main);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-on-card);
+}
+.pie-chart-center span {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.stats-legend {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-on-card);
+}
+.legend-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+}
+.legend-color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+.legend-label {
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.legend-value {
+    text-align: right;
+    font-weight: 500;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 250px;
+}
+.action-button {
+  display: block;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.action-button:hover {
+  opacity: 0.9;
+}
+
+.subject-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+.subject-button {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.subject-button:hover {
+  opacity: 0.9;
+}
+
+/* Groups Card */
+.group-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 350px;
+}
+.group-tag {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.group-tag:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 992px) {
+  .workspace-container {
+    justify-content: flex-start;
+  }
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  .workspace-card {
+    width: 90%;
+    height: auto;
+    min-height: 200px;
+  }
+}
+@media (max-width: 480px) {
+    .workspace-container {
+        padding: 1rem;
+    }
+    .workspace-title {
+        font-size: 2rem;
+    }
+    .workspace-grid {
+        gap: 1rem;
+    }
+    .stats-content {
+        grid-template-columns: 1fr;
+    }
+}

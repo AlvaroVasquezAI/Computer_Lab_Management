@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-class Subject(BaseModel):
-    subject_id: int
-    subject_name: str
+class Group(BaseModel):
+    group_id: int
+    group_name: str
 
     class Config:
         from_attributes = True

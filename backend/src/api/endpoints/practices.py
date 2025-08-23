@@ -1,99 +1,255 @@
-from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile, Form, Body
 from sqlalchemy.orm import Session
 from typing import List
 import shutil
 import os
-from datetime import datetime
-import fitz # PyMuPDF
-from src import crud, models, schemas
+from datetime import datetime, date, time
+import json 
+from fastapi.responses import FileResponse 
+from src.crud import crud_workspace
+
 from src.database import get_db
-from src.services.pdf_analyzer import PdfAnalyzer
-from src.services.section_config import SECTION_ORDER, SECTION_KEYWORDS, DB_MAPPING
+from src.auth.security import get_current_teacher
+from src.models.teacher import Teacher
+from src.models.practice import Practice
+from src.models.group import Group
+from src.models.booking import Booking
+from src.schemas import workspace as workspace_schema
+from src.crud import crud_workspace
 
 router = APIRouter()
 
-# Create an instance of your analyzer
-pdf_analyzer_instance = PdfAnalyzer(SECTION_ORDER, SECTION_KEYWORDS, DB_MAPPING)
-
-# Define the base directory for uploads within the container
 UPLOADS_DIR = "/app/uploads"
 
-
-@router.post("/upload", response_model=schemas.Practice, status_code=status.HTTP_201_CREATED)
-def upload_practice_endpoint(
-    title: str = Form(...),
-    subject: str = Form(...),
-    teacher_id: int = Form(...),
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+@router.get("/subjects/{subject_id}/groups", response_model=List[workspace_schema.GroupForSubject])
+def get_groups_for_subject(
+    subject_id: int,
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher)
 ):
-    # 1. Validate teacher exists 
-    teacher = crud.get_teacher(db, teacher_id=teacher_id)
-    if not teacher:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Teacher with ID {teacher_id} not found."
-        )
+    """
+    Get all groups and their schedules for a specific subject taught by the logged-in teacher.
+    """
+    return crud_workspace.get_groups_for_subject_by_teacher(db, teacher_id=current_teacher.teacher_id, subject_id=subject_id)
 
-    # --- 2. PERFORM PDF ANALYSIS ---
-    # Read the file content into memory to be processed
-    file_content = file.file.read()
-    analysis_report = {}
-    try:
-        # Open the PDF document from the in-memory content
-        with fitz.open(stream=file_content, filetype="pdf") as doc:
-            analysis_report = pdf_analyzer_instance.analyze_document(doc)
-    except Exception as e:
-        # If analysis fails, we can still save the file but with no extracted data
-        print(f"PDF Analysis Error: {e}")
-        # We'll proceed with an empty report, the file will be saved but marked as un-analyzed.
-        analysis_report = {
-            "num_pages": 0, "extracted_sections": {}, "found_flags": {},
-            "missing_required_sections": list(k for k, v in DB_MAPPING.items() if v["is_required"]),
-            "error": str(e)
-        }
-
-
-    # --- 3. SAVE THE FILE TO DISK --- 
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    safe_title = "".join(c if c.isalnum() else "_" for c in title)
-    safe_subject = "".join(c if c.isalnum() else "_" for c in subject)
-    filename = f"{timestamp}_{teacher_id}_{safe_subject}_{safe_title}_{file.filename}"
-    
-    teacher_dir = os.path.join(UPLOADS_DIR, str(teacher.id))
-    subject_dir = os.path.join(teacher_dir, safe_subject)
-    os.makedirs(subject_dir, exist_ok=True)
-    
-    file_path_on_disk = os.path.join(subject_dir, filename)
-    
-    # Write the content we already have in memory to the file
-    with open(file_path_on_disk, "wb") as buffer:
-        buffer.write(file_content)
-    
-
-    # --- 4. PREPARE DATA FOR DATABASE ---
-    # Map the analysis results to the Pydantic schema fields
-    db_data = {
-        "title": title,
-        "subject": subject,
-        "num_pages": analysis_report.get("num_pages", 0),
-    }
-
-    for section_key, config in DB_MAPPING.items():
-        db_data[config['text_col']] = analysis_report["extracted_sections"].get(section_key)
-        db_data[config['flag_col']] = analysis_report["found_flags"].get(section_key, False)
-    
-    practice_data = schemas.PracticeCreate(**db_data)
-
-    # 5. Create the practice record in the database
-    return crud.create_practice(
-        db=db,
-        practice=practice_data,
-        teacher_id=teacher_id,
-        file_path=file_path_on_disk
+@router.post("/availability", response_model=List[workspace_schema.AvailableRoom])
+def check_room_availability(
+    request: workspace_schema.RoomAvailabilityRequest,
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher)
+):
+    """
+    Check which rooms are available for a given date and time.
+    """
+    return crud_workspace.get_available_rooms(
+        db, practice_date=request.practice_date, start_time=request.start_time, end_time=request.end_time
     )
 
-@router.get("/", response_model=List[schemas.Practice])
-def read_practices_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    practices = crud.get_practices(db, skip=skip, limit=limit)
-    return practices
+@router.post("/practices", status_code=status.HTTP_201_CREATED)
+def create_practice_and_bookings(
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher),
+    name: str = Form(...),
+    objective: str = Form(...),
+    subject_id: int = Form(...),
+    bookings_data: str = Form(...),
+    file: UploadFile = File(...)
+):
+    try:
+        bookings_to_create = json.loads(bookings_data)
+        
+        for booking_info in bookings_to_create:
+            conflict = crud_workspace.check_group_booking_conflict(
+                db=db,
+                group_id=booking_info['group_id'],
+                practice_date=date.fromisoformat(booking_info['date']),
+                start_time=time.fromisoformat(booking_info['start_time']),
+                end_time=time.fromisoformat(booking_info['end_time'])
+            )
+            if conflict:
+                group_name = db.query(Group.group_name).filter(Group.group_id == booking_info['group_id']).scalar()
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Schedule conflict: Group '{group_name}' is already booked on {booking_info['date']} at this time."
+                )
+
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        safe_name = "".join(c if c.isalnum() else "_" for c in name)
+        filename = f"{timestamp}_{current_teacher.teacher_id}_{subject_id}_{safe_name}_{file.filename}"
+        teacher_dir = os.path.join(UPLOADS_DIR, str(current_teacher.teacher_id))
+        os.makedirs(teacher_dir, exist_ok=True)
+        file_path_on_disk = os.path.join(teacher_dir, filename)
+        with open(file_path_on_disk, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        new_practice = Practice(
+            title=name,
+            description=objective,
+            file_url=file_path_on_disk,
+            teacher_id=current_teacher.teacher_id,
+            subject_id=subject_id
+        )
+        db.add(new_practice)
+        db.flush()
+
+        for booking_info in bookings_to_create:
+            new_booking = Booking(
+                practice_id=new_practice.practice_id,
+                group_id=booking_info['group_id'],
+                room_id=booking_info['room_id'],
+                practice_date=date.fromisoformat(booking_info['date']),
+                start_time=time.fromisoformat(booking_info['start_time']),
+                end_time=time.fromisoformat(booking_info['end_time']),
+                status='Scheduled'
+            )
+            db.add(new_booking)
+
+        db.commit()
+
+        return {"message": "Practice and bookings registered successfully."}
+
+    except HTTPException as http_exc:
+        db.rollback()
+        raise http_exc 
+    except Exception as e:
+        db.rollback()
+        if 'file_path_on_disk' in locals() and os.path.exists(file_path_on_disk):
+            os.remove(file_path_on_disk)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred: {str(e)}"
+        )
+    
+@router.get("/practices", response_model=List[workspace_schema.PracticeListItem])
+def get_teacher_practices(
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher)
+):
+    """
+    Get a list of all practices registered by the logged-in teacher.
+    """
+    return crud_workspace.get_practices_for_teacher(db, teacher_id=current_teacher.teacher_id)
+
+
+@router.get("/practices/{practice_id}/download")
+def download_practice_file(
+    practice_id: int,
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher)
+):
+    """
+    Allows a teacher to download the file for a practice they own.
+    """
+    db_practice = db.query(Practice).filter(Practice.practice_id == practice_id).first()
+
+    if not db_practice or db_practice.teacher_id != current_teacher.teacher_id:
+        raise HTTPException(status_code=404, detail="Practice not found or you do not have permission to access it.")
+
+    if not os.path.exists(db_practice.file_url):
+        raise HTTPException(status_code=404, detail="File not found on the server.")
+
+    return FileResponse(path=db_practice.file_url, media_type='application/octet-stream', filename=os.path.basename(db_practice.file_url))
+
+@router.get("/practices/{practice_id}", response_model=workspace_schema.PracticeDetail)
+def get_practice_details_endpoint(
+    practice_id: int,
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher)
+):
+    """
+    Get all details for a specific practice owned by the logged-in teacher.
+    """
+    details = crud_workspace.get_practice_details(db, practice_id=practice_id, teacher_id=current_teacher.teacher_id)
+    if not details:
+        raise HTTPException(status_code=404, detail="Practice not found.")
+    return details
+
+@router.get("/subjects/{subject_id}/bookings")
+def get_subject_bookings(
+    subject_id: int,
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher)
+):
+    """
+    Get existing bookings for a teacher and subject to disable dates on the frontend.
+    """
+    return crud_workspace.get_existing_bookings_for_subject(
+        db, teacher_id=current_teacher.teacher_id, subject_id=subject_id
+    )
+
+@router.put("/practices/{practice_id}", status_code=status.HTTP_200_OK)
+def update_practice(
+    practice_id: int,
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher),
+    update_data_str: str = Form(...),
+    file: UploadFile = File(None) 
+):
+    db_practice = db.query(Practice).filter(
+        Practice.practice_id == practice_id,
+        Practice.teacher_id == current_teacher.teacher_id
+    ).first()
+
+    if not db_practice:
+        raise HTTPException(status_code=404, detail="Practice not found.")
+
+    if not crud_workspace.is_practice_editable(db, practice_id=practice_id, teacher_id=current_teacher.teacher_id):
+        raise HTTPException(status_code=403, detail="This practice can no longer be edited as all its sessions have passed.")
+
+    try:
+        update_data: workspace_schema.PracticeUpdate = workspace_schema.PracticeUpdate.parse_raw(update_data_str)
+
+        if file:
+            if os.path.exists(db_practice.file_url):
+                os.remove(db_practice.file_url)
+            
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            safe_name = "".join(c if c.isalnum() else "_" for c in update_data.name)
+            filename = f"{timestamp}_{current_teacher.teacher_id}_{update_data.subject_id}_{safe_name}_{file.filename}"
+            teacher_dir = os.path.join(UPLOADS_DIR, str(current_teacher.teacher_id))
+            file_path_on_disk = os.path.join(teacher_dir, filename)
+            with open(file_path_on_disk, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+            db_practice.file_url = file_path_on_disk
+
+        db_practice.title = update_data.name
+        db_practice.description = update_data.objective
+        db_practice.subject_id = update_data.subject_id
+
+        crud_workspace.delete_bookings_for_practice(db, practice_id=practice_id)
+
+        for booking_info in update_data.bookings:
+            conflict = crud_workspace.check_group_booking_conflict(
+                db=db,
+                group_id=booking_info.group_id,
+                practice_date=booking_info.practice_date,
+                start_time=booking_info.start_time,
+                end_time=booking_info.end_time
+            )
+            if conflict and conflict.practice_id != practice_id:
+                group_name = db.query(Group.group_name).filter(Group.group_id == booking_info.group_id).scalar()
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Schedule conflict: Group '{group_name}' is already booked for another practice at this time."
+                )
+
+            new_booking = Booking(
+                practice_id=practice_id,
+                group_id=booking_info.group_id,
+                room_id=booking_info.room_id,
+                practice_date=booking_info.practice_date,
+                start_time=booking_info.start_time,
+                end_time=booking_info.end_time,
+                status='Scheduled'
+            )
+            db.add(new_booking)
+
+        db.commit()
+        return {"message": "Practice updated successfully."}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred during update: {str(e)}"
+        )

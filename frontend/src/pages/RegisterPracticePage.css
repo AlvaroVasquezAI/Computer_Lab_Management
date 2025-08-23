@@ -1,0 +1,294 @@
+.register-practice-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 3rem;
+  color: var(--text-primary);
+}
+
+.practice-form {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.form-top-section {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 3rem;
+  align-items: flex-start;
+}
+
+.form-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 320px;
+}
+
+.form-field {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 1.5rem; 
+}
+
+.form-field label {
+  font-weight: 500;
+  text-align: right;
+}
+
+.form-field input[type="text"],
+.form-field select {
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border-radius: 16px;
+  border: 1.5px solid var(--sidebar-hover-bg);
+  background-color: var(--sidebar-hover-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box; 
+}
+.form-field input[type="text"]:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: var(--background-card-main);
+}
+
+
+.form-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-top: 1rem;
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px dashed var(--text-secondary);
+  border-radius: 16px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 250px;
+  height: 320px;
+  overflow: hidden;
+}
+.file-upload-label svg {
+  font-size: 3rem;
+  color: var(--background-card-main);
+}
+.file-upload-label span {
+  font-weight: 500;
+  color: var(--background-card-main);
+}
+
+.form-upload input[type="file"] {
+  display: none;
+}
+
+.file-name {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+
+.pdf-preview-embed {
+  width: 100%;
+  height: 100%;
+}
+
+.groups-title {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+}
+
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.group-card {
+  background-color: var(--sidebar-hover-bg);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  border: 1.5px solid transparent;
+}
+
+.group-name {
+  font-size: 1.2rem;
+  font-weight: 500;
+  background-color: var(--sub-card-bg);
+  padding: 0.5rem 1.5rem;
+  border-radius: 999px;
+}
+
+.date-picker-wrapper,
+.room-selector-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.room-selector-wrapper select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--text-secondary);
+  text-align: center;
+}
+
+.schedule-time-display {
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background-color: var(--sub-card-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
+
+.submit-button {
+  align-self: center;
+  padding: 0.75rem 2.5rem;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--background-card-main);
+  color: var(--text-on-card);
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-text {
+    font-size: 0.9rem;
+    color: #b91c1c;
+}
+
+body[data-theme='dark'] .form-field input[type="text"],
+body[data-theme='dark'] .form-field select,
+body[data-theme='dark'] .custom-datepicker-input,
+body[data-theme='dark'] .room-selector-wrapper select {
+  background-color: var(--sub-card-bg);
+  border-color: var(--text-secondary);
+}
+
+body[data-theme='dark'] .group-card {
+    background-color: var(--background-card-main);
+    border-color: var(--sidebar-hover-bg);
+}
+
+@media (max-width: 768px) {
+    .form-top-section {
+        grid-template-columns: 1fr;
+    }
+    .form-details {
+        height: auto;
+        gap: 1.5rem;
+    }
+    .form-field {
+        grid-template-columns: 1fr;
+    }
+    .form-field label {
+        text-align: left;
+        margin-bottom: -0.5rem;
+    }
+}
+
+.custom-datepicker-input {
+  width: 100%;
+  max-width: 200px;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--text-secondary);
+  text-align: center;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.react-datepicker-popper {
+  z-index: 10;
+}
+
+.react-datepicker {
+  font-family: inherit;
+  border-color: var(--sidebar-hover-bg);
+  background-color: var(--background-page);
+}
+.react-datepicker__header {
+  background-color: var(--sidebar-hover-bg);
+  border-bottom-color: var(--text-secondary);
+}
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__day {
+  color: var(--text-primary);
+}
+.react-datepicker__navigation-icon::before {
+    border-color: var(--text-primary);
+}
+.react-datepicker__day--outside-month {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.react-datepicker__day.custom-today-date {
+  border: 1px solid var(--text-secondary);
+  border-radius: 50%;
+}
+
+.react-datepicker__day.react-datepicker__day--highlighted {
+  background-color: var(--background-card-main);
+  color: var(--text-on-card);
+  border-radius: 50%;
+}
+
+.react-datepicker__day.react-datepicker__day--selected {
+  background-color: rgba(131, 24, 67, 0.5);
+  color: var(--text-primary) !important;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.react-datepicker__day:hover,
+.react-datepicker__day:focus-visible {
+  background-color: transparent !important;
+  outline: none;
+}
+
+.react-datepicker__day.react-datepicker__day--highlighted:hover {
+  opacity: 0.8;
+  background-color: var(--background-card-main) !important;
+}
+
+.react-datepicker__day.react-datepicker__day--selected:hover {
+  opacity: 1;
+  background-color: rgba(131, 24, 67, 0.6) !important;
+}

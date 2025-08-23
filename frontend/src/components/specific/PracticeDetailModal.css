@@ -1,0 +1,16 @@
+.preview-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--background-card-main);
+    color: var(--text-on-card);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+.preview-button:hover {
+    opacity: 0.9;
+}

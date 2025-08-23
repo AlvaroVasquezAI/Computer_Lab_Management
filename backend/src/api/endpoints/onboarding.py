@@ -14,7 +14,6 @@ def onboard_new_teacher(
     onboarding_data: onboarding_schema.TeacherOnboarding,
     db: Session = Depends(get_db)
 ):
-    # 1. Check if teacher's email already exists in the database.
     db_teacher = crud_teacher.get_teacher_by_email(db, email=onboarding_data.email)
     if db_teacher:
         raise HTTPException(
@@ -23,7 +22,6 @@ def onboard_new_teacher(
         )
 
     try:
-        # 2. Prepare the new teacher object and add it to the session (but don't commit).
         from src.schemas.teacher import TeacherCreate
         teacher_create_data = TeacherCreate(
             teacher_name=onboarding_data.teacher_name,
@@ -31,14 +29,11 @@ def onboard_new_teacher(
             password=onboarding_data.password
         )
         new_teacher = crud_teacher.create_teacher(db, teacher=teacher_create_data)
-        
-        # We need to flush the session to assign an ID to the new_teacher object
-        # so it can be used in the schedule foreign keys. This does not commit the transaction.
+  
         db.flush()
 
         processed_groups = {}
-        
-        # 3. Process and validate all subjects and schedules.
+     
         for subject_data in onboarding_data.subjects:
             db_subject = None
             if subject_data.subject_id:
@@ -46,11 +41,11 @@ def onboard_new_teacher(
             if not db_subject:
                 db_subject = crud_subject.get_or_create_subject(db, subject_name=subject_data.subject_name)
             
-            db.flush() # Flush to get potential new subject ID
+            db.flush() 
 
             for group_data in subject_data.groups:
                 db_group = crud_group.get_or_create_group(db, group_name=group_data.group_name)
-                db.flush() # Flush to get potential new group ID
+                db.flush() 
                 
                 for schedule_item in group_data.schedule:
                     existing_schedules = crud_schedule.get_schedules_for_group_on_day(
@@ -82,11 +77,9 @@ def onboard_new_teacher(
                     )
                     db.add(db_schedule)
         
-        # 4. If all validations pass, commit the ENTIRE transaction.
         db.commit()
 
     except HTTPException as http_exc:
-        # If any validation failed, rollback EVERYTHING. The teacher will not be saved.
         db.rollback()
         raise http_exc
     except Exception as e:

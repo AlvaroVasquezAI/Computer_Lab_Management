@@ -23,7 +23,7 @@
   --sidebar-text-muted: #f3e8ff;
   --sidebar-active-bg: #FFFFFF;
   --sidebar-active-text: #831843;
-  --sidebar-hover-bg: rgba(255, 255, 255, 0.1);
+  --sidebar-hover-bg: rgba(133, 128, 128, 0.267);
 
   /* Buttons & Borders */
   --button-primary-bg: #831843;
@@ -41,7 +41,7 @@ body[data-theme='dark'] {
   --background-card-main: #1e1e1e;
   --sub-card-bg: rgba(255, 255, 255, 0.1);
   --sidebar-bg: #1e1e1e;
-  --input-bg: #d1d5db; /* A light gray for dark mode inputs */
+  --input-bg: #d1d5db;
   --landing-bg-image: url('../assets/images/wavy-grid-black.png');
 
   /* Text */
@@ -50,7 +50,7 @@ body[data-theme='dark'] {
   --text-secondary: #9ca3af;
   --text-on-card: #e5e7eb;
   --text-accent: #FFFFFF;
-  --input-text: #111827; /* Text inside inputs is always dark */
+  --input-text: #111827; 
   --placeholder-text: #6b7280;
 
   /* Sidebar Specific */

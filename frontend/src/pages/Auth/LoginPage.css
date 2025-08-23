@@ -20,7 +20,6 @@
   font-size: 1.8rem;
   font-weight: 500;
   color: var(--text-primary);
-  /* --- FIX #1: Center the title text --- */
   text-align: center;
 }
 
