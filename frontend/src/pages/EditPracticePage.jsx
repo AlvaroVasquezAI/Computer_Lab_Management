@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../services/api';
 import './RegisterPracticePage.css';
-import { FaCalendarAlt, FaUpload, FaFilePdf } from 'react-icons/fa';
+import { FaCalendarAlt, FaUpload, FaFilePdf, FaArrowLeft} from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -380,7 +380,14 @@ const EditPracticePage = () => {
     
     return (
         <div className="register-practice-container">
-            <h1 className="page-title">{t('edit_practice.title')}</h1>
+            <div className="page-header-container">
+                <div className="back-button-wrapper">
+                    <button onClick={() => navigate(-1)} className="back-button">
+                        <FaArrowLeft /> {t('common.go_back')}
+                    </button>
+                </div>
+                <h1 className="page-title">{t('edit_practice.title')}</h1>
+            </div>
             <form onSubmit={handleSubmit} className="practice-form">
                 <div className="form-top-section">
                     <div className="form-details">

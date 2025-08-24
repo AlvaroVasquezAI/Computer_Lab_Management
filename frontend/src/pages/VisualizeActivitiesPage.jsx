@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 import apiClient from '../services/api';
 import DatePicker from 'react-datepicker';
 import { getMonth, getYear } from 'date-fns';
@@ -22,6 +24,7 @@ const ActivityCard = ({ booking }) => {
 
 const VisualizeActivitiesPage = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date()); 
     const [monthlyData, setMonthlyData] = useState([]);
@@ -69,7 +72,14 @@ const VisualizeActivitiesPage = () => {
 
     return (
         <div className="visualize-activities-container">
-            <h1 className="page-title">{t('activities.title')}</h1>
+            <div className="page-header-container">
+                <div className="back-button-wrapper">
+                    <button onClick={() => navigate(-1)} className="back-button">
+                        <FaArrowLeft /> {t('common.go_back')}
+                    </button>
+                </div>
+                <h1 className="page-title">{t('activities.title')}</h1>
+            </div>
             <div className="activities-layout">
                 <div className="calendar-container">
                     <DatePicker

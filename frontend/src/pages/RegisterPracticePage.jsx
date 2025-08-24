@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../services/api';
 import './RegisterPracticePage.css';
-import { FaCalendarAlt, FaUpload } from 'react-icons/fa';
+import { FaCalendarAlt, FaUpload, FaArrowLeft} from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import PracticeSummaryModal from '../components/specific/PracticeSummaryModal';
@@ -148,6 +148,7 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }
 
 const RegisterPracticePage = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [teacherSubjects, setTeacherSubjects] = useState([]);
     const [allRooms, setAllRooms] = useState([]);
     const [selectedSubjectId, setSelectedSubjectId] = useState('');
@@ -272,7 +273,14 @@ const RegisterPracticePage = () => {
     return (
         <>
             <div className="register-practice-container">
-                <h1 className="page-title">{t('register_practice.title')}</h1>
+                <div className="page-header-container">
+                    <div className="back-button-wrapper">
+                        <button onClick={() => navigate(-1)} className="back-button">
+                            <FaArrowLeft /> {t('common.go_back')}
+                        </button>
+                    </div>
+                    <h1 className="page-title">{t('register_practice.title')}</h1>
+                </div>
                 <form onSubmit={handleSubmit} className="practice-form">
                     <div className="form-top-section">
                         <div className="form-details">

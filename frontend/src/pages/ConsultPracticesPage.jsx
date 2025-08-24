@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom'; 
 import apiClient from '../services/api';
 import './ConsultPracticesPage.css';
-import { FaDownload, FaEye, FaEdit, FaTrash } from 'react-icons/fa'; 
+import { useNavigate } from 'react-router-dom';
+import { FaDownload, FaEye, FaEdit, FaTrash, FaArrowLeft } from 'react-icons/fa'; 
 import PracticeDetailModal from '../components/specific/PracticeDetailModal';
 import DeleteConfirmationModal from '../components/specific/DeleteConfirmationModal';
 
 const ConsultPracticesPage = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [practices, setPractices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -113,66 +115,67 @@ const ConsultPracticesPage = () => {
     return (
         <>
             <div className="consult-practices-container">
-                <h1 className="page-title">{t('consult_practices.title')}</h1>
-
-                <div className="practices-list-table">
-                    <div className="list-table-header">
-                        <span>{t('consult_practices.header_name')}</span>
-                        <span>{t('consult_practices.header_subject')}</span>
-                        <span>{t('consult_practices.header_date')}</span>
-                        <span>{t('consult_practices.header_actions')}</span>
+                <div className="page-header-container">
+                    <div className="back-button-wrapper">
+                        <button onClick={() => navigate(-1)} className="back-button">
+                            <FaArrowLeft /> {t('common.go_back')}
+                        </button>
                     </div>
-                    {practices.length === 0 ? (
-                        <div className="empty-list-message">{t('consult_practices.empty_message')}</div>
-                    ) : (
-                        practices.map((practice) => {
-                            const now = new Date();
+                    <h1 className="page-title">{t('consult_practices.title')}</h1>
+                </div>
 
+                {practices.length === 0 ? (
+                    <div className="empty-list-message">{t('consult_practices.empty_message')}</div>
+                ) : (
+                    <div className="practices-grid">
+                        {practices.map((practice) => {
+                            const now = new Date();
                             const is_deletable = practice.earliest_session_start
                                 ? new Date(practice.earliest_session_start + 'Z') > now
                                 : true;
-
                             const is_editable = practice.latest_session_end
                                 ? new Date(practice.latest_session_end + 'Z') > now
                                 : true;
 
                             return (
-                                <div key={practice.practice_id} className="list-table-row">
-                                    <div className="practice-title-mobile">{practice.title}</div>
-                                    <div><span className="mobile-label">{t('consult_practices.header_subject')}: </span>{practice.subject_name}</div>
-                                    <div><span className="mobile-label">{t('consult_practices.header_date')}: </span>{new Date(practice.created_at).toLocaleDateString()}</div>
-                                    <div className="action-buttons-wrapper">
-                                        <span className="mobile-label">{t('consult_practices.header_actions')}: </span>
-                                        <div className="action-buttons">
-                                            <button onClick={() => handleVisualize(practice.practice_id)} title={t('consult_practices.visualize_tooltip')}><FaEye /></button>
-                                            
-                                            {is_editable && (
-                                                <Link to={`/workspace/edit-practice/${practice.practice_id}`}>
-                                                    <button title={t('edit_practice.edit_tooltip')}>
-                                                        <FaEdit />
-                                                    </button>
-                                                </Link>
-                                            )}
+                                <div key={practice.practice_id} className="practice-card">
+                                    <div className="card-content">
+                                        <h3 className="practice-title">{practice.title}</h3>
+                                        <p className="practice-detail">
+                                            <span className="detail-label">{t('consult_practices.header_subject')}:</span> {practice.subject_name}
+                                        </p>
+                                        <p className="practice-detail">
+                                            <span className="detail-label">{t('consult_practices.header_date')}:</span> {new Date(practice.created_at).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                    <div className="card-actions">
+                                        <button onClick={() => handleVisualize(practice.practice_id)} title={t('consult_practices.visualize_tooltip')}><FaEye /></button>
+                                        
+                                        {is_editable && (
+                                            <Link to={`/workspace/edit-practice/${practice.practice_id}`}>
+                                                <button title={t('edit_practice.edit_tooltip')}><FaEdit /></button>
+                                            </Link>
+                                        )}
 
-                                            <button onClick={() => handleDownloadOrPreview(practice.practice_id, false)} title={t('consult_practices.download_tooltip')}><FaDownload /></button>
-                                            
-                                            {is_deletable && (
-                                                <button
-                                                    onClick={() => handleDelete(practice)}
-                                                    className="delete-button"
-                                                    title="Delete Practice"
-                                                >
-                                                    <FaTrash />
-                                                </button>
-                                            )}
-                                        </div>
+                                        <button onClick={() => handleDownloadOrPreview(practice.practice_id, false)} title={t('consult_practices.download_tooltip')}><FaDownload /></button>
+                                        
+                                        {is_deletable && (
+                                            <button 
+                                                onClick={() => handleDelete(practice)} 
+                                                className="delete-button" 
+                                                title="Delete Practice"
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             );
-                        })
-                    )}
-                </div>
+                        })}
+                    </div>
+                )}
             </div>
+
             {isModalOpen && (
                 <PracticeDetailModal 
                     details={selectedPractice} 

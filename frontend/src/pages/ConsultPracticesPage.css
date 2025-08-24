@@ -1,6 +1,6 @@
 .consult-practices-container {
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -9,45 +9,61 @@
   font-weight: 600;
   margin-bottom: 3rem;
   color: var(--text-primary);
+  text-align: center;
 }
 
-.practices-list-table {
-  background-color: var(--background-card-main);
-  border-radius: 16px;
-  padding: 1rem;
-  color: var(--text-on-card);
-}
-
-.list-table-header, .list-table-row {
+.practices-grid {
   display: grid;
-  grid-template-columns: 3fr 2fr 2fr 1fr;
-  gap: 1rem;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid var(--sidebar-hover-bg);
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
 }
 
-.list-table-header {
-  font-weight: 600;
-  opacity: 0.8;
-}
-
-.list-table-row:last-child {
-  border-bottom: none;
-}
-
-.mobile-label {
-    display: none;
-}
-
-.action-buttons {
+.practice-card {
+  background-color: var(--background-card-main);
+  color: var(--text-on-card);
+  border-radius: 16px;
   display: flex;
-  justify-content: center;
-  gap: 1rem;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.action-buttons button {
-  background: var(--sub-card-bg);
+.card-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.practice-title {
+  margin-top: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.practice-detail {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+.detail-label {
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+/* Actions Bar Styles */
+.card-actions {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--sidebar-hover-bg);
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.card-actions button,
+.card-actions a button {
+  background: transparent;
   border: none;
   color: var(--text-on-card);
   width: 40px;
@@ -58,64 +74,92 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1rem;
-  transition: opacity 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.action-buttons button:hover {
-  opacity: 0.8;
+.card-actions a {
+  color: inherit;
+  line-height: 0;
+}
+
+.card-actions button:hover {
+  background-color: var(--sidebar-hover-bg);
+}
+
+.card-actions .delete-button {
+  color: #fca5a5; 
+}
+
+.card-actions .delete-button:hover {
+  background-color: #ef4444; 
+  color: white;
+}
+
+body[data-theme='light'] .card-actions .delete-button {
+  color: #fee2e2;
+}
+
+body[data-theme='light'] .card-actions .delete-button:hover {
+  color: white;
 }
 
 .empty-list-message {
   text-align: center;
-  padding: 2rem;
-  opacity: 0.8;
-}
-
-.action-buttons .delete-button {
-  background-color: #fee2e2; 
-  color: #b91c1c; 
-}
-
-.action-buttons .delete-button:hover {
-  background-color: #fecaca;
-  opacity: 1;
-}
-
-body[data-theme='dark'] .action-buttons .delete-button {
-  background-color: #450a0a;
-  color: #fca5a5;
-}
-
-body[data-theme='dark'] .action-buttons .delete-button:hover {
-  background-color: #7f1d1d;
+  padding: 4rem;
+  background-color: var(--sidebar-hover-bg);
+  border-radius: 16px;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 768px) {
-    .list-table-header {
-        display: none; 
-    }
-    .list-table-row {
-        grid-template-columns: 1fr; 
-        gap: 0.75rem;
-        padding: 1.5rem;
-    }
-    
-    .mobile-label {
-        display: inline;
-        font-weight: 600;
-        opacity: 0.8;
-    }
+  .consult-practices-container {
+    padding: 1.5rem 1rem;
+  }
 
-    .practice-title-mobile {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
+  .page-title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
 
-    .action-buttons-wrapper {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1rem;
-    }
+  .practices-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.page-header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 2rem; 
+}
+
+.back-button-wrapper {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.back-button:hover {
+  color: var(--text-primary);
+  background-color: var(--sidebar-hover-bg);
+}
+
+.page-title {
+  margin-bottom: 0 !important; 
 }

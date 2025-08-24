@@ -17,6 +17,9 @@
     "new_user": "Are you new?",
     "signup": "Sign Up"
   },
+  "common": {
+    "go_back": "Go Back"
+  },
   "landing": {
     "title_line1": "COMPUTER",
     "title_line2": "LABORATORY",
@@ -124,7 +127,7 @@
     "summary_in": "in"
   },
   "consult_practices": {
-    "title": "Consult Practices",
+    "title": "Practices",
     "loading": "Loading practices...",
     "error": "Failed to load practices.",
     "header_name": "Practice Name",
