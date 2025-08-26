@@ -1,23 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api';
-import './SubjectDetailModal.css';
+import './SubjectDetailModal.css'; 
 import { FaTimes, FaFilePdf, FaArrowLeft } from 'react-icons/fa';
 
-const PracticeDetailModal = ({ details, onClose }) => {
+const PracticeDetailModal = ({ details, onClose, startInPreviewMode = false }) => {
     const { t } = useTranslation();
 
-    const [isPreviewing, setIsPreviewing] = useState(false);
+    const [isPreviewing, setIsPreviewing] = useState(startInPreviewMode);
     const [pdfUrl, setPdfUrl] = useState('');
-    const [isLoadingPreview, setIsLoadingPreview] = useState(false);
-
-    if (!details) return null;
+    const [isLoadingPreview, setIsLoadingPreview] = useState(startInPreviewMode);
 
     const handlePreviewClick = async () => {
         setIsLoadingPreview(true);
         try {
             const response = await apiClient.get(
-                `/practices/practices/${details.practice_id}/download?v=${new Date().getTime()}`,
+                `/practices/practices/${details.practice_id}/download?v=${new Date().getTime()}`, 
                 { responseType: 'blob' }
             );
             const file = new Blob([response.data], { type: 'application/pdf' });
@@ -33,13 +31,26 @@ const PracticeDetailModal = ({ details, onClose }) => {
         }
     };
 
+    useEffect(() => {
+        if (startInPreviewMode && details?.practice_id) {
+            handlePreviewClick();
+        }
+    }, [startInPreviewMode, details?.practice_id]);
+
     const handleBackToDetails = () => {
+        if (startInPreviewMode) {
+            onClose();
+            return;
+        }
+
         if (pdfUrl) {
             URL.revokeObjectURL(pdfUrl);
         }
         setIsPreviewing(false);
         setPdfUrl('');
     };
+
+    if (!details) return null;
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -53,7 +64,11 @@ const PracticeDetailModal = ({ details, onClose }) => {
                 )}
 
                 {isPreviewing ? (
-                    <embed src={pdfUrl} type="application/pdf" className="pdf-preview-embed" />
+                    isLoadingPreview ? (
+                        <p>Loading preview...</p>
+                    ) : (
+                        <embed src={pdfUrl} type="application/pdf" className="pdf-preview-embed" />
+                    )
                 ) : (
                     <>
                         <h2 className="modal-title">{details.title}</h2>

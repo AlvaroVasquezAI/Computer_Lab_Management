@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.database import engine, Base, SessionLocal
 from src.models import (
-    teacher, subject, group, room, schedule, practice, booking
+    teacher, subject, group, room, schedule, practice, booking, activity_log, announcement
 )
 from src.api.api import api_router
 from src.initial_data import seed_initial_data # <-- IMPORT THE SEEDING FUNCTION

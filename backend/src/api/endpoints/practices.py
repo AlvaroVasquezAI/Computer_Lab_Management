@@ -6,7 +6,6 @@ import os
 from datetime import datetime, date, time
 import json 
 from fastapi.responses import FileResponse 
-from src.crud import crud_workspace
 
 from src.database import get_db
 from src.auth.security import get_current_teacher
@@ -15,7 +14,8 @@ from src.models.practice import Practice
 from src.models.group import Group
 from src.models.booking import Booking
 from src.schemas import workspace as workspace_schema
-from src.crud import crud_workspace
+from src.crud import crud_workspace, crud_dashboard
+from src.models.activity_log import LogType
 
 router = APIRouter()
 
@@ -105,6 +105,8 @@ def create_practice_and_bookings(
             db.add(new_booking)
 
         db.commit()
+
+        crud_dashboard.create_log_entry(db, teacher_id=current_teacher.teacher_id, activity_type=LogType.CREATED, practice_title=name)
 
         return {"message": "Practice and bookings registered successfully."}
 
@@ -197,6 +199,8 @@ def update_practice(
     old_file_path = db_practice.file_url
     new_file_path_on_disk = None
 
+    original_title = db_practice.title
+
     try:
         update_data: workspace_schema.PracticeUpdate = workspace_schema.PracticeUpdate.parse_raw(update_data_str)
 
@@ -247,6 +251,8 @@ def update_practice(
 
         db.commit()
 
+        crud_dashboard.create_log_entry(db, teacher_id=current_teacher.teacher_id, activity_type=LogType.EDITED, practice_title=original_title)
+
         if file and old_file_path and os.path.exists(old_file_path):
             os.remove(old_file_path)
 
@@ -274,9 +280,13 @@ def delete_practice(
 
     file_path_to_delete = db_practice.file_url
 
+    practice_title_to_log = db_practice.title
+
     try:
         db.delete(db_practice)
         db.commit()
+
+        crud_dashboard.create_log_entry(db, teacher_id=current_teacher.teacher_id, activity_type=LogType.DELETED, practice_title=practice_title_to_log)
 
     except Exception as e:
         db.rollback()

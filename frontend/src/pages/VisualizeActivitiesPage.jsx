@@ -48,18 +48,15 @@ const VisualizeActivitiesPage = () => {
     }, [currentDate]);
 
     const busyDays = useMemo(() => {
-        return monthlyData.map(day => {
-            const [year, month, dayOfMonth] = day.date.split('-').map(Number);
-            return new Date(Date.UTC(year, month - 1, dayOfMonth));
-        });
+        return monthlyData.map(day => new Date(day.date + 'T00:00:00'));
     }, [monthlyData]);
 
     const activitiesForSelectedDay = useMemo(() => {
-        const selectedDayString = selectedDate.toDateString();
-        const dayData = monthlyData.find(d => {
-            const [year, month, dayOfMonth] = d.date.split('-').map(Number);
-            return new Date(Date.UTC(year, month - 1, dayOfMonth)).toDateString() === selectedDayString;
-        });
+        const offset = selectedDate.getTimezoneOffset();
+        const localDate = new Date(selectedDate.getTime() - (offset * 60 * 1000));
+        const selectedDayString = localDate.toISOString().split('T')[0];
+
+        const dayData = monthlyData.find(d => d.date === selectedDayString);
         return dayData ? dayData.bookings : [];
     }, [selectedDate, monthlyData]);
 
