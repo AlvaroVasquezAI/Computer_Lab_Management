@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
+import Footer from './Footer';
 import { Outlet } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa';
 import './PageLayout.css';
 
 const PageLayout = () => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const getInitialSidebarState = () => {
+    return window.innerWidth > 768; 
+  };
+  
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(getInitialSidebarState);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const toggleDesktopSidebar = () => {
@@ -37,6 +42,7 @@ const PageLayout = () => {
         <main className="content-area">
           <Outlet /> 
         </main>
+        <Footer />
       </div>
 
       {isMobileNavOpen && <div className="mobile-overlay" onClick={toggleMobileNav}></div>}

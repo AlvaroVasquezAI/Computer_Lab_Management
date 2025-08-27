@@ -111,3 +111,17 @@ class PracticeUpdate(BaseModel):
     objective: str
     subject_id: int
     bookings: List[BookingUpdate]
+
+class ScheduleEntry(BaseModel):
+    start_time: time
+    end_time: time
+    subject_name: str
+    group_name: str
+    group_id: int
+
+class WeeklySchedule(BaseModel):
+    monday: List[ScheduleEntry]
+    tuesday: List[ScheduleEntry]
+    wednesday: List[ScheduleEntry]
+    thursday: List[ScheduleEntry]
+    friday: List[ScheduleEntry]

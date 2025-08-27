@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../services/api';
 import SubjectDetailModal from '../components/specific/SubjectDetailModal';
 import GroupDetailModal from '../components/specific/GroupDetailModal';
+import WorkspaceSchedule from '../components/specific/WorkspaceSchedule';
+import WorkspaceStats from '../components/specific/WorkspaceStats';
+import { FaPlus, FaSearch, FaCalendarDay, FaCalendarAlt, FaUsers, FaBook, FaChartPie } from 'react-icons/fa';
 import './WorkspacePage.css';
 
 const WorkspacePage = () => {
@@ -11,6 +14,7 @@ const WorkspacePage = () => {
   const [subjects, setSubjects] = useState([]);
   const [groups, setGroups] = useState([]);
   const [stats, setStats] = useState([]);
+  const [weeklySchedule, setWeeklySchedule] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -23,16 +27,19 @@ const WorkspacePage = () => {
         setLoading(true);
         const subjectsPromise = apiClient.get('/workspace/subjects');
         const groupsPromise = apiClient.get('/workspace/groups');
+        const schedulePromise = apiClient.get('/workspace/schedule');
         const statsPromise = apiClient.get('/workspace/stats/practices-per-subject');
 
-        const [subjectsRes, groupsRes, statsRes] = await Promise.all([
+        const [subjectsRes, groupsRes, scheduleRes, statsRes] = await Promise.all([
           subjectsPromise,
           groupsPromise,
+          schedulePromise,
           statsPromise,
         ]);
 
         setSubjects(subjectsRes.data);
         setGroups(groupsRes.data);
+        setWeeklySchedule(scheduleRes.data);
         setStats(statsRes.data);
         setError(null);
       } catch (err) {
@@ -45,28 +52,8 @@ const WorkspacePage = () => {
     fetchWorkspaceData();
   }, [t]);
 
-  const totalPractices = stats.reduce((sum, item) => sum + item.practice_count, 0);
-  
-  const pieSegments = useMemo(() => {
-    let cumulativePercentage = 0;
-    return stats.map((item, index) => {
-      const percentage = totalPractices > 0 ? (item.practice_count / totalPractices) * 100 : 0;
-      const start = cumulativePercentage;
-      cumulativePercentage += percentage;
-      return {
-        ...item,
-        percentage,
-        color: `hsl(${index * 60}, 70%, 70%)`,
-        startAngle: start,
-        endAngle: cumulativePercentage,
-      };
-    });
-  }, [stats, totalPractices]);
-
   if (loading) return <div>{t('workspace.loading')}</div>;
   if (error) return <div className="error-message">{error}</div>;
-
-  const conicGradient = pieSegments.map(seg => `${seg.color} ${seg.startAngle}% ${seg.endAngle}%`).join(', ');
 
   return (
     <>
@@ -74,75 +61,73 @@ const WorkspacePage = () => {
         <h1 className="workspace-title">{t('workspace.title')}</h1>
         
         <div className="workspace-grid">
-          <section className="workspace-card">
-            <h2 className="section-title">{t('workspace.actions_title')}</h2>
-            <div className="action-buttons">
-              <Link to="/workspace/register-practice" className="action-button">{t('workspace.register_practice')}</Link>
-              <Link to="/workspace/consult-practices" className="action-button">{t('workspace.consult_practices')}</Link>
-              <Link to="/workspace/visualize-activities" className="action-button">{t('workspace.visualize_activities')}</Link>
+          <div className="q1-actions actions-container">
+            <div className="actions-title-card">
+              <h2>{t('workspace.actions_title')}</h2>
             </div>
-          </section>
+            <Link to="/workspace/register-practice" className="action-button-card">
+              <FaPlus /> <span>{t('workspace.register_practice')}</span>
+            </Link>
+            <Link to="/workspace/consult-practices" className="action-button-card">
+              <FaSearch /> <span>{t('workspace.consult_practices')}</span>
+            </Link>
+            <Link to="/workspace/visualize-activities" className="action-button-card">
+              <FaCalendarDay /> <span>{t('workspace.visualize_activities')}</span>
+            </Link>
+          </div>
 
-          <section className="workspace-card">
-            <h2 className="section-title">{t('workspace.subjects_title')}</h2>
-            <div className="subject-list">
-              {subjects.map(subject => (
-                <button 
-                  key={subject.subject_id} 
-                  className="subject-button"
-                  onClick={() => setSelectedSubjectId(subject.subject_id)}
-                >
-                  {subject.subject_name}
-                </button>
-              ))}
-               {subjects.length === 0 && <p>{t('workspace.subjects_empty')}</p>}
+          <div className="q2-schedule workspace-card">
+            <div className="card-header">
+              <FaCalendarAlt />
+              <h2>{t('workspace.schedule_title', 'Weekly Schedule')}</h2>
             </div>
-          </section>
+            <WorkspaceSchedule scheduleData={weeklySchedule} />
+          </div>
 
-          <section className="workspace-card stats-card">
-            <h2 className="section-title">{t('workspace.statistics_title')}</h2>
-            <p className="stats-subtitle">{t('workspace.stats_subtitle')}</p>
-            
-            {totalPractices > 0 ? (
-                <div className="stats-content">
-                    <div className="pie-chart-container">
-                        <div className="pie-chart" style={{ background: `conic-gradient(${conicGradient})` }}>
-                            <div className="pie-chart-center">
-                                <span>{totalPractices}</span>
-                                Total
-                            </div>
-                        </div>
-                    </div>
-                    <div className="stats-legend">
-                        {pieSegments.map(seg => (
-                            <div key={seg.subject_name} className="legend-item">
-                                <span className="legend-color-dot" style={{ backgroundColor: seg.color }}></span>
-                                <span className="legend-label">{seg.subject_name}</span>
-                                <span className="legend-value">{seg.practice_count} ({seg.percentage.toFixed(0)}%)</span>
-                            </div>
-                        ))}
-                    </div>
+          <div className="q3-stats workspace-card">
+            <div className="card-header">
+                <FaChartPie />
+                <h2>{t('workspace.statistics_title', 'Statistics')}</h2>
+            </div>
+            <WorkspaceStats stats={stats} />
+          </div>
+          
+          <div className="q4-lists lists-container-quadrant">
+            <div className="workspace-card">
+                <div className="card-header">
+                    <FaBook />
+                    <h2>{t('workspace.subjects_title')}</h2>
                 </div>
-            ) : (
-                <p>{t('workspace.stats_empty')}</p>
-            )}
-          </section>
-
-          <section className="workspace-card">
-            <h2 className="section-title">{t('workspace.groups_title')}</h2>
-            <div className="group-tags">
-              {groups.map(group => (
-                <button 
-                  key={group.group_id} 
-                  className="group-tag"
-                  onClick={() => setSelectedGroupId(group.group_id)}
-                >
-                  {group.group_name}
-                </button>
-              ))}
-              {groups.length === 0 && <p>{t('workspace.groups_empty')}</p>}
+                <div className="card-items-list">
+                    {subjects.length > 0 ? subjects.map(subject => (
+                        <button 
+                            key={subject.subject_id} 
+                            className="item-button"
+                            onClick={() => setSelectedSubjectId(subject.subject_id)}
+                        >
+                            {subject.subject_name}
+                        </button>
+                    )) : <p>{t('workspace.subjects_empty')}</p>}
+                </div>
             </div>
-          </section>
+            <div className="workspace-card">
+                <div className="card-header">
+                    <FaUsers />
+                    <h2>{t('workspace.groups_title')}</h2>
+                </div>
+                <div className="card-items-list">
+                    {groups.length > 0 ? groups.map(group => (
+                        <button 
+                            key={group.group_id} 
+                            className="item-button"
+                            onClick={() => setSelectedGroupId(group.group_id)}
+                        >
+                            {group.group_name}
+                        </button>
+                    )) : <p>{t('workspace.groups_empty')}</p>}
+                </div>
+            </div>
+          </div>
         </div>
       </div>
 

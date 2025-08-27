@@ -17,6 +17,9 @@
     "new_user": "Are you new?",
     "signup": "Sign Up"
   },
+  "footer": {
+    "copyright": "© {{year}} Computer Lab Management. UPIIT-IPN."
+  },
   "common": {
     "go_back": "Go Back"
   },
@@ -132,7 +135,8 @@
     "subjects_title": "Subjects",
     "subjects_empty": "No subjects found.",
     "groups_title": "Groups",
-    "groups_empty": "No groups found."
+    "groups_empty": "No groups found.",
+    "schedule_title": "Weekly Schedule"
   },
   "register_practice": {
     "title": "Register Practice",

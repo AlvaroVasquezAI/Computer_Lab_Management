@@ -72,4 +72,13 @@ def get_group_details(
     if not details:
         raise HTTPException(status_code=404, detail="Group not found or not taught by this teacher.")
     return details
-    
+
+@router.get("/schedule", response_model=workspace_schema.WeeklySchedule)
+def get_teacher_schedule(
+    db: Session = Depends(get_db),
+    current_teacher: Teacher = Depends(get_current_teacher)
+):
+    """
+    Get the complete weekly schedule for the logged-in teacher, organized by day.
+    """
+    return crud_workspace.get_teacher_weekly_schedule(db, teacher_id=current_teacher.teacher_id)

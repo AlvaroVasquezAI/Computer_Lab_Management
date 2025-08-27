@@ -64,7 +64,7 @@
 }
 
 .stats-row {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
 }
 .quadrant-three .announcements-card {
     flex-grow: 1;
@@ -343,6 +343,7 @@
     font-weight: 500; 
     text-transform: uppercase; 
     letter-spacing: 0.5px; 
+    text-align: center;
 }
 
 .stats-column li { 
@@ -561,19 +562,22 @@
     flex-direction: column;
     align-items: center; 
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1rem;
     flex-grow: 1;
     width: 100%;
+    overflow-x: auto;
+    text-align: center;
 }
 
 .position-charts-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
     width: 100%;
     justify-items: center;
     align-items: center; 
+    padding-bottom: 10px; 
 }
 
 .pie-chart-stat {
@@ -639,7 +643,6 @@
 .position-text {
     text-align: center;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--sidebar-hover-bg);
     width: 100%;
 }
 

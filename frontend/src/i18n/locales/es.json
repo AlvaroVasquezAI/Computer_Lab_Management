@@ -17,6 +17,9 @@
     "new_user": "¿Eres nuevo?",
     "signup": "Regístrate"
   },
+  "footer": {
+    "copyright": "© {{year}} Gestión de laboratorio de cómputo. UPIIT-IPN."
+  },
   "common": {
     "go_back": "Volver atrás"
   },
@@ -132,7 +135,8 @@
     "subjects_title": "Materias",
     "subjects_empty": "No se encontraron materias.",
     "groups_title": "Grupos",
-    "groups_empty": "No se encontraron grupos."
+    "groups_empty": "No se encontraron grupos.",
+    "schedule_title": "Horario semanal"
   },
   "register_practice": {
     "title": "Registrar práctica",

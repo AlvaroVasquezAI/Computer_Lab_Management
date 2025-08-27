@@ -333,3 +333,39 @@ def is_practice_deletable(db: Session, practice_id: int) -> bool:
 
     return booking_start_time > now_time_utc
 
+def get_teacher_weekly_schedule(db: Session, teacher_id: int):
+    """
+    Fetches the full weekly schedule for a teacher, organized by day of the week.
+    """
+    schedules_query = (
+        db.query(
+            schedule.Schedule.day_of_week,
+            schedule.Schedule.start_time,
+            schedule.Schedule.end_time,
+            subject.Subject.subject_name,
+            group.Group.group_name,
+            group.Group.group_id
+        )
+        .join(subject.Subject, schedule.Schedule.subject_id == subject.Subject.subject_id)
+        .join(group.Group, schedule.Schedule.group_id == group.Group.group_id)
+        .filter(schedule.Schedule.teacher_id == teacher_id)
+        .order_by(schedule.Schedule.day_of_week, schedule.Schedule.start_time)
+        .all()
+    )
+
+    weekly_schedule = {
+        1: [], 2: [], 3: [], 4: [], 5: []
+    }
+
+    for item in schedules_query:
+        if item.day_of_week in weekly_schedule:
+            weekly_schedule[item.day_of_week].append({
+                "start_time": item.start_time,
+                "end_time": item.end_time,
+                "subject_name": item.subject_name,
+                "group_name": item.group_name,
+                "group_id": item.group_id
+            })
+
+    day_map = {1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 5: "friday"}
+    return {day_map[day]: schedule_list for day, schedule_list in weekly_schedule.items()}
