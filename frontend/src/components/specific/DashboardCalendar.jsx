@@ -61,7 +61,7 @@ const DashboardCalendar = () => {
                     {activitiesForSelectedDay.length > 0 ? (
                         activitiesForSelectedDay.map((booking, index) => (
                             <div key={index} className="info-box-item">
-                                <span><strong>{booking.group_name}</strong> {t('dashboard.calendar_session_in')} {booking.room_name}</span>
+                                <span><strong>{booking.group_name}</strong> {t('dashboard.calendar_session_in')} <strong>{booking.room_name}</strong> | </span>
                                 <span>{booking.start_time.substring(0,5)} - {booking.end_time.substring(0,5)}</span>
                             </div>
                         ))

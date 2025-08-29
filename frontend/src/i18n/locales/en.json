@@ -209,5 +209,13 @@
     "placeholder": "Practice Name",
     "confirm_button": "Confirm Deletion",
     "deleting_button": "Deleting..."
+  },
+  "status_page": {
+    "loading_labs": "Loading lab information...",
+    "error_labs": "Failed to load lab rooms.",
+    "loading_calendar": "Loading Calendar...",
+    "loading_timeline": "Loading...",
+    "modal_teacher": "Teacher",
+    "modal_group": "Group"
   }
 }

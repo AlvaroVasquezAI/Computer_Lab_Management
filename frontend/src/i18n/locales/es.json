@@ -209,5 +209,13 @@
     "placeholder": "Nombre de la práctica",
     "confirm_button": "Confirmar eliminación",
     "deleting_button": "Eliminando..."
+  },
+  "status_page": {
+    "loading_labs": "Cargando información de laboratorios...",
+    "error_labs": "Error al cargar los laboratorios.",
+    "loading_calendar": "Cargando calendario...",
+    "loading_timeline": "Cargando...",
+    "modal_teacher": "Docente",
+    "modal_group": "Grupo"
   }
 }

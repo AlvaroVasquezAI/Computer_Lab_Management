@@ -7,7 +7,7 @@ import './Sidebar.css';
 
 import { 
   FaArrowLeft, FaLanguage, FaHome, FaUserTie, FaEnvelope, 
-  FaCheckCircle, FaDesktop, FaCog, FaMoon 
+  FaCalendarCheck, FaDesktop, FaCog, FaMoon 
 } from "react-icons/fa";
 import { FaRegSun } from "react-icons/fa6";
 
@@ -76,7 +76,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
           <span className="nav-text">{t('sidebar.workspace')}</span>
         </NavLink>
         <NavLink to="/status" className="nav-link">
-          <FaCheckCircle className="nav-icon" />
+          <FaCalendarCheck className="nav-icon" />
           <span className="nav-text">{t('sidebar.status')}</span>
         </NavLink>
         

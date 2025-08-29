@@ -1,0 +1,205 @@
+.status-page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.status-page-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.labs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 2rem;
+}
+
+.lab-status-card {
+  background-color: var(--sub-card-bg);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.lab-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.lab-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--sidebar-hover-bg);
+}
+
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px; 
+}
+
+.time-slot {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  border: none;
+  width: 100%;
+  text-align: left;
+}
+
+.time-label {
+  font-family: monospace;
+  font-weight: 500;
+  width: 110px;
+  color: var(--text-primary); 
+}
+
+.status-bar {
+  flex-grow: 1;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding-left: 0.75rem;
+  color: var(--text-primary-inverted);
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.time-slot.free .status-bar {
+  background-color: var(--sidebar-hover-bg);
+}
+
+.time-slot.busy {
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
+}
+.time-slot.busy:hover {
+  transform: scale(1.02);
+}
+
+.time-slot.busy .status-bar {
+  background-color: var(--background-card-main);
+  color: var(--text-on-card);
+}
+
+.booking-detail-modal-content p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+.booking-detail-modal-content p strong {
+  color: var(--text-secondary);
+  display: inline-block;
+  width: 80px;
+}
+
+.react-datepicker__day.react-datepicker__day--availability-low,
+.react-datepicker__day.react-datepicker__day--availability-medium,
+.react-datepicker__day.react-datepicker__day--availability-high {
+  color: var(--text-on-card) !important;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.react-datepicker__day.react-datepicker__day--availability-low {
+  background-color: rgba(131, 24, 67, 0.4); /* Light Red */
+}
+.react-datepicker__day.react-datepicker__day--availability-low:hover {
+  background-color: rgba(131, 24, 67, 0.5);
+}
+
+.react-datepicker__day.react-datepicker__day--availability-medium {
+  background-color: rgba(131, 24, 67, 0.7); /* Medium Red */
+}
+.react-datepicker__day.react-datepicker__day--availability-medium:hover {
+  background-color: rgba(131, 24, 67, 0.8);
+}
+
+.react-datepicker__day.react-datepicker__day--availability-high {
+  background-color: rgba(131, 24, 67, 1); /* Dark Red (solid) */
+}
+.react-datepicker__day.react-datepicker__day--availability-high:hover {
+  background-color: #9f1239; /* A slightly darker shade for hover */
+}
+
+.calendar-loading-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 290px; 
+  width: 100%;
+  color: var(--text-secondary);
+}
+
+.react-datepicker__day:not(.react-datepicker__day--disabled):hover {
+  background-color: var(--sidebar-hover-bg) !important;
+  border-radius: 50%;
+}
+
+.react-datepicker__day--outside-month:hover {
+  background-color: transparent !important;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .status-page-container {
+    padding: 0 0.5rem;
+  }
+
+  .status-page-title {
+    font-size: 2rem; 
+    margin-bottom: 1.5rem;
+  }
+
+  .labs-grid {
+    grid-template-columns: 1fr; 
+    gap: 1.5rem;
+  }
+
+  .lab-status-card {
+    padding: 1rem; 
+  }
+
+  .lab-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .lab-status-card .react-datepicker {
+    font-size: 0.9rem;
+  }
+  .lab-status-card .react-datepicker__day-name,
+  .lab-status-card .react-datepicker__day {
+    width: 2rem;
+    line-height: 2rem;
+    margin: 0.1rem;
+  }
+  .lab-status-card .react-datepicker__current-month {
+    font-size: 1rem;
+  }
+
+  .time-label {
+    width: 95px; 
+    font-size: 0.8rem;
+  }
+  .status-bar {
+    font-size: 0; /* Hide the status bar text to avoid issues with the layout */
+  }
+}
