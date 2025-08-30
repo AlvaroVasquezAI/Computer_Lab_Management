@@ -174,7 +174,7 @@ const StatusPage = () => {
     return (
         <>
             <div className="status-page-container">
-                <h1 className="status-page-title">{t('sidebar.status')}</h1>
+                <h1>{t('sidebar.status')}</h1>
                 <div className="labs-grid">
                     {rooms.map(room => (
                         <LabStatusCard key={room.room_id} room={room} onSlotClick={handleSlotClick} />

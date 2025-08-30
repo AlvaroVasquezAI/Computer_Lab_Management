@@ -54,7 +54,8 @@ def login_for_access_token(
         data={
             "sub": teacher.email, 
             "role": teacher.role.value,
-            "name": teacher.teacher_name 
+            "name": teacher.teacher_name,
+            "id": teacher.teacher_id
         }, 
         expires_delta=access_token_expires
     )

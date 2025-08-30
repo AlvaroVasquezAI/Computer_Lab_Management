@@ -4,10 +4,11 @@
   padding: 0 1rem;
 }
 
-.status-page-title {
-  font-size: 2.5rem;
+.status-page-container h1 {
+  margin: 0;
+  font-size: 2rem;
   font-weight: 600;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   color: var(--text-primary);
   text-align: center;
 }

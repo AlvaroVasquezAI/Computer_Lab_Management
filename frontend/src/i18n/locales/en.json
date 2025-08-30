@@ -5,6 +5,7 @@
     "home": "Home",
     "workspace": "Workspace",
     "status": "Status",
+    "announcements": "Announcements",
     "administration": "Administration",
     "logout": "Log Out"
   },
@@ -57,7 +58,8 @@
     "announcement_group": "Group",
     "select_room_optional": "Select Room (Optional)",
     "select_group_optional": "Select Group (Optional)",
-    "calendar_session_in": "in"
+    "calendar_session_in": "in",
+    "see_all_announcements": "See all announcements"
   },
   "landing": {
     "title_line1": "COMPUTER",
@@ -217,5 +219,19 @@
     "loading_timeline": "Loading...",
     "modal_teacher": "Teacher",
     "modal_group": "Group"
+  },
+  "announcements_page": {
+    "filter_by_time": "Filter by time",
+    "all": "All",
+    "this_month": "This Month",
+    "today": "Today",
+    "filter_by_teacher": "Filter by teacher",
+    "all_teachers": "All Teachers",
+    "no_announcements": "No announcements found for the selected filters.",
+    "edit_button": "Edit",
+    "delete_button": "Delete",
+    "save_button": "Save",
+    "cancel_button": "Cancel",
+    "delete_confirm": "Are you sure you want to delete this announcement?"
   }
 }

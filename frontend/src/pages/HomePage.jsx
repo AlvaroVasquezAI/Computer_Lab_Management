@@ -92,6 +92,9 @@ const HomePage = () => {
                             <h2>{t('dashboard.announcements_title')}</h2>
                         </div>
                         <AnnouncementsCard />
+                        <Link to="/announcements" className="details-button announcements-button">
+                            {t('dashboard.see_all_announcements')}
+                        </Link>
                     </div>
                 </div>
 

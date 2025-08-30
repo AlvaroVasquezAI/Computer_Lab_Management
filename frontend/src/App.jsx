@@ -13,6 +13,7 @@ import ForgotPasswordPage from './pages/Auth/ForgotPasswordPage';
 import HomePage from './pages/HomePage';
 import WorkspacePage from './pages/WorkspacePage';
 import StatusPage from './pages/StatusPage';
+import AnnouncementsPage from './pages/AnnouncementsPage';
 import AdminPage from './pages/AdminPage';
 import RegisterPracticePage from './pages/RegisterPracticePage';
 import ConsultPracticesPage from './pages/ConsultPracticesPage';
@@ -35,6 +36,7 @@ function App() {
             <Route path="/home" element={<HomePage />} />
             <Route path="/workspace" element={<WorkspacePage />} />
             <Route path="/status" element={<StatusPage />} />
+            <Route path="/announcements" element={<AnnouncementsPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/workspace/register-practice" element={<RegisterPracticePage />} />
             <Route path="/workspace/consult-practices" element={<ConsultPracticesPage />} />

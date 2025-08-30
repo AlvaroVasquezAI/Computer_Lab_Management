@@ -5,6 +5,7 @@
     "home": "Inicio",
     "workspace": "Gestión",
     "status": "Estado",
+    "announcements": "Anuncios",
     "administration": "Administración",
     "logout": "Cerrar sesión"
   },
@@ -57,7 +58,8 @@
     "announcement_group": "Grupo",
     "select_room_optional": "Seleccionar sala (Opcional)",
     "select_group_optional": "Seleccionar grupo (Opcional)",
-    "calendar_session_in": "en"
+    "calendar_session_in": "en",
+    "see_all_announcements": "Ver todos los anuncios"
   },
   "landing": {
     "title_line1": "LABORATORIO DE",
@@ -217,5 +219,19 @@
     "loading_timeline": "Cargando...",
     "modal_teacher": "Docente",
     "modal_group": "Grupo"
+  },
+  "announcements_page": { 
+    "filter_by_time": "Filtrar por tiempo",
+    "all": "Todos",
+    "this_month": "Este mes",
+    "today": "Hoy",
+    "filter_by_teacher": "Filtrar por docente",
+    "all_teachers": "Todos los docentes",
+    "no_announcements": "No se encontraron anuncios para los filtros seleccionados.",
+    "edit_button": "Editar",
+    "delete_button": "Eliminar",
+    "save_button": "Guardar",
+    "cancel_button": "Cancelar",
+    "delete_confirm": "¿Estás seguro de que quieres eliminar este anuncio?"
   }
 }

@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
         
         if (decodedToken.exp * 1000 > Date.now()) {
           setAuthToken(token);
-          setUser({ email: decodedToken.sub, role: decodedToken.role, name: decodedToken.name });
+          setUser({ email: decodedToken.sub, role: decodedToken.role, name: decodedToken.name, id: decodedToken.id });
           apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         } else {
           localStorage.removeItem('authToken');
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
   const login = (token) => {
     setAuthToken(token);
     const decodedToken = jwtDecode(token);
-    setUser({ email: decodedToken.sub, role: decodedToken.role, name: decodedToken.name }); 
+    setUser({ email: decodedToken.sub, role: decodedToken.role, name: decodedToken.name, id: decodedToken.id });
     apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     localStorage.setItem('authToken', token); 
   };

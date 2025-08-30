@@ -61,17 +61,31 @@ const AnnouncementsCard = () => {
     return (
         <div className="announcements-container">
             <div className="announcement-list">
-                {announcements.map(ad => (
-                    <div key={ad.announcement_id} className="announcement-item">
-                        <p className="announcement-desc">{ad.description}</p>
-                        <div className="announcement-meta">
-                            <span>{t('dashboard.announcement_by')} <strong>{ad.teacher.teacher_name}</strong></span>
-                            <span>{new Date(ad.created_at).toLocaleString()}</span>
-                            {ad.room && <span className="meta-tag">{t('dashboard.announcement_room')}: {ad.room.room_name}</span>}
-                            {ad.group && <span className="meta-tag">{t('dashboard.announcement_group')}: {ad.group.group_name}</span>}
+                {announcements.map(ad => {
+                    const truncatedDesc = ad.description.length > 100 
+                        ? ad.description.substring(0, 100) + '...' 
+                        : ad.description;
+
+                    return (
+                        <div key={ad.announcement_id} className="announcement-item">
+                            <div className="announcement-header">
+                                <span className="announcement-author">{ad.teacher.teacher_name}</span>
+                                <span className="announcement-date">{new Date(ad.created_at).toLocaleString()}</span>
+                            </div>
+
+                            <div className="announcement-body">
+                                <p>{truncatedDesc}</p>
+                            </div>
+
+                            {(ad.group || ad.room) && (
+                                <div className="announcement-footer">
+                                    {ad.group && <div className="mini-tag">{ad.group.group_name}</div>}
+                                    {ad.room && <div className="mini-tag">{ad.room.room_name}</div>}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
             <div className="announcement-input-area">
                 <textarea

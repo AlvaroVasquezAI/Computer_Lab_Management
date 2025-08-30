@@ -48,6 +48,7 @@ class Announcement(BaseModel):
     teacher: TeacherSummary
     room: Optional[RoomSummary] = None
     group: Optional[GroupSummary] = None
+    teacher_id: int
 
     class Config:
         from_attributes = True
@@ -67,3 +68,6 @@ class TopGroup(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AnnouncementUpdate(BaseModel):
+    description: str

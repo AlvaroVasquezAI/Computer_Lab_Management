@@ -76,7 +76,7 @@ def read_top_groups(
 
 @router.get("/announcements", response_model=List[dashboard_schema.Announcement])
 def read_announcements(db: Session = Depends(get_db)):
-    return crud_dashboard.get_announcements(db, limit=5)
+    return crud_dashboard.get_announcements(db, limit=1)
 
 @router.post("/announcements", response_model=dashboard_schema.Announcement)
 def create_announcement_endpoint(
