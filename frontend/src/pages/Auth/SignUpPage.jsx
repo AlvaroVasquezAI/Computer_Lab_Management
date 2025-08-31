@@ -21,6 +21,7 @@ const SignUpPage = ({ isEditMode = false }) => {
     const [existingSubjects, setExistingSubjects] = useState([]);
     const [existingGroups, setExistingGroups] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [pageLoading, setPageLoading] = useState(isEditMode);
     
     const [editingSubjectIndex, setEditingSubjectIndex] = useState(null);
     const [editingSubjectData, setEditingSubjectData] = useState(null);
@@ -40,15 +41,22 @@ const SignUpPage = ({ isEditMode = false }) => {
         fetchInitialData();
         
         if (isEditMode && teacherId) {
-            setLoading(true);
             apiClient.get(`/admin/teachers/${teacherId}/onboarding-data`)
-                .then(res => {
-                    const { teacher_name, email, role, subjects } = res.data;
-                    setTeacherDetails({ name: teacher_name, email, role });
-                    setSubjects(subjects);
+                .then(response => {
+                    const data = response.data;
+                    setTeacherDetails({
+                        name: data.teacher_name,
+                        email: data.email,
+                        password: '', 
+                        role: data.role,
+                    });
+                    setSubjects(data.subjects);
+                    setPageLoading(false); 
                 })
-                .catch(err => console.error("Failed to fetch teacher data for editing", err))
-                .finally(() => setLoading(false));
+                .catch(err => {
+                    console.error("Failed to fetch teacher data for editing", err);
+                    setPageLoading(false);
+                });
         }
     }, [isEditMode, teacherId]);
 
@@ -77,50 +85,67 @@ const SignUpPage = ({ isEditMode = false }) => {
     };
 
     const handleSubmit = async () => {
+        if (!teacherDetails.name || !teacherDetails.email) {
+            alert("Please fill in teacher's name and email.");
+            return;
+        }
+        if (subjects.length === 0) {
+            alert("Please add at least one subject.");
+            return;
+        }
         setLoading(true);
-        if (isEditMode) {
-            const payload = {
-                teacher_name: teacherDetails.name,
-                email: teacherDetails.email,
-                role: teacherDetails.role,
-                subjects: subjects
-            };
-            try {
-                await apiClient.put(`/admin/teachers/${teacherId}`, payload);
-                alert("Teacher updated successfully!");
+
+        try {
+            if (isEditMode) {
+                const updatePayload = {
+                    teacher_name: teacherDetails.name,
+                    email: teacherDetails.email,
+                    role: teacherDetails.role,
+                    subjects: subjects,
+                };
+                await apiClient.put(`/admin/teachers/${teacherId}`, updatePayload);
                 navigate(`/admin/teacher/${teacherId}`);
-            } catch (error) {
-                 alert(`Failed to update teacher: ${error.response?.data?.detail || "Unknown error"}`);
-            } finally {
-                setLoading(false);
-            }
-        } else {
-            const payload = {
-                teacher_name: teacherDetails.name,
-                email: teacherDetails.email,
-                password: teacherDetails.password,
-                subjects: subjects,
-            };
-            try {
-                await apiClient.post('/onboarding/teacher', payload);
+            } else {
+                if (!teacherDetails.password) {
+                    alert("Please provide a password for the new teacher.");
+                    setLoading(false);
+                    return;
+                }
+                const createPayload = {
+                    teacher_name: teacherDetails.name,
+                    email: teacherDetails.email,
+                    password: teacherDetails.password,
+                    subjects: subjects,
+                };
+                await apiClient.post('/onboarding/teacher', createPayload);
                 const loginResponse = await apiClient.post('/auth/login', {
                     email: teacherDetails.email,
                     password: teacherDetails.password,
                 });
                 login(loginResponse.data.access_token);
                 navigate('/home'); 
-            } catch (error) {
-                alert(`Failed to create account: ${error.response?.data?.detail || "Unknown error"}`);
-            } finally {
-                setLoading(false);
             }
+        } catch (error) {
+            console.error("Operation failed", error);
+            const errorMsg = error.response?.data?.detail || "An unknown error occurred.";
+            alert(`Failed to save: ${errorMsg}`);
+        } finally {
+            setLoading(false);
         }
     };
+
+    if (pageLoading) {
+        return <p>{t('signup.loading_teacher_data')}</p>;
+    }
 
     return (
         <div className="signup-page">
             <header className="signup-header">
-                <h1>{isEditMode ? `Edit ${teacherDetails.name}` : t('signup.title')}</h1>
+                <h1>
+                    {isEditMode 
+                        ? t('signup.edit_teacher_title', { name: teacherDetails.name }) 
+                        : t('signup.title')}
+                </h1>
             </header>
             <div className="signup-grid">
                 <div className="left-column">
@@ -150,7 +175,7 @@ const SignUpPage = ({ isEditMode = false }) => {
             </div>
             <footer className="signup-footer">
                 <button onClick={handleSubmit} className="submit-button" disabled={loading}>
-                    {loading ? 'Saving...' : (isEditMode ? "Save Changes" : t('signup.save_changes_button'))}
+                    {loading ? '...' : (isEditMode ? t('admin_page.save_changes_button') : t('signup.save_changes_button'))}
                 </button>
                 {!isEditMode && (
                     <p className="tertiary-action">

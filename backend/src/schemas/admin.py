@@ -28,3 +28,7 @@ class TeacherUpdateByAdmin(BaseModel):
     email: str 
     role: UserRole
     subjects: List[onboarding_schema.SubjectWithGroups]
+
+class RoomUpdate(BaseModel):
+    room_name: str
+    capacity: int

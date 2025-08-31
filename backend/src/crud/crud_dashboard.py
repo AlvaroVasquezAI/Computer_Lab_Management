@@ -20,7 +20,7 @@ def get_announcements(db: Session, limit: int = 20):
         teacher.Teacher
     ).outerjoin(room.Room).outerjoin(group.Group).order_by(announcement.Announcement.created_at.desc()).limit(limit).all()
 
-def get_top_subjects(db: Session, limit: int = 3):
+def get_top_subjects(db: Session, teacher_id: int, limit: int = 3):
     """
     Retrieves the subjects with the most associated practices,
     scoped to the current teacher.
@@ -30,6 +30,8 @@ def get_top_subjects(db: Session, limit: int = 3):
         func.count(practice.Practice.practice_id).label("practice_count")
     ).join(
         subject.Subject, practice.Practice.subject_id == subject.Subject.subject_id
+    ).filter(
+        practice.Practice.teacher_id == teacher_id  # <-- ADD THIS FILTER
     ).group_by(
         subject.Subject.subject_name
     ).order_by(

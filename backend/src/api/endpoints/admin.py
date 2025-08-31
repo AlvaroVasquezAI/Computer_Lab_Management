@@ -79,6 +79,20 @@ def delete_room(room_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
     return
 
+@router.put("/rooms/{room_id}", response_model=room_schema.Room, dependencies=[Depends(get_current_admin_user)])
+def update_room_details(
+    room_id: int,
+    room_in: admin_schema.RoomUpdate,
+    db: Session = Depends(get_db)
+):
+    """
+    Update a room's name and capacity. (Admin only)
+    """
+    updated_room = crud_admin.update_room(db, room_id=room_id, room_in=room_in)
+    if not updated_room:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+    return updated_room
+
 @router.get(
     "/teachers/{teacher_id}/subjects/{subject_id}",
     response_model=workspace_schema.SubjectDetail,

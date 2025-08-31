@@ -79,6 +79,8 @@
   },
   "signup": {
     "title": "Regístrate",
+    "edit_teacher_title": "Editar a {{name}}",
+    "loading_teacher_data": "Cargando datos del docente...",
     "signin_button": "Iniciar sesión",
     "details": "Detalles",
     "name_placeholder": "Nombre",
@@ -113,7 +115,7 @@
     "empty_subject_list": "Aún no se han añadido materias."
   },
   "modal": {
-    "total_practices": "Prácticas totales",
+    "total_practices": "Total de prácticas creadas",
     "groups_and_schedules": "Grupos y horarios",
     "no_groups_scheduled": "No hay grupos programados para esta materia.",
     "day_header": "Día",
@@ -124,7 +126,7 @@
     "no_subjects_scheduled": "No hay materias programadas para este grupo."
   },
   "workspace": {
-    "title": "Workspace",
+    "title": "Gestión",
     "loading": "Cargando tu espacio de trabajo...",
     "error": "Error al cargar los datos del espacio de trabajo.",
     "actions_title": "¿Qué necesitas hacer?",
@@ -233,5 +235,57 @@
     "save_button": "Guardar",
     "cancel_button": "Cancelar",
     "delete_confirm": "¿Estás seguro de que quieres eliminar este anuncio?"
+  },
+  "admin_page": {
+    "title": "Administración",
+    "teacher_management_title": "Gestión de docentes",
+    "room_management_title": "Gestión de salas",
+    "add_room_title": "Añadir nueva sala",
+    "teacher_id": "ID",
+    "teacher_role": "Rol",
+    "delete_button": "Eliminar",
+    "room_name_placeholder": "Nombre de la nueva sala",
+    "capacity_placeholder": "Capacidad",
+    "add_room_button": "Añadir sala",
+    "loading": "Cargando panel de administración...",
+    "delete_room_confirm": "¿Estás seguro de que quieres eliminar esta sala y todas sus reservas? Esta acción no se puede deshacer.",
+    "add_room_error": "No se pudo añadir la nueva sala.",
+    "delete_room_error": "No se pudo eliminar la sala.",
+    "edit_room_title": "Editar sala",
+    "room_name_label": "Nombre de la sala",
+    "capacity_label": "Capacidad",
+    "people": "personas",
+    "save_changes_button": "Guardar cambios",
+    "cancel_button": "Cancelar",
+    "update_room_error": "No se pudo actualizar la sala."
+  },
+  "teacher_detail_page": {
+    "back_to_admin": "Volver",
+    "edit_teacher": "Editar docente",
+    "delete_teacher": "Eliminar docente",
+    "weekly_schedule": "Horario semanal",
+    "subjects": "Materias",
+    "groups": "Grupos",
+    "registered_practices": "Prácticas registradas",
+    "no_practices": "Este docente no ha registrado ninguna práctica.",
+    "delete_teacher_confirm": "¿Estás seguro de que quieres eliminar permanentemente a {{name}} y todos sus datos? Esta acción no se puede deshacer."
+  },
+  "delete_teacher_modal": {
+    "title": "¿Estás seguro de que quieres eliminar a este docente?",
+    "prompt_part1": "Esta acción es irreversible. Para confirmar, por favor escribe el nombre completo del docente",
+    "prompt_part2": "y su correo electrónico",
+    "prompt_part3": "en los campos de abajo.",
+    "name_placeholder": "Nombre completo del docente",
+    "email_placeholder": "Correo del docente",
+    "confirm_button": "Confirmar eliminación",
+    "deleting_button": "Eliminando..."
+  },
+  "delete_room_modal": {
+    "title": "¿Estás seguro de que quieres eliminar esta sala?",
+    "prompt_part1": "Esto eliminará la sala y todas sus reservas asociadas. Para confirmar, por favor escribe",
+    "prompt_part2": "en el campo de abajo.",
+    "placeholder": "Nombre de la sala",
+    "confirm_button": "Confirmar eliminación",
+    "deleting_button": "Eliminando..."
   }
 }

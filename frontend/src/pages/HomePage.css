@@ -680,4 +680,12 @@
         width: 100%;
         height: 50px;
     }
+
+    .quadrant-one > .dashboard-card {
+        flex: initial; 
+    }
+
+    .details-button {
+        margin-top: 1rem; 
+    }
 }

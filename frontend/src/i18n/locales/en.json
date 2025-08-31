@@ -79,6 +79,8 @@
   },
   "signup": {
     "title": "Sign Up",
+    "edit_teacher_title": "Edit {{name}}",
+    "loading_teacher_data": "Loading teacher data...",
     "signin_button": "Sign In",
     "details": "Details",
     "name_placeholder": "Name",
@@ -113,7 +115,7 @@
     "empty_subject_list": "No subjects added yet."
   },
   "modal": {
-    "total_practices": "Total Practices",
+    "total_practices": "Total Practices Created",
     "groups_and_schedules": "Groups & Schedules",
     "no_groups_scheduled": "No groups are scheduled for this subject.",
     "day_header": "Day",
@@ -233,5 +235,57 @@
     "save_button": "Save",
     "cancel_button": "Cancel",
     "delete_confirm": "Are you sure you want to delete this announcement?"
+  },
+  "admin_page": {
+    "title": "Administration",
+    "teacher_management_title": "Teacher Management",
+    "room_management_title": "Room Management",
+    "add_room_title": "Add New Room",
+    "teacher_id": "ID",
+    "teacher_role": "Role",
+    "delete_button": "Delete",
+    "room_name_placeholder": "New Room Name",
+    "capacity_placeholder": "Capacity",
+    "add_room_button": "Add Room",
+    "loading": "Loading administration panel...",
+    "delete_room_confirm": "Are you sure you want to delete this room and all its bookings? This action cannot be undone.",
+    "add_room_error": "Could not add the new room.",
+    "delete_room_error": "Could not delete the room.",
+    "edit_room_title": "Edit Room",
+    "room_name_label": "Room Name",
+    "capacity_label": "Capacity",
+    "people": "people",
+    "save_changes_button": "Save Changes",
+    "cancel_button": "Cancel",
+    "update_room_error": "Could not update the room."
+  },
+  "teacher_detail_page": {
+    "back_to_admin": "Go back",
+    "edit_teacher": "Edit Teacher",
+    "delete_teacher": "Delete Teacher",
+    "weekly_schedule": "Weekly Schedule",
+    "subjects": "Subjects",
+    "groups": "Groups",
+    "registered_practices": "Registered Practices",
+    "no_practices": "This teacher has not registered any practices.",
+    "delete_teacher_confirm": "Are you sure you want to permanently delete {{name}} and all their data? This cannot be undone."
+  },
+  "delete_teacher_modal": {
+    "title": "Are you sure you want to delete this teacher?",
+    "prompt_part1": "This action is irreversible. To confirm, please type the teacher's full name",
+    "prompt_part2": "and their email",
+    "prompt_part3": "in the boxes below.",
+    "name_placeholder": "Teacher's Full Name",
+    "email_placeholder": "Teacher's Email",
+    "confirm_button": "Confirm Deletion",
+    "deleting_button": "Deleting..."
+  },
+  "delete_room_modal": {
+    "title": "Are you sure you want to delete this room?",
+    "prompt_part1": "This will delete the room and all associated bookings. To confirm, please type",
+    "prompt_part2": "in the box below.",
+    "placeholder": "Room Name",
+    "confirm_button": "Confirm Deletion",
+    "deleting_button": "Deleting..."
   }
 }

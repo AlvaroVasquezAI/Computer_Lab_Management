@@ -1,55 +1,246 @@
-.teacher-detail-container {
-    padding-bottom: 2rem;
+.teacher-detail-page {
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.teacher-detail-header {
-    text-align: center;
+.back-button {
+    background: none; 
+    border: none; 
+    color: var(--text-secondary);
+    font-size: 1rem; 
+    font-weight: 500; 
+    display: flex;
+    align-items: center; 
+    gap: 0.5rem; 
+    cursor: pointer;
+    padding: 0.5rem; 
+    border-radius: 8px; 
+    margin-bottom: 1.5rem;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.back-button:hover {
+    color: var(--text-primary);
+    background-color: var(--sidebar-hover-bg);
+}
+
+.teacher-header-card {
+    background-color: var(--sub-card-bg);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
-.teacher-detail-header h1 {
-    margin: 0;
+.teacher-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
-.teacher-detail-header p {
-    margin: 0.25rem 0;
+.teacher-avatar {
+    font-size: 4rem;
     color: var(--text-secondary);
 }
 
-.teacher-detail-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    align-items: center; 
+.teacher-name-email h2 {
+    margin: 0;
+    font-size: 1.75rem;
 }
 
-.teacher-detail-actions .action-btn {
-    padding: 0.6rem 1.5rem;
+.teacher-name-email p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.header-actions .action-button {
+    width: 44px; 
+    height: 44px; 
+    padding: 0; 
     border-radius: 8px;
     border: none;
     cursor: pointer;
-    font-weight: 500;
+    font-size: 1.1rem; 
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+    transition: filter 0.2s ease;
 }
 
-.teacher-detail-actions .edit-btn {
-    background-color: #3b82f6;
-    color: white;
+.header-actions .action-button:hover {
+    filter: brightness(95%);
 }
 
-.teacher-detail-actions .delete-btn {
-    background-color: #ef4444;
-    color: white;
+.header-actions .action-button.edit { 
+    background-color: #3a4b68; 
+    color: white; 
+}
+
+.header-actions .action-button.delete { 
+    background-color: var(--background-card-auth);
+    color: white; 
+}
+.teacher-detail-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.grid-col-left, .grid-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.detail-section-card {
+    background-color: var(--sub-card-bg);
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .detail-section-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 500;
-    text-align: center;
-    margin: 3rem 0 1.5rem 0;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--sidebar-hover-bg);
 }
 
-.teacher-detail-actions .role-btn {
-    background-color: #4f46e5; 
-    color: white;
+.no-practices-message {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+}
+
+.detail-section-card .card-items-list {
+    max-height: 250px;
+}
+
+.delete-teacher-modal .modal-title.warning {
+  color: #ef4444;
+  text-align: center;
+}
+
+.teacher-summary-card {
+  background-color: var(--background-page);
+  border: 1px solid #ef4444;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.summary-avatar {
+  font-size: 2.5rem;
+  color: var(--text-secondary);
+}
+
+.summary-info h4 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.summary-info p {
+  margin: 0.25rem 0 0 0;
+  color: var(--text-secondary);
+}
+
+.confirmation-prompt {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.confirmation-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1rem 0 1.5rem 0;
+}
+
+.confirmation-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--sidebar-hover-bg);
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.confirm-delete-button {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--background-card-auth);
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.confirm-delete-button:hover {
+  opacity: 0.9;
+}
+
+.confirm-delete-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #9ca3af;
+}
+
+.modal-content.delete-teacher-modal {
+    background-color: var(--sub-card-bg);
+}
+
+@media (max-width: 1024px) {
+    .teacher-detail-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .teacher-header-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .header-actions .interactive-toggle {
+        flex-grow: 1;
+    }
+
+    .teacher-detail-grid .schedule-card-container {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-detail-grid .practices-grid {
+        grid-template-columns: 1fr;
+    }
 }

@@ -6,9 +6,10 @@ import { useTranslation } from 'react-i18next';
 import './Sidebar.css';
 
 import { 
-  FaArrowLeft, FaLanguage, FaHome, FaUserTie, FaEnvelope, 
-  FaCalendarCheck, FaDesktop, FaCog, FaMoon, FaBullhorn 
+  FaLanguage, FaHome, FaUserTie, FaEnvelope, 
+  FaCalendarCheck, FaDesktop, FaCog, FaMoon, FaBullhorn
 } from "react-icons/fa";
+import { MdOutlineMenuOpen } from "react-icons/md";
 import { FaRegSun } from "react-icons/fa6";
 
 const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
@@ -46,7 +47,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
             </div>
           )}
           <button onClick={handleToggleClick} className="toggle-button">
-            <FaArrowLeft />
+            <MdOutlineMenuOpen />
           </button>
         </div>
 

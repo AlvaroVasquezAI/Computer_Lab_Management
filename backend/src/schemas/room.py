@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 from datetime import time
+from typing import Optional
 
 class Room(BaseModel):
     room_id: int
     room_name: str
+    capacity: Optional[int] = None
     class Config:
         from_attributes = True
 

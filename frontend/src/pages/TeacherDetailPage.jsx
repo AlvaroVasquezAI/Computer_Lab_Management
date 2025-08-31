@@ -8,11 +8,12 @@ import SubjectDetailModal from '../components/specific/SubjectDetailModal';
 import GroupDetailModal from '../components/specific/GroupDetailModal';
 import PracticeDetailModal from '../components/specific/PracticeDetailModal';
 import DeleteConfirmationModal from '../components/specific/DeleteConfirmationModal';
-import { FaDownload, FaEye, FaEdit, FaTrash, FaArrowLeft } from 'react-icons/fa';
+import DeleteTeacherModal from '../components/specific/DeleteTeacherModal';
+import { FaArrowLeft, FaUserCircle, FaPencilAlt, FaTrash, FaCalendarAlt, FaBook, FaUsers, FaClipboardList, FaDownload, FaEye, FaEdit } from 'react-icons/fa';
 
 import './TeacherDetailPage.css';
-import '../pages/WorkspacePage.css'; 
-import '../pages/ConsultPracticesPage.css'; 
+import '../pages/WorkspacePage.css';
+import '../pages/ConsultPracticesPage.css';
 
 const TeacherDetailPage = () => {
     const { t } = useTranslation();
@@ -27,6 +28,7 @@ const TeacherDetailPage = () => {
     const [selectedPractice, setSelectedPractice] = useState(null);
     const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
     const [practiceToDelete, setPracticeToDelete] = useState(null);
+    const [teacherToDelete, setTeacherToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
     
     const fetchDetails = async () => {
@@ -46,10 +48,7 @@ const TeacherDetailPage = () => {
     }, [teacherId]);
     
     const handleToggleRole = async (newRole) => {
-        if (!details || newRole === details.teacher.role) {
-            return; 
-        }
-        
+        if (!details || newRole === details.teacher.role) return;
         try {
             const response = await apiClient.patch(`/admin/teachers/${teacherId}/role`, { role: newRole });
             setDetails(prevDetails => ({
@@ -62,16 +61,22 @@ const TeacherDetailPage = () => {
         }
     };
 
-    const handleDeleteTeacher = async () => {
-        if (window.confirm(`Are you sure you want to permanently delete ${details.teacher.teacher_name} and all their data? This cannot be undone.`)) {
-            try {
-                await apiClient.delete(`/admin/teachers/${teacherId}`);
-                alert("Teacher deleted successfully.");
-                navigate('/admin');
-            } catch (error) {
-                console.error("Failed to delete teacher", error);
-                alert("Could not delete the teacher.");
-            }
+    const handleDeleteTeacher = () => {
+        setTeacherToDelete(details.teacher);
+    };
+
+    const handleConfirmDeleteTeacher = async () => {
+        if (!teacherToDelete) return;
+        setIsDeleting(true);
+        try {
+            await apiClient.delete(`/admin/teachers/${teacherToDelete.teacher_id}`);
+            navigate('/admin');
+        } catch (error) {
+            console.error("Failed to delete teacher", error);
+            alert("Could not delete the teacher.");
+        } finally {
+            setIsDeleting(false);
+            setTeacherToDelete(null);
         }
     };
 
@@ -101,14 +106,10 @@ const TeacherDetailPage = () => {
             document.body.appendChild(link);
             link.click();
             link.remove();
-        } catch (err) {
-            console.error("File download failed", err);
-        }
+        } catch (err) { console.error("File download failed", err); }
     };
 
-    const handleDeletePractice = (practice) => {
-        setPracticeToDelete(practice);
-    };
+    const handleDeletePractice = (practice) => { setPracticeToDelete(practice); };
 
     const handleConfirmDeletePractice = async () => {
         if (!practiceToDelete) return;
@@ -119,9 +120,7 @@ const TeacherDetailPage = () => {
             setPracticeToDelete(null);
         } catch (err) {
             console.error("Failed to delete practice", err);
-        } finally {
-            setIsDeleting(false);
-        }
+        } finally { setIsDeleting(false); }
     };
 
     if (loading) return <p>Loading teacher details...</p>;
@@ -129,76 +128,97 @@ const TeacherDetailPage = () => {
 
     return (
         <>
-            <div className="teacher-detail-container">
-                <button onClick={() => navigate(-1)} className="back-button">
-                    <FaArrowLeft /> Back to Admin Panel
+            <div className="teacher-detail-page">
+                <button onClick={() => navigate('/admin')} className="back-button">
+                    <FaArrowLeft /> {t('teacher_detail_page.back_to_admin')}
                 </button>
-                <div className="teacher-detail-header">
-                    <h1>{details.teacher.teacher_name}</h1>
-                    <p>{details.teacher.email}</p>
-                    
-                    <div className="teacher-detail-actions">
+
+                <header className="teacher-header-card">
+                    <div className="teacher-info">
+                        <FaUserCircle className="teacher-avatar" />
+                        <div className="teacher-name-email">
+                            <h2>{details.teacher.teacher_name}</h2>
+                            <p>{details.teacher.email}</p>
+                        </div>
+                    </div>
+                    <div className="header-actions">
                         <Link to={`/admin/edit-teacher/${teacherId}`}>
-                            <button className="action-btn edit-btn">Edit Teacher</button>
+                            <button className="action-button edit" title={t('teacher_detail_page.edit_teacher')}>
+                                <FaPencilAlt />
+                            </button>
                         </Link>
                         
+                        <button className="action-button delete" onClick={handleDeleteTeacher} title={t('teacher_detail_page.delete_teacher')}>
+                            <FaTrash />
+                        </button>
+
                         <InteractiveToggle 
                             options={['teacher', 'admin']}
                             activeOption={details.teacher.role}
                             onToggle={handleToggleRole}
                         />
-
-                        <button className="action-btn delete-btn" onClick={handleDeleteTeacher}>Delete Teacher</button>
                     </div>
-                </div>
+                </header>
 
-                <h2 className="detail-section-title">Weekly Schedule</h2>
-                <div className="workspace-card">
-                     <WorkspaceSchedule scheduleData={details.schedule} />
-                </div>
-                
-                <h2 className="detail-section-title">Subjects & Groups</h2>
-                <div className="lists-container-quadrant">
-                    <div className="workspace-card">
-                        <div className="card-header"><h2>{t('workspace.subjects_title')}</h2></div>
-                        <div className="card-items-list">
-                            {details.subjects.map(s => <button key={s.subject_id} className="item-button" onClick={() => setSelectedSubjectId(s.subject_id)}>{s.subject_name}</button>)}
-                        </div>
+                <main className="teacher-detail-grid">
+                    <div className="grid-col-left">
+                        <section className="detail-section-card">
+                            <h3 className="detail-section-title"><FaCalendarAlt /> {t('teacher_detail_page.weekly_schedule')}</h3>
+                            <WorkspaceSchedule scheduleData={details.schedule} />
+                        </section>
+                        <section className="detail-section-card">
+                            <h3 className="detail-section-title"><FaClipboardList /> {t('teacher_detail_page.registered_practices')}</h3>
+                            {details.practices.length > 0 ? (
+                                <div className="practices-grid">
+                                    {details.practices.map(practice => (
+                                        <div key={practice.practice_id} className="practice-card">
+                                            <div className="card-content">
+                                                <h3 className="practice-title">{practice.title}</h3>
+                                                <p className="practice-detail"><span className="detail-label">{t('consult_practices.header_subject')}:</span> {practice.subject_name}</p>
+                                            </div>
+                                            <div className="card-actions">
+                                                <button onClick={() => handleVisualizePractice(practice.practice_id)}><FaEye /></button>
+                                                <Link to={`/admin/edit-practice/${practice.practice_id}`}><button><FaEdit /></button></Link>
+                                                <button onClick={() => handleDownloadPractice(practice.practice_id)}><FaDownload /></button>
+                                                <button className="delete-button" onClick={() => handleDeletePractice(practice)}><FaTrash /></button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="no-practices-message">{t('teacher_detail_page.no_practices')}</p>
+                            )}
+                        </section>
                     </div>
-                    <div className="workspace-card">
-                        <div className="card-header"><h2>{t('workspace.groups_title')}</h2></div>
-                        <div className="card-items-list">
-                            {details.groups.map(g => <button key={g.group_id} className="item-button" onClick={() => setSelectedGroupId(g.group_id)}>{g.group_name}</button>)}
-                        </div>
-                    </div>
-                </div>
-
-                <h2 className="detail-section-title">Registered Practices</h2>
-                <div className="practices-grid">
-                    {details.practices.map(practice => (
-                        <div key={practice.practice_id} className="practice-card">
-                            <div className="card-content">
-                                <h3 className="practice-title">{practice.title}</h3>
-                                <p className="practice-detail">
-                                    <span className="detail-label">{t('consult_practices.header_subject')}:</span> {practice.subject_name}
-                                </p>
+                    <div className="grid-col-right">
+                        <section className="detail-section-card">
+                            <h3 className="detail-section-title"><FaBook /> {t('teacher_detail_page.subjects')}</h3>
+                            <div className="card-items-list">
+                                {details.subjects.map(s => <button key={s.subject_id} className="item-button" onClick={() => setSelectedSubjectId(s.subject_id)}>{s.subject_name}</button>)}
                             </div>
-                            <div className="card-actions">
-                                <button onClick={() => handleVisualizePractice(practice.practice_id)}><FaEye /></button>
-                                <Link to={`/admin/edit-practice/${practice.practice_id}`}><button><FaEdit /></button></Link>
-                                <button onClick={() => handleDownloadPractice(practice.practice_id)}><FaDownload /></button>
-                                <button className="delete-button" onClick={() => handleDeletePractice(practice)}><FaTrash /></button>
+                        </section>
+                        <section className="detail-section-card">
+                            <h3 className="detail-section-title"><FaUsers /> {t('teacher_detail_page.groups')}</h3>
+                            <div className="card-items-list">
+                                {details.groups.map(g => <button key={g.group_id} className="item-button" onClick={() => setSelectedGroupId(g.group_id)}>{g.group_name}</button>)}
                             </div>
-                        </div>
-                    ))}
-                    {details.practices.length === 0 && <p>This teacher has not registered any practices.</p>}
-                </div>
+                        </section>
+                    </div>
+                </main>
             </div>
 
             {selectedSubjectId && <SubjectDetailModal subjectId={selectedSubjectId} onClose={() => setSelectedSubjectId(null)} teacherIdForAdmin={teacherId} />}
             {selectedGroupId && <GroupDetailModal groupId={selectedGroupId} onClose={() => setSelectedGroupId(null)} teacherIdForAdmin={teacherId} />}
             {isPracticeModalOpen && <PracticeDetailModal details={selectedPractice} onClose={() => setIsPracticeModalOpen(false)} isAdminMode={true} />}
             {practiceToDelete && <DeleteConfirmationModal practice={practiceToDelete} onConfirm={handleConfirmDeletePractice} onClose={() => setPracticeToDelete(null)} isDeleting={isDeleting} />}
+            {teacherToDelete && (
+                <DeleteTeacherModal
+                    teacher={teacherToDelete}
+                    onConfirm={handleConfirmDeleteTeacher}
+                    onClose={() => setTeacherToDelete(null)}
+                    isDeleting={isDeleting}
+                />
+            )}
         </>
     );
 };

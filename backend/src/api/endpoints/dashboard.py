@@ -7,7 +7,6 @@ from src.schemas import dashboard as dashboard_schema
 from src.auth.security import get_current_teacher 
 from src.models.teacher import Teacher
 
-
 router = APIRouter()
 
 # Note: We are protecting these endpoints. Only a logged-in user can see the dashboard data.
@@ -30,7 +29,9 @@ def read_top_subjects(
     """
     Get the subjects with the highest number of uploaded practices.
     """
-    top_subjects_data = crud_dashboard.get_top_subjects(db=db, limit=3)
+    top_subjects_data = crud_dashboard.get_top_subjects(
+        db=db, teacher_id=current_teacher.teacher_id, limit=3
+    )
     
     return [
         {"subject_name": item.subject_name, "practice_count": item.practice_count}

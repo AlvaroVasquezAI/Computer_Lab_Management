@@ -76,10 +76,7 @@ def delete_room_and_bookings(db: Session, room_id: int) -> bool:
     db_room = db.query(room.Room).filter(room.Room.room_id == room_id).first()
     if not db_room:
         return False
-    
-    # Delete associated bookings first
     db.query(booking.Booking).filter(booking.Booking.room_id == room_id).delete()
-    # Delete associated announcements
     db.query(announcement.Announcement).filter(announcement.Announcement.room_id == room_id).delete()
     
     db.delete(db_room)
@@ -163,3 +160,15 @@ def update_teacher_by_admin(db: Session, teacher_id: int, update_data: admin_sch
     
     db.commit()
     return db_teacher
+
+def update_room(db: Session, room_id: int, room_in: admin_schema.RoomUpdate) -> room.Room | None:
+    """Updates an existing lab room's details."""
+    db_room = db.query(room.Room).filter(room.Room.room_id == room_id).first()
+    if not db_room:
+        return None
+    
+    db_room.room_name = room_in.room_name
+    db_room.capacity = room_in.capacity
+    db.commit()
+    db.refresh(db_room)
+    return db_room
