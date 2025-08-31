@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api';
 import { useAuth } from '../../context/AuthContext'; 
@@ -9,12 +9,13 @@ import SubjectManager from '../../components/specific/SubjectManager';
 import SubjectList from '../../components/specific/SubjectList';
 import GroupTags from '../../components/specific/GroupTags';
 
-const SignUpPage = () => {
+const SignUpPage = ({ isEditMode = false }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { login } = useAuth(); 
+    const { teacherId } = useParams(); 
 
-    const [teacherDetails, setTeacherDetails] = useState({ name: '', email: '', password: '' });
+    const [teacherDetails, setTeacherDetails] = useState({ name: '', email: '', password: '', role: 'teacher' });
     const [subjects, setSubjects] = useState([]);
     
     const [existingSubjects, setExistingSubjects] = useState([]);
@@ -37,7 +38,19 @@ const SignUpPage = () => {
             }
         };
         fetchInitialData();
-    }, []);
+        
+        if (isEditMode && teacherId) {
+            setLoading(true);
+            apiClient.get(`/admin/teachers/${teacherId}/onboarding-data`)
+                .then(res => {
+                    const { teacher_name, email, role, subjects } = res.data;
+                    setTeacherDetails({ name: teacher_name, email, role });
+                    setSubjects(subjects);
+                })
+                .catch(err => console.error("Failed to fetch teacher data for editing", err))
+                .finally(() => setLoading(false));
+        }
+    }, [isEditMode, teacherId]);
 
     const handleAddOrUpdateSubject = (subjectData) => {
         if (editingSubjectIndex !== null) {
@@ -64,51 +77,54 @@ const SignUpPage = () => {
     };
 
     const handleSubmit = async () => {
-        if (!teacherDetails.name || !teacherDetails.email || !teacherDetails.password) {
-            alert("Please fill in all your details.");
-            return;
-        }
-        if (subjects.length === 0) {
-            alert("Please add at least one subject.");
-            return;
-        }
         setLoading(true);
-
-        const finalPayload = {
-            teacher_name: teacherDetails.name,
-            email: teacherDetails.email,
-            password: teacherDetails.password,
-            subjects: subjects,
-        };
-
-        try {
-            await apiClient.post('/onboarding/teacher', finalPayload);
-            const loginResponse = await apiClient.post('/auth/login', {
+        if (isEditMode) {
+            const payload = {
+                teacher_name: teacherDetails.name,
+                email: teacherDetails.email,
+                role: teacherDetails.role,
+                subjects: subjects
+            };
+            try {
+                await apiClient.put(`/admin/teachers/${teacherId}`, payload);
+                alert("Teacher updated successfully!");
+                navigate(`/admin/teacher/${teacherId}`);
+            } catch (error) {
+                 alert(`Failed to update teacher: ${error.response?.data?.detail || "Unknown error"}`);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            const payload = {
+                teacher_name: teacherDetails.name,
                 email: teacherDetails.email,
                 password: teacherDetails.password,
-            });
-            
-            login(loginResponse.data.access_token);
-
-            navigate('/home'); 
-
-        } catch (error) {
-            console.error("Onboarding or Login failed", error);
-            const errorMsg = error.response?.data?.detail || "An unknown error occurred.";
-            alert(`Failed to create account: ${errorMsg}`);
-        } finally {
-            setLoading(false);
+                subjects: subjects,
+            };
+            try {
+                await apiClient.post('/onboarding/teacher', payload);
+                const loginResponse = await apiClient.post('/auth/login', {
+                    email: teacherDetails.email,
+                    password: teacherDetails.password,
+                });
+                login(loginResponse.data.access_token);
+                navigate('/home'); 
+            } catch (error) {
+                alert(`Failed to create account: ${error.response?.data?.detail || "Unknown error"}`);
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
     return (
         <div className="signup-page">
             <header className="signup-header">
-                <h1>{t('signup.title')}</h1>
+                <h1>{isEditMode ? `Edit ${teacherDetails.name}` : t('signup.title')}</h1>
             </header>
             <div className="signup-grid">
                 <div className="left-column">
-                    <DetailsForm details={teacherDetails} setDetails={setTeacherDetails} />
+                    <DetailsForm details={teacherDetails} setDetails={setTeacherDetails} isEditMode={isEditMode} />
                     <div className="card">
                         <h3>{t('signup.subjects')}</h3>
                         <SubjectList 
@@ -134,14 +150,14 @@ const SignUpPage = () => {
             </div>
             <footer className="signup-footer">
                 <button onClick={handleSubmit} className="submit-button" disabled={loading}>
-                    {loading ? 'Creating Account...' : t('signup.save_changes_button')}
+                    {loading ? 'Saving...' : (isEditMode ? "Save Changes" : t('signup.save_changes_button'))}
                 </button>
-                <p className="tertiary-action">
-                    {t('signup.go_to_login_prompt')}{' '}
-                    <Link to="/login" className="form-link">
-                        {t('signup.go_to_login_link')}
-                    </Link>
-                </p>
+                {!isEditMode && (
+                    <p className="tertiary-action">
+                        {t('signup.go_to_login_prompt')}{' '}
+                        <Link to="/login" className="form-link">{t('signup.go_to_login_link')}</Link>
+                    </p>
+                )}
             </footer>
         </div>
     );

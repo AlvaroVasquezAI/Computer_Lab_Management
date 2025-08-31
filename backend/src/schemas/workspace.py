@@ -97,6 +97,7 @@ class PracticeDetail(BaseModel):
     subject_id: int
     created_at: datetime
     file_url: str
+    teacher_id: int
     bookings: List[BookingDetail]
 
 class BookingUpdate(BaseModel):

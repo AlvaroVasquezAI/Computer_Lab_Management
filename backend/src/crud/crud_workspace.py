@@ -1,7 +1,7 @@
-from datetime import date, datetime, time, timezone
+from datetime import date, datetime, time
 from sqlalchemy.orm import Session
 from sqlalchemy import func, distinct
-from src.models import schedule, subject, group, practice, teacher, room, booking
+from src.models import schedule, subject, group, practice, room, booking
 from collections import defaultdict
 
 def get_subjects_by_teacher(db: Session, teacher_id: int):
@@ -225,6 +225,7 @@ def get_practice_details(db: Session, practice_id: int, teacher_id: int):
         "subject_id": db_practice.subject_id, 
         "created_at": db_practice.created_at,
         "file_url": db_practice.file_url,
+        "teacher_id": db_practice.teacher_id,
         "bookings": [
             { "group_name": b.group_name, "room_name": b.room_name, "room_id": b.room_id, "practice_date": b.practice_date, "start_time": b.start_time, "end_time": b.end_time } 
             for b in bookings_query

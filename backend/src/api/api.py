@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from src.api.endpoints import auth, dashboard, onboarding, data, workspace, practices, activities, rooms, announcements
+from src.api.endpoints import auth, dashboard, onboarding, data, workspace, practices, activities, rooms, announcements, admin
 
 api_router = APIRouter()
 
@@ -12,3 +12,4 @@ api_router.include_router(practices.router, prefix="/practices", tags=["Practice
 api_router.include_router(activities.router, prefix="/activities", tags=["Activities"])
 api_router.include_router(rooms.router, prefix="/rooms", tags=["Rooms"])
 api_router.include_router(announcements.router, prefix="/announcements", tags=["Announcements"])
+api_router.include_router(admin.router, prefix="/admin", tags=["Administration"])

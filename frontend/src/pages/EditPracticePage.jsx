@@ -198,7 +198,7 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings, 
     );
 };
 
-const EditPracticePage = () => {
+const EditPracticePage = ({ isAdminMode = false }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { practiceId } = useParams();
@@ -208,39 +208,51 @@ const EditPracticePage = () => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     
-    const [initialData, setInitialData] = useState(null);
     const [practiceName, setPracticeName] = useState('');
     const [practiceObjective, setPracticeObjective] = useState('');
     const [selectedSubjectId, setSelectedSubjectId] = useState('');
     const [subjectName, setSubjectName] = useState('');
-    
     const [groupsForSubject, setGroupsForSubject] = useState([]);
     const [existingBookings, setExistingBookings] = useState([]);
     const [allRooms, setAllRooms] = useState([]);
-    
     const [initialBookings, setInitialBookings] = useState([]);
-
     const [groupBookings, setGroupBookings] = useState({});
     const [selectedFile, setSelectedFile] = useState(null);
     const [filePreviewUrl, setFilePreviewUrl] = useState(null);
+    const [ownerTeacherId, setOwnerTeacherId] = useState(null);
 
     useEffect(() => {
         const fetchAllData = async () => {
             try {
-                const practiceRes = await apiClient.get(`/practices/practices/${practiceId}`);
+                const practiceDetailsUrl = isAdminMode
+                    ? `/admin/practices/${practiceId}`
+                    : `/practices/practices/${practiceId}`;
+                
+                const practiceRes = await apiClient.get(practiceDetailsUrl);
                 const practiceData = practiceRes.data;
-
+                
                 setPracticeName(practiceData.title);
                 setPracticeObjective(practiceData.description);
                 setSelectedSubjectId(practiceData.subject_id);
                 setSubjectName(practiceData.subject_name);
-                setInitialBookings(practiceData.bookings); 
-
+                setInitialBookings(practiceData.bookings);
+                
+                const ownerId = practiceData.teacher_id;
+                setOwnerTeacherId(ownerId);
                 const subjectId = practiceData.subject_id;
-                const groupsPromise = apiClient.get(`/practices/subjects/${subjectId}/groups`);
+
+                const groupsUrl = isAdminMode
+                    ? `/admin/teachers/${ownerId}/subjects/${subjectId}/groups`
+                    : `/practices/subjects/${subjectId}/groups`;
+                
+                const fileDownloadUrl = isAdminMode
+                    ? `/admin/practices/${practiceId}/download`
+                    : `/practices/practices/${practiceId}/download`;
+                
+                const groupsPromise = apiClient.get(groupsUrl);
                 const existingBookingsPromise = apiClient.get(`/practices/subjects/${subjectId}/bookings`);
                 const roomsPromise = apiClient.post('/practices/availability', { practice_date: '1970-01-01', start_time: '00:00', end_time: '00:01' });
-                const filePromise = apiClient.get(`/practices/practices/${practiceId}/download?v=${new Date().getTime()}`, { responseType: 'blob' });
+                const filePromise = apiClient.get(`${fileDownloadUrl}?v=${new Date().getTime()}`, { responseType: 'blob' });
 
                 const [groupsRes, bookingsRes, roomsRes, fileResponse] = await Promise.all([groupsPromise, existingBookingsPromise, roomsPromise, filePromise]);
 
@@ -267,7 +279,7 @@ const EditPracticePage = () => {
         };
 
         fetchAllData();
-    }, [practiceId]);
+    }, [practiceId, isAdminMode]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -281,49 +293,19 @@ const EditPracticePage = () => {
     const handleGroupDataChange = useCallback((groupId, data) => {
         setGroupBookings(prev => ({ ...prev, [groupId]: data }));
     }, []);
-
+    
     const isFormValid = useMemo(() => {
         if (!practiceName || !practiceObjective || !selectedSubjectId) {
             return false;
         }
-
-        const editableGroups = groupsForSubject.filter(g => {
-            const ib = initialBookings.find(b => b.group_name === g.group_name);
-            return !ib || new Date(ib.practice_date + 'T' + ib.end_time) >= new Date();
-        });
-
-        if (editableGroups.length === 0) {
-            return true; 
-        }
-
-        const allEditableGroupsAreScheduled = editableGroups.every(
-            eg => groupBookings[eg.group_id]
-        );
-
-        return allEditableGroupsAreScheduled;
-
-    }, [practiceName, practiceObjective, selectedSubjectId, groupBookings, groupsForSubject, initialBookings]);
-
-    const renderedGroupSchedulers = useMemo(() => {
-        return groupsForSubject.map(group => {
-            const initialBookingForGroup = initialBookings.find(b => b.group_name === group.group_name);
-            return (
-                <GroupScheduler 
-                    key={group.group_id} 
-                    group={group} 
-                    onGroupDataChange={handleGroupDataChange} 
-                    allRooms={allRooms}
-                    existingBookings={existingBookings}
-                    initialBooking={initialBookingForGroup}
-                />
-            );
-        });
-    }, [groupsForSubject, initialBookings, allRooms, existingBookings, handleGroupDataChange]);
-
+        const bookings = Object.values(groupBookings).filter(Boolean);
+        return bookings.length > 0;
+    }, [practiceName, practiceObjective, selectedSubjectId, groupBookings]);
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!isFormValid) {
-            alert("Please ensure all fields are filled and all active (future) groups for the selected subject are scheduled.");
+            alert("Please ensure all fields are filled and at least one group is scheduled.");
             return;
         }
         setLoading(true);
@@ -331,24 +313,14 @@ const EditPracticePage = () => {
         setSuccess('');
 
         const formData = new FormData();
-
-        const editableGroupIds = groupsForSubject
-            .filter(g => {
-                const ib = initialBookings.find(b => b.group_name === g.group_name);
-                return !ib || new Date(ib.practice_date + 'T' + ib.end_time) >= new Date();
-            })
-            .map(g => g.group_id);
-
-        const bookingsToSend = Object.values(groupBookings)
-            .filter(b => b && editableGroupIds.includes(b.group_id))
-            .map(b => ({
-                group_id: b.group_id,
-                room_id: b.room_id,
-                practice_date: b.practice_date,
-                start_time: b.start_time,
-                end_time: b.end_time,
-            }));
-
+        const bookingsToSend = Object.values(groupBookings).filter(Boolean).map(b => ({
+            group_id: b.group_id,
+            room_id: b.room_id,
+            practice_date: b.practice_date,
+            start_time: b.start_time,
+            end_time: b.end_time,
+        }));
+        
         const updatePayload = {
             name: practiceName,
             objective: practiceObjective,
@@ -362,11 +334,16 @@ const EditPracticePage = () => {
         }
 
         try {
-            await apiClient.put(`/practices/practices/${practiceId}`, formData, {
+            const updateUrl = isAdminMode
+                ? `/admin/practices/${practiceId}`
+                : `/practices/practices/${practiceId}`;
+            
+            await apiClient.put(updateUrl, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setSuccess(t('edit_practice.success_message'));
-            setTimeout(() => navigate('/workspace/consult-practices'), 2000);
+            const returnPath = isAdminMode ? `/admin/teacher/${ownerTeacherId}` : '/workspace/consult-practices';
+            setTimeout(() => navigate(returnPath), 2000);
         } catch (err) {
             const errorMsg = err.response?.data?.detail || t('edit_practice.error_message');
             setError(errorMsg);
@@ -376,6 +353,7 @@ const EditPracticePage = () => {
         }
     };
 
+  
     if (pageLoading) return <div>{t('edit_practice.loading')}</div>;
     
     return (
@@ -424,12 +402,24 @@ const EditPracticePage = () => {
                 <div className="form-groups-section">
                     <h3 className="groups-title">{t('register_practice.groups_title')}</h3>
                     <div className="groups-grid">
-                        {renderedGroupSchedulers}
+                        {groupsForSubject.map(group => {
+                            const initialBookingForGroup = initialBookings.find(b => b.group_name === group.group_name);
+                            return (
+                                <GroupScheduler 
+                                    key={group.group_id} 
+                                    group={group} 
+                                    onGroupDataChange={handleGroupDataChange} 
+                                    allRooms={allRooms}
+                                    existingBookings={existingBookings}
+                                    initialBooking={initialBookingForGroup}
+                                />
+                            );
+                        })}
                     </div>
                 </div>
                 {error && <p className="error-message">{error}</p>}
                 {success && <p className="success-message">{success}</p>}
-                <button type="submit" className="submit-button" disabled={!isFormValid}>
+                <button type="submit" className="submit-button" disabled={loading || !isFormValid}>
                     {t('edit_practice.save_changes_button')}
                 </button>
             </form>

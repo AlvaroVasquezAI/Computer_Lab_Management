@@ -1,0 +1,49 @@
+.interactive-toggle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: var(--sidebar-hover-bg);
+    border-radius: 9999px;
+    padding: 6px;
+    box-sizing: border-box;
+}
+
+.toggle-option {
+    flex: 1;
+    padding: 0.6rem 1.5rem;
+    border: none;
+    background: transparent;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+    color: var(--text-secondary);
+    transition: color 0.3s ease-in-out;
+    white-space: nowrap;
+}
+
+.toggle-option.active {
+    color: var(--text-on-card);
+}
+
+.toggle-glider {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    height: calc(100% - 12px);
+    width: calc(50% - 6px); 
+    background-color: var(--background-card-main);
+    border-radius: 9999px;
+    z-index: 1;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.interactive-toggle.active-index-0 .toggle-glider {
+    transform: translateX(0%);
+}
+
+.interactive-toggle.active-index-1 .toggle-glider {
+    transform: translateX(100%);
+}

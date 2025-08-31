@@ -13,7 +13,7 @@ const DayOfWeek = ({ dayNumber }) => {
     return t(`signup.days.${dayMap[dayNumber]}`, { defaultValue: `Day ${dayNumber}` });
 };
 
-const GroupDetailModal = ({ groupId, onClose }) => {
+const GroupDetailModal = ({ groupId, onClose, teacherIdForAdmin = null }) => {
   const { t } = useTranslation();
   const [details, setDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,7 +26,11 @@ const GroupDetailModal = ({ groupId, onClose }) => {
       try {
         setLoading(true);
         setError(null);
-        const response = await apiClient.get(`/workspace/groups/${groupId}`);
+        const apiUrl = teacherIdForAdmin
+          ? `/admin/teachers/${teacherIdForAdmin}/groups/${groupId}`
+          : `/workspace/groups/${groupId}`;
+
+        const response = await apiClient.get(apiUrl);
         setDetails(response.data);
       } catch (err) {
         setError('Failed to load group details.');
@@ -36,7 +40,7 @@ const GroupDetailModal = ({ groupId, onClose }) => {
       }
     };
     fetchDetails();
-  }, [groupId]);
+  }, [groupId, teacherIdForAdmin]);
 
   return (
     <div className="modal-overlay" onClick={onClose}>

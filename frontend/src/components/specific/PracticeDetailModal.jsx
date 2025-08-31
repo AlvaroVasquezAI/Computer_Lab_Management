@@ -4,7 +4,7 @@ import apiClient from '../../services/api';
 import './SubjectDetailModal.css'; 
 import { FaTimes, FaFilePdf, FaArrowLeft } from 'react-icons/fa';
 
-const PracticeDetailModal = ({ details, onClose, startInPreviewMode = false }) => {
+const PracticeDetailModal = ({ details, onClose, startInPreviewMode = false, isAdminMode = false }) => { 
     const { t } = useTranslation();
 
     const [isPreviewing, setIsPreviewing] = useState(startInPreviewMode);
@@ -14,8 +14,12 @@ const PracticeDetailModal = ({ details, onClose, startInPreviewMode = false }) =
     const handlePreviewClick = async () => {
         setIsLoadingPreview(true);
         try {
+            const downloadUrl = isAdminMode
+                ? `/admin/practices/${details.practice_id}/download`
+                : `/practices/practices/${details.practice_id}/download`;
+                
             const response = await apiClient.get(
-                `/practices/practices/${details.practice_id}/download?v=${new Date().getTime()}`, 
+                `${downloadUrl}?v=${new Date().getTime()}`, 
                 { responseType: 'blob' }
             );
             const file = new Blob([response.data], { type: 'application/pdf' });

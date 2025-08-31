@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaEdit } from 'react-icons/fa';
 
-// Helper to generate time slots from 7:00 to 21:30 in 30-minute intervals
 const generateTimeSlots = () => {
     const slots = [];
     for (let h = 7; h < 22; h++) {
@@ -13,7 +12,6 @@ const generateTimeSlots = () => {
 };
 const timeSlots = generateTimeSlots();
 
-// Helper for days of the week, using keys for translation
 const daysOfWeek = [
     { id: 1, name: 'monday' }, { id: 2, name: 'tuesday' }, { id: 3, name: 'wednesday' },
     { id: 4, name: 'thursday' }, { id: 5, name: 'friday' }
@@ -81,24 +79,26 @@ const SubjectManager = ({ existingSubjects, existingGroups, onAddSubject, initia
         const newSchedule = initialSchedule.map(day => {
             const scheduledDay = groupToEdit.schedule.find(s => s.day_of_week === day.day_of_week);
             if (scheduledDay) {
-                return { ...day, start_time: scheduledDay.start_time, end_time: scheduledDay.end_time.substring(0, 5) };
+                return { 
+                    ...day, 
+                    start_time: scheduledDay.start_time.substring(0, 5), 
+                    end_time: scheduledDay.end_time.substring(0, 5) 
+                };
             }
             return day;
         });
         setSchedule(newSchedule);
     };
-
+    
     const handleAddSubjectToForm = () => {
         if (!subjectName.trim() || groupsForSubject.length === 0) {
             alert("Please provide a subject name and add at least one group.");
             return;
         }
         
-        // Find the subject in the existing list to get its ID
         const existingSubject = existingSubjects.find(s => s.subject_name.toLowerCase() === subjectName.trim().toLowerCase());
         
         const newSubjectData = {
-            // If the subject exists, use its ID. Otherwise, use null.
             subject_id: existingSubject ? existingSubject.subject_id : null, 
             subject_name: subjectName,
             groups: groupsForSubject,
@@ -106,16 +106,13 @@ const SubjectManager = ({ existingSubjects, existingGroups, onAddSubject, initia
 
         onAddSubject(newSubjectData);
         
-        // Reset the manager's state for the next subject
         setSubjectName('');
         setGroupsForSubject([]);
     };
 
-    // --- LOGIC FOR CONDITIONAL END TIME DROPDOWN ---
     const getEndTimeOptions = (startTime) => {
         if (!startTime) return [];
         const startIndex = timeSlots.indexOf(startTime);
-        // Return all time slots that are after the selected start time
         return timeSlots.slice(startIndex + 1);
     };
 

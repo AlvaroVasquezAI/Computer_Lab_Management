@@ -19,6 +19,7 @@ import RegisterPracticePage from './pages/RegisterPracticePage';
 import ConsultPracticesPage from './pages/ConsultPracticesPage';
 import VisualizeActivitiesPage from './pages/VisualizeActivitiesPage';
 import EditPracticePage from './pages/EditPracticePage';
+import TeacherDetailPage from './pages/TeacherDetailPage';
 
 function App() {
   return (
@@ -38,6 +39,9 @@ function App() {
             <Route path="/status" element={<StatusPage />} />
             <Route path="/announcements" element={<AnnouncementsPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/teacher/:teacherId" element={<TeacherDetailPage />} />
+            <Route path="/admin/edit-teacher/:teacherId" element={<SignUpPage isEditMode={true} />} /> 
+            <Route path="/admin/edit-practice/:practiceId" element={<EditPracticePage isAdminMode={true} />} />
             <Route path="/workspace/register-practice" element={<RegisterPracticePage />} />
             <Route path="/workspace/consult-practices" element={<ConsultPracticesPage />} />
             <Route path="/workspace/visualize-activities" element={<VisualizeActivitiesPage />} />
