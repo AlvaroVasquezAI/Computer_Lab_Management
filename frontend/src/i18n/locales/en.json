@@ -1,7 +1,6 @@
 {
   "sidebar": {
-    "title_line1": "Computer",
-    "title_line2": "Laboratory",
+    "title": "Computer Laboratory",
     "home": "Home",
     "workspace": "Workspace",
     "status": "Status",
@@ -19,7 +18,7 @@
     "signup": "Sign Up"
   },
   "footer": {
-    "copyright": "© {{year}} Computer Lab Management. UPIIT-IPN."
+    "copyright": "© {{year}} Computer Laboratory. UPIIT-IPN."
   },
   "common": {
     "go_back": "Go Back"
@@ -28,6 +27,7 @@
     "title": "Home",
     "calendar_title": "My Calendar",
     "see_details_button": "See more details",
+    "multiple_activities_today": "{{count}} activities scheduled for today",
     "activity_log_title": "Recent Activity",
     "next_practice_title": "Next Practice In",
     "no_upcoming_practices": "No upcoming practices scheduled.",
@@ -59,7 +59,13 @@
     "select_room_optional": "Select Room (Optional)",
     "select_group_optional": "Select Group (Optional)",
     "calendar_session_in": "in",
-    "see_all_announcements": "See all announcements"
+    "see_all_announcements": "See all announcements",
+    "countdown": {
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds"
+    }
   },
   "landing": {
     "title_line1": "COMPUTER",
@@ -123,7 +129,9 @@
     "end_time_header": "End Time",
     "loading_details": "Loading details...",
     "subjects_and_schedules": "Subjects & Schedules",
-    "no_subjects_scheduled": "No subjects are scheduled for this group."
+    "no_subjects_scheduled": "No subjects are scheduled for this group.",
+    "group_header": "Group",
+    "time_header": "Time"
   },
   "workspace": {
     "title": "Workspace",
@@ -194,7 +202,8 @@
     "none_scheduled": "No activities scheduled for this day.",
     "group": "Group",
     "room": "Room",
-    "time": "Time"
+    "time": "Time",
+    "subject": "Subject" 
   },
   "edit_practice": {
     "title": "Edit Practice",

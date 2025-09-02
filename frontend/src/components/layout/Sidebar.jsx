@@ -42,8 +42,7 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
         <div className="sidebar-header">
           {!isCollapsed && (
             <div className="sidebar-title">
-              <span>{t('sidebar.title_line1')}</span>
-              <span>{t('sidebar.title_line2')}</span>
+              {t('sidebar.title')}
             </div>
           )}
           <button onClick={handleToggleClick} className="toggle-button">
@@ -106,6 +105,13 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
           </button>
         </div>
       </div>
+
+      <div className="sidebar-collapsed-theme-toggle">
+        <button className="sidebar-icon-button" onClick={toggleTheme}>
+          {theme === 'light' ? <FaRegSun /> : <FaMoon />}
+        </button>
+      </div>
+
     </aside>
   );
 };

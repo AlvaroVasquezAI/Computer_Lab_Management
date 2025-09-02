@@ -1,7 +1,6 @@
 {
   "sidebar": {
-    "title_line1": "Laboratorio de",
-    "title_line2": "Cómputo",
+    "title": "Laboratorio de cómputo",
     "home": "Inicio",
     "workspace": "Gestión",
     "status": "Estado",
@@ -19,7 +18,7 @@
     "signup": "Regístrate"
   },
   "footer": {
-    "copyright": "© {{year}} Gestión de laboratorio de cómputo. UPIIT-IPN."
+    "copyright": "© {{year}} Laboratorio de cómputo. UPIIT-IPN."
   },
   "common": {
     "go_back": "Volver atrás"
@@ -28,6 +27,7 @@
     "title": "Inicio",
     "calendar_title": "Mi calendario",
     "see_details_button": "Ver más detalles",
+    "multiple_activities_today": "{{count}} actividades programadas para hoy",
     "activity_log_title": "Actividad reciente",
     "next_practice_title": "Próxima práctica en",
     "no_upcoming_practices": "No hay próximas prácticas programadas.",
@@ -59,10 +59,16 @@
     "select_room_optional": "Seleccionar sala (Opcional)",
     "select_group_optional": "Seleccionar grupo (Opcional)",
     "calendar_session_in": "en",
-    "see_all_announcements": "Ver todos los anuncios"
+    "see_all_announcements": "Ver todos los anuncios",
+    "countdown": {
+      "days": "Días",
+      "hours": "Horas",
+      "minutes": "Minutos",
+      "seconds": "Segundos"
+    }
   },
   "landing": {
-    "title_line1": "LABORATORIO DE",
+    "title_line1": "LABORATORIO\u00A0DE",
     "title_line2": "COMPUTO",
     "start_button": "Iniciar"
   },
@@ -123,7 +129,9 @@
     "end_time_header": "Hora de fin",
     "loading_details": "Cargando detalles...",
     "subjects_and_schedules": "Materias y horarios",
-    "no_subjects_scheduled": "No hay materias programadas para este grupo."
+    "no_subjects_scheduled": "No hay materias programadas para este grupo.",
+    "group_header": "Grupo",
+    "time_header": "Hora"
   },
   "workspace": {
     "title": "Gestión",
@@ -194,7 +202,8 @@
     "none_scheduled": "No hay actividades programadas para este día.",
     "group": "Grupo",
     "room": "Sala",
-    "time": "Hora"
+    "time": "Hora",
+    "subject": "Materia" 
   },
   "edit_practice": {
     "title": "Editar práctica",

@@ -232,6 +232,54 @@
     padding: 0;
 }
 
+.calendar-info-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.info-icon {
+  font-size: 2.5rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.calendar-info-message p {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.single-activity-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.single-activity-main {
+  font-size: 1rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.single-activity-time {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.summary-activities-message {
+  display: none;
+}
+
 .details-button {
     margin-top: 1.5rem; 
     padding: 0.5rem 1.5rem;
@@ -328,6 +376,20 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.countdown-card .no-practice-container {
+  flex-grow: 1; 
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  color: var(--text-secondary);
+  font-size: 1rem;
+  padding: 1rem;
+}
+
+.countdown-card .no-practice-container p {
+  margin: 0;
 }
 
 .stats-column { 

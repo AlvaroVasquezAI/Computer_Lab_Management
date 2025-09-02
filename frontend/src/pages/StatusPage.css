@@ -92,6 +92,7 @@
 .time-slot.busy {
   cursor: pointer;
   transition: transform 0.1s ease-in-out;
+  background-color: rgba(7, 7, 7, 0.144);
 }
 .time-slot.busy:hover {
   transform: scale(1.02);
@@ -158,6 +159,36 @@
 .react-datepicker__day--outside-month:hover {
   background-color: transparent !important;
   cursor: default;
+}
+
+body[data-theme='dark'] .lab-status-card .react-datepicker {
+  background-color: transparent; 
+}
+
+body[data-theme='dark'] .lab-status-card .react-datepicker__header {
+  background-color: transparent; 
+}
+
+body[data-theme='dark'] .lab-status-card .react-datepicker__current-month,
+body[data-theme='dark'] .lab-status-card .react-datepicker__day-name {
+  color: var(--text-primary); 
+}
+
+body[data-theme='dark'] .lab-status-card .react-datepicker__navigation-icon::before {
+  border-color: var(--text-primary); 
+}
+
+body[data-theme='dark'] .time-label {
+  color: var(--text-secondary); 
+}
+
+
+body[data-theme='dark'] .time-slot.free{
+  background-color: rgba(43, 43, 43, 0.178);
+}
+
+body[data-theme='dark'] .timeline-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 @media (max-width: 768px) {

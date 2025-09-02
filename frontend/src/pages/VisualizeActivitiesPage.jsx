@@ -7,6 +7,7 @@ import DatePicker from 'react-datepicker';
 import { getMonth, getYear } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 import './VisualizeActivitiesPage.css';
+import { FaUsers, FaDesktop, FaClock, FaBook } from 'react-icons/fa';
 
 const ActivityCard = ({ booking }) => {
     const { t } = useTranslation();
@@ -14,9 +15,22 @@ const ActivityCard = ({ booking }) => {
         <div className="activity-card">
             <h4 className="activity-card-title">{booking.practice_title}</h4>
             <div className="activity-card-details">
-                <p><strong>{t('activities.group')}:</strong> {booking.group_name}</p>
-                <p><strong>{t('activities.room')}:</strong> {booking.room_name}</p>
-                <p><strong>{t('activities.time')}:</strong> {booking.start_time.substring(0,5)} - {booking.end_time.substring(0,5)}</p>
+                <div className="card-detail-line">
+                    <FaBook className="detail-icon" />
+                    <span><strong>{t('activities.subject')}:</strong> {booking.subject_name}</span>
+                </div>
+                <div className="card-detail-line">
+                    <FaUsers className="detail-icon" />
+                    <span><strong>{t('activities.group')}:</strong> {booking.group_name}</span>
+                </div>
+                <div className="card-detail-line">
+                    <FaDesktop className="detail-icon" />
+                    <span><strong>{t('activities.room')}:</strong> {booking.room_name}</span>
+                </div>
+                <div className="card-detail-line">
+                    <FaClock className="detail-icon" />
+                    <span><strong>{t('activities.time')}:</strong> {booking.start_time.substring(0,5)} - {booking.end_time.substring(0,5)}</span>
+                </div>
             </div>
         </div>
     );
@@ -75,7 +89,7 @@ const VisualizeActivitiesPage = () => {
                         <FaArrowLeft /> {t('common.go_back')}
                     </button>
                 </div>
-                <h1 className="page-title">{t('activities.title')}</h1>
+                <h1>{t('activities.title')}</h1>
             </div>
             <div className="activities-layout">
                 <div className="calendar-container">

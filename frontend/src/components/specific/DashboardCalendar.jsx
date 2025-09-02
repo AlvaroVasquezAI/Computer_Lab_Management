@@ -4,6 +4,7 @@ import apiClient from '../../services/api';
 import DatePicker from 'react-datepicker';
 import { getMonth, getYear } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
+import { FaRegCalendarCheck, FaClipboardList, FaClock } from 'react-icons/fa';
 
 const DashboardCalendar = () => {
     const { t } = useTranslation();
@@ -58,15 +59,29 @@ const DashboardCalendar = () => {
             <div className="calendar-info-box">
                 <h4>{t('dashboard.activities_for_date')} {selectedDate.toLocaleDateString()}</h4>
                 <div className="info-box-content">
-                    {activitiesForSelectedDay.length > 0 ? (
-                        activitiesForSelectedDay.map((booking, index) => (
-                            <div key={index} className="info-box-item">
-                                <span><strong>{booking.group_name}</strong> {t('dashboard.calendar_session_in')} <strong>{booking.room_name}</strong> | </span>
-                                <span>{booking.start_time.substring(0,5)} - {booking.end_time.substring(0,5)}</span>
-                            </div>
-                        ))
+                    {activitiesForSelectedDay.length === 1 ? (
+                        <div className="single-activity-details">
+                            <p className="single-activity-main">
+                                <strong>{activitiesForSelectedDay[0].group_name}</strong> {t('dashboard.calendar_session_in')} <strong>{activitiesForSelectedDay[0].room_name}</strong>
+                            </p>
+                            <p className="single-activity-time">
+                                <FaClock />
+                                {activitiesForSelectedDay[0].start_time.substring(0,5)} - {activitiesForSelectedDay[0].end_time.substring(0,5)}
+                            </p>
+                        </div>
+
+                    ) : activitiesForSelectedDay.length > 1 ? (
+                        <div className="calendar-info-message">
+                            <FaClipboardList className="info-icon" />
+                            <p>
+                                {t('dashboard.multiple_activities_today', { count: activitiesForSelectedDay.length })}
+                            </p>
+                        </div>
                     ) : (
-                        <p className="no-activities-message">{t('dashboard.no_activities_today')}</p>
+                        <div className="calendar-info-message">
+                            <FaRegCalendarCheck className="info-icon" />
+                            <p>{t('dashboard.no_activities_today')}</p>
+                        </div>
                     )}
                 </div>
             </div>

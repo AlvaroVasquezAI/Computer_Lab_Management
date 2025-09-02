@@ -56,7 +56,13 @@ const CountdownTimer = ({ onTimerEnd }) => {
     };
 
     if (loading) return <p>Loading...</p>;
-    if (!nextPractice) return <p>{t('dashboard.no_upcoming_practices')}</p>;
+    if (!nextPractice) {
+        return (
+            <div className="no-practice-container">
+                <p>{t('dashboard.no_upcoming_practices')}</p>
+            </div>
+        );
+    }
 
     const practiceDetailsForModal = {
         practice_id: nextPractice.practice_id, 
@@ -70,10 +76,10 @@ const CountdownTimer = ({ onTimerEnd }) => {
         <>
             <div className="countdown-container">
                 <div className="countdown-timers">
-                    <div className="timer-segment"><span>{timeLeft.days || '0'}</span><small>Days</small></div>
-                    <div className="timer-segment"><span>{timeLeft.hours || '0'}</span><small>Hours</small></div>
-                    <div className="timer-segment"><span>{timeLeft.minutes || '0'}</span><small>Minutes</small></div>
-                    <div className="timer-segment"><span>{timeLeft.seconds || '0'}</span><small>Seconds</small></div>
+                    <div className="timer-segment"><span>{timeLeft.days || '0'}</span><small>{t('dashboard.countdown.days')}</small></div>
+                    <div className="timer-segment"><span>{timeLeft.hours || '0'}</span><small>{t('dashboard.countdown.hours')}</small></div>
+                    <div className="timer-segment"><span>{timeLeft.minutes || '0'}</span><small>{t('dashboard.countdown.minutes')}</small></div>
+                    <div className="timer-segment"><span>{timeLeft.seconds || '0'}</span><small>{t('dashboard.countdown.seconds')}</small></div>
                 </div>
 
                 <div className="practice-info">
