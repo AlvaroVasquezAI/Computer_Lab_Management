@@ -20,6 +20,7 @@ import ConsultPracticesPage from './pages/ConsultPracticesPage';
 import VisualizeActivitiesPage from './pages/VisualizeActivitiesPage';
 import EditPracticePage from './pages/EditPracticePage';
 import TeacherDetailPage from './pages/TeacherDetailPage';
+import ChatPage from './pages/ChatPage';
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
             <Route path="/workspace/consult-practices" element={<ConsultPracticesPage />} />
             <Route path="/workspace/visualize-activities" element={<VisualizeActivitiesPage />} />
             <Route path="/workspace/edit-practice/:practiceId" element={<EditPracticePage />} />
+            <Route path="/chat" element={<ChatPage />} />
           </Route>
         </Route>
       </Routes>

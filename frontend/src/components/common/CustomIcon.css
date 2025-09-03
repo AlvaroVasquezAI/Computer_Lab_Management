@@ -1,0 +1,30 @@
+.custom-icon {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* --- LIGHT MODE --- */
+.labsy-icon {
+  background-image: url('../../assets/images/labsy-icon-maroon.png');
+}
+
+a:not(.active) .labsy-icon {
+  background-image: url('../../assets/images/labsy-icon-white.png');
+}
+
+
+/* --- DARK MODE --- */
+body[data-theme='dark'] .active .labsy-icon {
+  background-image: url('../../assets/images/labsy-icon-white.png');
+}
+
+body[data-theme='dark'] a:not(.active) .labsy-icon {
+  background-image: url('../../assets/images/labsy-icon-white.png');
+}
+
+.nav-icon.custom-icon {
+  width: 1.7rem;  
+  height: 2rem;
+  flex-shrink: 0; 
+}

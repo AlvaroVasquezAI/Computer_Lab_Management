@@ -296,5 +296,21 @@
     "placeholder": "Room Name",
     "confirm_button": "Confirm Deletion",
     "deleting_button": "Deleting..."
+  },
+  "analysis_modal": {
+    "title": "Practice Analysis",
+    "analyze_button": "Analyze Document",
+    "analyzing_button": "Analyzing...",
+    "completeness_score": "Completeness Score",
+    "required_sections": "Required Sections",
+    "optional_sections": "Optional Sections",
+    "not_found": "Not Found",
+    "quality_feedback": "AI Feedback"
+  },
+  "chat": {
+    "welcome_header": "Hello, {{name}}", 
+    "welcome_message": "Hello! I'm LabSy, your personal lab assistant. How can I help you today?",
+    "input_placeholder": "Ask me about your subjects or practices...",
+    "error_message": "I'm sorry, I encountered an error. Please try asking in a different way."
   }
 }

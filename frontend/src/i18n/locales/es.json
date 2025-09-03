@@ -296,5 +296,21 @@
     "placeholder": "Nombre de la sala",
     "confirm_button": "Confirmar eliminación",
     "deleting_button": "Eliminando..."
+  },
+  "analysis_modal": {
+    "title": "Análisis de la práctica",
+    "analyze_button": "Analizar documento",
+    "analyzing_button": "Analizando...",
+    "completeness_score": "Nivel de cumplimiento",
+    "required_sections": "Secciones requeridas",
+    "optional_sections": "Secciones opcionales",
+    "not_found": "No encontrado",
+    "quality_feedback": "Sugerencia de la IA"
+  },
+  "chat": {
+    "welcome_header": "Hola, {{name}}", 
+    "welcome_message": "¡Hola! Soy LabSy, tu asistente de laboratorio personal. ¿Cómo puedo ayudarte hoy?",
+    "input_placeholder": "Pregúntame sobre tus materias o prácticas...",
+    "error_message": "Lo siento, encontré un error. Por favor, intenta preguntar de otra manera."
   }
 }

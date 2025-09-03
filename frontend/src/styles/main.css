@@ -31,6 +31,8 @@
   --button-secondary-bg: #FFFFFF;
   --button-secondary-text: #111827;
   --button-secondary-border: #111827;
+
+  --ai-icon-image: url('../assets/images/ai-icon-white.png'); 
 }
 
 /* --- DARK MODE OVERRIDES --- */
@@ -65,6 +67,8 @@ body[data-theme='dark'] {
   --button-secondary-bg: transparent;
   --button-secondary-text: #FFFFFF;
   --button-secondary-border: #FFFFFF;
+
+  --ai-icon-image: url('../assets/images/ai-icon-black.png'); 
 }
 
 body {

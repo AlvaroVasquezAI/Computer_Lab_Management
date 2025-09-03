@@ -7,6 +7,7 @@ import { FaCalendarAlt, FaUpload, FaArrowLeft} from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import PracticeSummaryModal from '../components/specific/PracticeSummaryModal';
+import AnalysisResultModal from '../components/specific/AnalysisResultModal';
 
 const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }) => {
   const { t } = useTranslation();
@@ -147,7 +148,7 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }
 };
 
 const RegisterPracticePage = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const navigate = useNavigate();
     const [teacherSubjects, setTeacherSubjects] = useState([]);
     const [allRooms, setAllRooms] = useState([]);
@@ -163,6 +164,11 @@ const RegisterPracticePage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [summaryData, setSummaryData] = useState(null);
+
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [analysisResult, setAnalysisResult] = useState(null);
+    const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+
 
     const filePreviewUrl = useMemo(() => {
         if (selectedFile) {
@@ -229,6 +235,31 @@ const RegisterPracticePage = () => {
         setGroupBookings({});
         setError('');
         setSummaryData(null);
+    };
+
+    const handleAnalyze = async () => {
+      if (!selectedFile) return;
+      setIsAnalyzing(true);
+      setError('');
+      setAnalysisResult(null);
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      formData.append('lang', i18n.language);
+
+      try {
+        const response = await apiClient.post('/analysis/analyze-pdf', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        setAnalysisResult(response.data);
+        setIsAnalysisModalOpen(true);
+      } catch (err) {
+          const errorMsg = err.response?.data?.detail || "Analysis failed. Please try again.";
+          setError(errorMsg);
+      } finally {
+          setIsAnalyzing(false);
+      }
     };
 
     const handleSubmit = async (e) => {
@@ -317,6 +348,19 @@ const RegisterPracticePage = () => {
                             </label>
                             <input id="file-upload" type="file" onChange={e => setSelectedFile(e.target.files[0])} accept=".pdf" required />
                             <p className="file-name">{selectedFile ? `${t('register_practice.file_selected')} ${selectedFile.name}` : t('register_practice.no_file_selected')}</p>
+                            {selectedFile && (
+                              <button 
+                              type="button" 
+                              onClick={handleAnalyze} 
+                              className="submit-button with-icon"
+                              disabled={isAnalyzing}
+                              style={{marginTop: '1rem'}}
+                              >
+                              <span className="button-icon"></span> 
+                              
+                              {isAnalyzing ? t('analysis_modal.analyzing_button') : t('analysis_modal.analyze_button')}
+                              </button>
+                            )}
                         </div>
                     </div>
 
@@ -347,6 +391,12 @@ const RegisterPracticePage = () => {
                 </form>
             </div>
             {summaryData && <PracticeSummaryModal summary={summaryData} onClose={resetForm} />}
+            {isAnalysisModalOpen && analysisResult && (
+              <AnalysisResultModal
+                result={analysisResult}
+                onClose={() => setIsAnalysisModalOpen(false)}
+              />
+            )}
         </>
     );
 };

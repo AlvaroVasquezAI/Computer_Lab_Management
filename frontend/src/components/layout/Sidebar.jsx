@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { MdOutlineMenuOpen } from "react-icons/md";
 import { FaRegSun } from "react-icons/fa6";
+import CustomIcon from '../common/CustomIcon';
 
 const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
   const { user, logout } = useAuth();
@@ -82,6 +83,10 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
          <NavLink to="/announcements" className="nav-link">
           <FaBullhorn className="nav-icon" />
           <span className="nav-text">{t('sidebar.announcements')}</span>
+        </NavLink>
+        <NavLink to="/chat" className="nav-link">
+          <CustomIcon iconName="labsy" className="nav-icon" />
+          <span className="nav-text">LabSy</span>
         </NavLink>
         
         {user?.role === 'admin' && (

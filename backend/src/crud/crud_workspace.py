@@ -370,3 +370,19 @@ def get_teacher_weekly_schedule(db: Session, teacher_id: int):
 
     day_map = {1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 5: "friday"}
     return {day_map[day]: schedule_list for day, schedule_list in weekly_schedule.items()}
+
+def count_practices_for_subject(db: Session, teacher_id: int, subject_name: str) -> str:
+    """
+    Counts how many practices a teacher has for a specific subject, identified by its name.
+    """
+    db_subject = db.query(subject.Subject).filter(func.lower(subject.Subject.subject_name) == func.lower(subject_name)).first()
+    
+    if not db_subject:
+        return f"Subject '{subject_name}' not found for this teacher."
+
+    practice_count = db.query(func.count(practice.Practice.practice_id)).filter(
+        practice.Practice.teacher_id == teacher_id,
+        practice.Practice.subject_id == db_subject.subject_id
+    ).scalar() or 0
+
+    return f"The teacher has {practice_count} practices for the subject '{subject_name}'."
