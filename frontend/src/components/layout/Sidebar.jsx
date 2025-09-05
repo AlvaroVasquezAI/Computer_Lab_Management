@@ -85,8 +85,8 @@ const Sidebar = ({ isCollapsed, onToggle, isMobileOpen, onMobileClose }) => {
           <span className="nav-text">{t('sidebar.announcements')}</span>
         </NavLink>
         <NavLink to="/chat" className="nav-link">
-          <CustomIcon iconName="labsy" className="nav-icon" />
-          <span className="nav-text">LabSy</span>
+          <CustomIcon iconName="controly" className="nav-icon" />
+          <span className="nav-text">Controly</span>
         </NavLink>
         
         {user?.role === 'admin' && (

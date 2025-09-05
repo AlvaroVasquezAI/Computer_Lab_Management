@@ -30,3 +30,6 @@ Thumbs.db
 
 # Uploaded Files
 backend/uploads/
+
+# RAG Vector Store
+backend/vector_store/

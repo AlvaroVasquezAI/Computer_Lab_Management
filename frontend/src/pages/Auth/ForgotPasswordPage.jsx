@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import './LoginPage.css'; 
 
 const ForgotPasswordPage = () => {
-  const { t } = useTranslation(); 
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -18,7 +18,10 @@ const ForgotPasswordPage = () => {
     setLoading(true);
 
     try {
-      const response = await apiClient.post('/auth/forgot-password', { email });
+      const response = await apiClient.post('/auth/forgot-password', { 
+        email: email,
+        lang: i18n.language 
+      });
       setMessage(t('forgot_password.success_message'));
     } catch (err) {
       setError(t('forgot_password.error_message'));

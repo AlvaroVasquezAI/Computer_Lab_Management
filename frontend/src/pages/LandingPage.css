@@ -26,14 +26,13 @@
   box-sizing: border-box;
 }
 
-.landing-title { justify-self: start; }
-.landing-title h1 {
-  font-size: 3.5rem;
-  letter-spacing: 0.8rem;
-  font-weight: 700;
-  line-height: 1.1;
-  margin: 0;
+.landing-logo {
+  max-width: 500px; 
+  width: 100%;
+  height: auto; 
 }
+
+.landing-title { justify-self: start; }
 
 .landing-action { justify-self: end; }
 .start-button {
@@ -88,9 +87,8 @@
   .landing-action {
     justify-self: center;
   }
-  .landing-title h1 {
-    font-size: 2rem;   
-    letter-spacing: 0.3rem; 
+  .landing-logo {
+    max-width: 300px; 
   }
   .start-button {
     padding: 12px 40px;

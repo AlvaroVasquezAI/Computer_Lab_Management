@@ -49,7 +49,7 @@
 
 .sidebar.collapsed .toggle-button { transform: rotate(180deg); font-size: 1.8rem;}
 
-.sidebar-title { font-weight: 600; font-size: 1rem; line-height: 1.2; white-space: nowrap; }
+.sidebar-title { font-weight: 600; font-size: 1.5rem; line-height: 1.7; white-space: nowrap; }
 
 .user-info { margin-top: 30px; padding: 0 10px; }
 .user-details { display: flex; flex-direction: column; gap: 10px; }

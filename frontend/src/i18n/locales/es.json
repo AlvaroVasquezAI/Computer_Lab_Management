@@ -1,6 +1,6 @@
 {
   "sidebar": {
-    "title": "Laboratorio de cómputo",
+    "title": "Ctrl + LAB",
     "home": "Inicio",
     "workspace": "Gestión",
     "status": "Estado",
@@ -18,7 +18,7 @@
     "signup": "Regístrate"
   },
   "footer": {
-    "copyright": "© {{year}} Laboratorio de cómputo. UPIIT-IPN."
+    "copyright": "© {{year}} Ctrl + LAB. UPIIT-IPN."
   },
   "common": {
     "go_back": "Volver atrás"
@@ -68,8 +68,6 @@
     }
   },
   "landing": {
-    "title_line1": "LABORATORIO\u00A0DE",
-    "title_line2": "COMPUTO",
     "start_button": "Iniciar"
   },
   "forgot_password": {
@@ -309,8 +307,12 @@
   },
   "chat": {
     "welcome_header": "Hola, {{name}}", 
-    "welcome_message": "¡Hola! Soy LabSy, tu asistente de laboratorio personal. ¿Cómo puedo ayudarte hoy?",
+    "welcome_message": "¡Hola! Soy Controly, tu asistente de laboratorio personal. ¿Cómo puedo ayudarte hoy?",
     "input_placeholder": "Pregúntame sobre tus materias o prácticas...",
-    "error_message": "Lo siento, encontré un error. Por favor, intenta preguntar de otra manera."
+    "error_message": "Lo siento, encontré un error. Por favor, intenta preguntar de otra manera.",
+    "confirm_reindex_title": "¿Actualizar el conocimiento de Controly?",
+    "confirm_reindex_message": "Esto actualizará la base de conocimientos de Controly con los datos más recientes. Este proceso puede tardar un poco y el chat brevemente no estará disponible. ¿Estás seguro de que deseas continuar?",
+    "confirm_reindex_button": "Sí, actualizar",
+    "cancel_button": "Cancelar"
   }
 }

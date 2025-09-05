@@ -25,7 +25,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-development_origin_regex = r"http://(localhost|127\.0\.0\.1|192\.168\..*|10\..*):5173"
+development_origin_regex = r"http://(localhost|127\.0\.0\.1|192.168\..*|10\..*|172\..*):5173"
 
 app.add_middleware(
     CORSMiddleware,

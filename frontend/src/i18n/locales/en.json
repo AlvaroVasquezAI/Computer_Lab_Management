@@ -1,6 +1,6 @@
 {
   "sidebar": {
-    "title": "Computer Laboratory",
+    "title": "Ctrl + LAB",
     "home": "Home",
     "workspace": "Workspace",
     "status": "Status",
@@ -18,7 +18,7 @@
     "signup": "Sign Up"
   },
   "footer": {
-    "copyright": "© {{year}} Computer Laboratory. UPIIT-IPN."
+    "copyright": "© {{year}} Ctrl + LAB. UPIIT-IPN."
   },
   "common": {
     "go_back": "Go Back"
@@ -68,8 +68,6 @@
     }
   },
   "landing": {
-    "title_line1": "COMPUTER",
-    "title_line2": "LABORATORY",
     "start_button": "Start"
   },
   "forgot_password": {
@@ -309,8 +307,12 @@
   },
   "chat": {
     "welcome_header": "Hello, {{name}}", 
-    "welcome_message": "Hello! I'm LabSy, your personal lab assistant. How can I help you today?",
+    "welcome_message": "Hello! I'm Controly, your personal lab assistant. How can I help you today?",
     "input_placeholder": "Ask me about your subjects or practices...",
-    "error_message": "I'm sorry, I encountered an error. Please try asking in a different way."
+    "error_message": "I'm sorry, I encountered an error. Please try asking in a different way.",
+    "confirm_reindex_title": "Update Controly's Knowledge?",
+    "confirm_reindex_message": "This will update Controly's knowledge base based on the latest data. This process may take a minute, and the chat will be briefly unavailable. Are you sure you want to proceed?",
+    "confirm_reindex_button": "Yes, Update",
+    "cancel_button": "Cancel"
   }
 }

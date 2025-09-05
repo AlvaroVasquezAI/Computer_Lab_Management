@@ -20,5 +20,18 @@ python-multipart
 # Security
 passlib[bcrypt]
 python-jose[cryptography]
+
+# Llama
 ollama
 PyYAML
+
+# LangChain and RAG Components
+langchain
+langchain-community
+langchain-core
+
+# Vector Store (FAISS is a great local, file-based option)
+faiss-cpu
+
+# Embedding Model Library (for converting text to vectors)
+sentence-transformers

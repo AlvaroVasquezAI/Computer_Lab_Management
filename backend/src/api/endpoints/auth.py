@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -61,27 +62,29 @@ def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+class ForgotPasswordRequest(BaseModel):
+    email: str
+    lang: str = 'en'
+
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
 def forgot_password(
-    email: str = Body(..., embed=True),
+    request: ForgotPasswordRequest, 
     db: Session = Depends(get_db)
 ):
     """
     Handle forgot password request.
-    If the user exists, generate a new password and email it to them.
+    If the user exists, generate a new password and email it to them in their selected language.
     """
-    teacher = crud_teacher.get_teacher_by_email(db, email=email)
+    teacher = crud_teacher.get_teacher_by_email(db, email=request.email)
     
-    # IMPORTANT: We always return a success message, even if the user doesn't exist.
-    # This prevents "user enumeration attacks", where an attacker could guess valid emails.
     if teacher:
-        # Generate a new random password
         new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-        
-        # Update the password in the database
         crud_teacher.update_teacher_password(db, teacher=teacher, new_password=new_password)
         
-        # Send the email
-        send_password_reset_email(recipient_email=email, new_password=new_password)
+        send_password_reset_email(
+            recipient_email=request.email, 
+            new_password=new_password,
+            lang=request.lang
+        )
         
     return {"message": "If an account with this email exists, a password reset email has been sent."}

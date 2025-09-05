@@ -5,6 +5,9 @@ import { useTheme } from '../context/ThemeContext';
 import { FaLanguage, FaRegSun, FaMoon } from 'react-icons/fa';
 import './LandingPage.css';
 
+import logoLight from '../assets/images/logo-light.png';
+import logoDark from '../assets/images/logo-dark.png';
+
 const LandingPage = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -19,8 +22,11 @@ const LandingPage = () => {
       <header className="landing-header"></header>
       <main className="landing-content">
         <div className="landing-title">
-          <h1>{t('landing.title_line1')}</h1>
-          <h1>{t('landing.title_line2')}</h1>
+          <img 
+            src={theme === 'light' ? logoLight : logoDark}
+            alt="Ctrl+LAB Logo"
+            className="landing-logo"
+          />
         </div>
         <div className="landing-action">
           <button onClick={() => navigate('/login')} className="start-button">
