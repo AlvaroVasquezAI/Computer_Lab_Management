@@ -8,7 +8,7 @@ from src.services import context_builder
 from typing import List, Dict, Any
 from datetime import date
 
-from langchain_community.llms.ollama import Ollama
+from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -29,10 +29,8 @@ SCHOOL_CONTEXT_EN = """
 - Location: The UPIIT is a modern academic unit focused on internationalization.
 - Core Values: Excellence, social commitment, and innovation.
 - Offered Degrees: Engineering in Artificial Intelligence, Engineering in Transportation, Engineering in Automotive Systems, Biotechnological Engineering, Bachelor's in Data Science, Industrial Engineering.
-- Creator of the "Ctrl + LAB" and the assistant "Controly": Álvaro García Vásquez, AI Engineer, LinkedIn: https://www.linkedin.com/in/alvarovasquezai/
+- Creator of the system: Álvaro García Vásquez, AI Engineer, LinkedIn: https://www.linkedin.com/in/alvarovasquezai/
 - Director of UPIIT-IPN: Ing. Enrique Lima Morales
-- Explanation of the name "Controly": It is a play on words between "Control" (from the keyboard shortcut Ctrl) and "Ly", which sounds like a friendly and modern name. The shortcut "Ctrl + y" represents the idea of moving forward and redoing, symbolizing progress and efficiency.
-- Meaning of the name "Ctrl + LAB": It represents the keyboard shortcut "Ctrl" (Control) and "LAB" (Laboratory), symbolizing control and efficient management of the computer lab.
 """
 SCHOOL_CONTEXT_ES = """
 # INFORMACIÓN INSTITUCIONAL
@@ -41,10 +39,21 @@ SCHOOL_CONTEXT_ES = """
 - Ubicación: La UPIIT es una unidad académica moderna con un enfoque en la internacionalización.
 - Valores Fundamentales: Excelencia, compromiso social e innovación.
 - Carrerras ofrecidas: Ingeniería en Inteligencia Artificial, Ingeniería en Transporte, Ingeniería en Sistemas Automotrices, Ingeniería Biotecnológica, Licenciatura en Ciencia de Datos, Ingeniería Industrial.
-- Creador del sistema "Ctrl + LAB" y del asistente "Controly": Álvaro García Vásquez, Ingeniero en IA, LinkedIn: https://www.linkedin.com/in/alvarovasquezai/
+- Creador del sistema: Álvaro García Vásquez, Ingeniero en IA, LinkedIn: https://www.linkedin.com/in/alvarovasquezai/
 - Director de la UPIIT-IPN: Ing. Enrique Lima Morales
-- Explicación del nombre "Controly": Es un juego de palabras entre "Control" (por el atajo de teclado Ctrl) y "Ly", que suena como un nombre amigable y moderno. El atajo "Ctrl + y" representa la idea de avanzar y rehacer, simbolizando progreso y eficiencia.
-- Significado del nombre "Ctrl + LAB": Representa el atajo de teclado "Ctrl" (Control) y "LAB" (Laboratorio), simbolizando el control y la gestión eficiente del laboratorio de cómputo.
+"""
+
+AI_IDENTITY_CONTEXT_EN = """
+# AI ASSISTANT INFORMATION
+- Your Name: "Controly"
+- Your Role: AI assistant for the "Ctrl + LAB" system.
+- Your Creator: "Álvaro García Vásquez"
+"""
+AI_IDENTITY_CONTEXT_ES = """
+# INFORMACIÓN DEL ASISTENTE DE IA
+- Tu Nombre: "Controly"
+- Tu Rol: Asistente de IA para el sistema "Ctrl + LAB".
+- Tu Creador: "Álvaro García Vásquez"
 """
 
 # --- Helper Function for Formatting History ---
@@ -60,17 +69,19 @@ def format_history(history: List[Dict[str, Any]]) -> str:
 
 # --- LLM Chain Initialization ---
 try:
-    llm = Ollama(model=LLM_MODEL_NAME, base_url=OLLAMA_BASE_URL)
+    llm = OllamaLLM(model=LLM_MODEL_NAME, base_url=OLLAMA_BASE_URL)
 
     template = """
 # ROLE AND GOAL
-You are Controly, so your name as the assistant is "Controly", ALWAYS REMEMBER, a cheerful and highly professional AI assistant for the "Ctrl + LAB" system, which is a system to manage the computer laboratory at UPIIT-IPN. Your sole purpose is to assist teachers by answering their questions accurately based on the information provided to you. The users you interact with are ALWAYS teachers; there are no students in this system.
-Please, if the message is not the first one in the conversation, avoid repeating your introduction. If this is not the first message, don't say "Hello, [name]!" again. PLEASE.
+You are "Controly", so your name is "Controly", ALWAYS REMEMBER IT, you are a cheerful and highly professional AI assistant for the "Ctrl + LAB" system, which is a system to manage the computer laboratory at UPIIT-IPN. Your sole purpose is to assist teachers (not students, only teachers) by answering their questions accurately based on the information provided to you. The users you interact with are ALWAYS teachers; there are no students in this system.
+Please, if the message is not the first one in the conversation, avoid repeating your introduction. If this is not the first message, don't say "Hello, [name]!" again. PLEASE. Always try to answer based on the system lab, not other things at least the user asked. 
+Before confirm something you think you don't know, please check 3 times the context you have to analyze if you definitely don't know the answer. So please, ALWAYS CHECK 3 TIMES your context.
 
 # PERSONALITY
 - Cheerful and encouraging: Use a positive and supportive tone.
 - Academic and precise: Be clear, structured, and use professional language.
 - Helpful: Proactively offer assistance and structure your answers clearly, using bullet points for lists.
+- Concise: Be clear and concise, don't add innecessary information, only answer what was asked.
 
 # RULES
 1.  **Strict Grounding:** You MUST base your answers exclusively on the information provided below. Do not use any external knowledge.
@@ -112,8 +123,6 @@ Answer:
         | llm
         | StrOutputParser()
     )
-
-    print("Simplified RAG chain initialized successfully.")
 
 except Exception as e:
     print(f"An unexpected error occurred during chain initialization: {e}")
@@ -160,8 +169,13 @@ async def handle_chat_message(
         teacher_context = context_builder.build_teacher_context_string(
             db=db, teacher_id=current_teacher.teacher_id, lang=request.lang
         )
+
         school_context = SCHOOL_CONTEXT_ES if request.lang == 'es' else SCHOOL_CONTEXT_EN
-        full_context = f"{school_context}\n{teacher_context}"
+        ai_identity_context = AI_IDENTITY_CONTEXT_ES if request.lang == 'es' else AI_IDENTITY_CONTEXT_EN 
+
+        full_context = f"{ai_identity_context}\n{school_context}\n{teacher_context}"
+
+        print(full_context)
         today = date.today()
         current_date_str = f"Today is {today.strftime('%A, %Y-%m-%d')}."
 

@@ -10,3 +10,7 @@ def get_or_create_group(db: Session, group_name: str) -> Group:
         db_group = Group(group_name=group_name)
         db.add(db_group)
     return db_group
+
+def get_group_by_id(db: Session, group_id: int) -> Group | None:
+    """Retrieves a single group by its ID."""
+    return db.query(Group).filter(Group.group_id == group_id).first()

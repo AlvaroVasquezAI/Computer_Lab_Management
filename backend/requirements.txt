@@ -29,6 +29,7 @@ PyYAML
 langchain
 langchain-community
 langchain-core
+langchain-ollama
 
 # Vector Store (FAISS is a great local, file-based option)
 faiss-cpu

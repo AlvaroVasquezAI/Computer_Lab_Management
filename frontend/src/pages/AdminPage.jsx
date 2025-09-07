@@ -5,6 +5,7 @@ import apiClient from '../services/api';
 import { FaUsersCog, FaDoorOpen, FaPlus, FaTrash, FaIdBadge, FaUserShield, FaEdit, FaTimes } from 'react-icons/fa';
 import {FaComputer} from 'react-icons/fa6';
 import DeleteRoomModal from '../components/specific/DeleteRoomModal';
+import DataExportCard from '../components/specific/DataExportCard'; 
 import './AdminPage.css';
 
 const AdminPage = () => {
@@ -123,31 +124,36 @@ const AdminPage = () => {
             </div>
           </div>
 
-          <div className="admin-card">
-            <h2 className="admin-card-title"><FaDoorOpen /> {t('admin_page.room_management_title')}</h2>
-            <div className="rooms-grid">
-              {rooms.map(room => (
-                <div key={room.room_id} className="room-card">
-                  <div className="room-icon"><FaComputer /></div>
-                  <p className="room-id">{t('admin_page.teacher_id')}: {room.room_id}</p>
-                  <h4 className="room-card-name">{room.room_name}</h4>
-                  <p className="room-capacity">
-                    {room.capacity ? `${room.capacity} ${t('admin_page.people')}` : `N/A ${t('admin_page.people')}`}
-                  </p>
-                  <div className="room-actions">
-                    <button className="action-btn edit" onClick={() => handleOpenEditModal(room)}><FaEdit /></button>
-                    <button className="action-btn delete" onClick={() => handleDeleteRoom(room)}><FaTrash /></button>
+          <div className="admin-sections-grid-right-col">
+            <div className="admin-card">
+              <h2 className="admin-card-title"><FaDoorOpen /> {t('admin_page.room_management_title')}</h2>
+              <div className="rooms-grid">
+                {rooms.map(room => (
+                  <div key={room.room_id} className="room-card">
+                    <div className="room-icon"><FaComputer /></div>
+                    <p className="room-id">{t('admin_page.teacher_id')}: {room.room_id}</p>
+                    <h4 className="room-card-name">{room.room_name}</h4>
+                    <p className="room-capacity">
+                      {room.capacity ? `${room.capacity} ${t('admin_page.people')}` : `N/A ${t('admin_page.people')}`}
+                    </p>
+                    <div className="room-actions">
+                      <button className="action-btn edit" onClick={() => handleOpenEditModal(room)}><FaEdit /></button>
+                      <button className="action-btn delete" onClick={() => handleDeleteRoom(room)}><FaTrash /></button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <form onSubmit={handleAddRoom} className="add-room-form">
+                <h3>{t('admin_page.add_room_title')}</h3>
+                <input type="text" placeholder={t('admin_page.room_name_placeholder')} value={newRoomName} onChange={e => setNewRoomName(e.target.value)} required />
+                <input type="number" placeholder={t('admin_page.capacity_placeholder')} value={newRoomCapacity} onChange={e => setNewRoomCapacity(parseInt(e.target.value, 10))} min="1" required />
+                <button type="submit" className="add-room-btn"><FaPlus /> {t('admin_page.add_room_button')}</button>
+              </form>
             </div>
-            <form onSubmit={handleAddRoom} className="add-room-form">
-              <h3>{t('admin_page.add_room_title')}</h3>
-              <input type="text" placeholder={t('admin_page.room_name_placeholder')} value={newRoomName} onChange={e => setNewRoomName(e.target.value)} required />
-              <input type="number" placeholder={t('admin_page.capacity_placeholder')} value={newRoomCapacity} onChange={e => setNewRoomCapacity(parseInt(e.target.value, 10))} min="1" required />
-              <button type="submit" className="add-room-btn"><FaPlus /> {t('admin_page.add_room_button')}</button>
-            </form>
+            
+            <DataExportCard />
           </div>
+
         </div>
       </div>
 

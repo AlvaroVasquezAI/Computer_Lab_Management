@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from collections import defaultdict
 from src.models import booking, practice, teacher, group
 import math
+from src.models import room
 
 def get_bookings_for_room_on_date(db: Session, room_id: int, target_date: date):
     return (
@@ -51,3 +52,7 @@ def get_monthly_availability_for_room(db: Session, room_id: int, year: int, mont
             daily_slot_counts[day_of_month] += num_slots
             
     return dict(daily_slot_counts)
+
+def get_room_by_id(db: Session, room_id: int) -> room.Room | None:
+    """Retrieves a single room by its ID."""
+    return db.query(room.Room).filter(room.Room.room_id == room_id).first()

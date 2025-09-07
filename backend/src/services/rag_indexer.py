@@ -1,7 +1,7 @@
 import os
 from sqlalchemy.orm import Session, joinedload
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import OllamaEmbeddings
+from langchain_ollama.embeddings import OllamaEmbeddings
 from langchain_core.documents import Document
 from src.models import teacher, subject, group, room, schedule, practice, booking, announcement
 from src.database import SessionLocal

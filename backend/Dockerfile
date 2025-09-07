@@ -8,6 +8,8 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Ensure Python output is sent straight to the terminal without buffering
 ENV PYTHONUNBUFFERED 1
 
+RUN apt-get update && apt-get install -y build-essential libomp-dev
+
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

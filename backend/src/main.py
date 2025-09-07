@@ -5,7 +5,7 @@ from src.models import (
     teacher, subject, group, room, schedule, practice, booking, activity_log, announcement
 )
 from src.api.api import api_router
-from src.initial_data import seed_initial_data # <-- IMPORT THE SEEDING FUNCTION
+from src.initial_data import seed_initial_data 
 
 # This creates the database tables
 Base.metadata.create_all(bind=engine)
@@ -33,6 +33,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"]
 )
 
 @app.get("/")
