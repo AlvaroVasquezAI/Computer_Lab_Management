@@ -98,8 +98,8 @@
     "add_subject": "Add subject",
     "subject_placeholder": "Select or type a subject",
     "add_button": "Add",
-    "add_group_schedule": "Add group and schedule",
-    "group_name_placeholder": "Group Name (e.g., Group A)",
+    "add_group_schedule": "Add group",
+    "group_name_placeholder": "Group Name",
     "day": "Day",
     "start": "Start",
     "end": "End",
@@ -116,7 +116,13 @@
     "update_group": "Update Group",
     "go_to_login_prompt": "Already have an account?",
     "go_to_login_link": "Sign In",
-    "empty_subject_list": "No subjects added yet."
+    "empty_subject_list": "No subjects added yet.",
+    "type": "Type",
+    "schedule_type": {
+      "class": "Class",
+      "practice": "Practice"
+    },
+    "practice_duration_limit_tooltip": "Practice must be 90 minutes or less"
   },
   "modal": {
     "total_practices": "Total Practices Created",
@@ -125,6 +131,7 @@
     "day_header": "Day",
     "start_time_header": "Start Time",
     "end_time_header": "End Time",
+    "type_header": "Type",
     "loading_details": "Loading details...",
     "subjects_and_schedules": "Subjects & Schedules",
     "no_subjects_scheduled": "No subjects are scheduled for this group.",
@@ -349,5 +356,10 @@
     "confirm_reindex_message": "This will update Controly's knowledge base based on the latest data. This process may take a minute, and the chat will be briefly unavailable. Are you sure you want to proceed?",
     "confirm_reindex_button": "Yes, Update",
     "cancel_button": "Cancel"
+  },
+  "error": {
+    "lab_conflict": "Lab conflict for '{{subject}} ({{group}})' on {{day}} between {{start_time}} and {{end_time}}. All {{room_count}} lab rooms are already booked for practice by other teachers at this time.",
+    "multiple_practices": "You can only assign one practice session per week for Subject: '{{subject}}' and Group: '{{group}}'.",
+    "practice_duration": "Practice for group '{{group}}' on {{day}} exceeds the maximum duration of {{max_minutes}} minutes."
   }
 }

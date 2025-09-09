@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import './SubjectDetailModal.css'; 
-import { FaTimes, FaClock, FaBook, FaUsers } from 'react-icons/fa';
+import { FaTimes, FaClock, FaUsers, FaChalkboardTeacher } from 'react-icons/fa';
 
 const ScheduleDetailModal = ({ details, onClose }) => {
   const { t } = useTranslation();
@@ -18,6 +18,13 @@ const ScheduleDetailModal = ({ details, onClose }) => {
         <div className="group-schedule-card">
             <p><FaUsers /> <strong>{t('modal.group_header', 'Group')}:</strong> {details.group_name}</p>
             <p><FaClock /> <strong>{t('modal.time_header', 'Time')}:</strong> {details.start_time.substring(0, 5)} - {details.end_time.substring(0, 5)}</p>
+            <p>
+              <FaChalkboardTeacher /> 
+              <strong>Type:</strong> 
+              <span className={`type-tag-modal ${details.schedule_type.toLowerCase()}`}>
+                {details.schedule_type === 'PRACTICE' ? 'Practice' : 'Class'}
+              </span>
+            </p>
         </div>
       </div>
     </div>

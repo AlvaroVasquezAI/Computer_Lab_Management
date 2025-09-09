@@ -98,8 +98,8 @@
     "add_subject": "Añadir materia",
     "subject_placeholder": "Selecciona o escribe una materia",
     "add_button": "Añadir",
-    "add_group_schedule": "Añadir grupo y horario",
-    "group_name_placeholder": "Nombre del grupo (ej. Grupo A)",
+    "add_group_schedule": "Añadir grupo",
+    "group_name_placeholder": "Nombre del grupo",
     "day": "Día",
     "start": "Inicio",
     "end": "Fin",
@@ -116,7 +116,13 @@
     "update_group": "Actualizar grupo",
     "go_to_login_prompt": "¿Ya tienes una cuenta?",
     "go_to_login_link": "Iniciar sesión",
-    "empty_subject_list": "Aún no se han añadido materias."
+    "empty_subject_list": "Aún no se han añadido materias.",
+    "type": "Tipo",
+    "schedule_type": {
+      "class": "Clase",
+      "practice": "Práctica"
+    },
+    "practice_duration_limit_tooltip": "La práctica debe ser de 90 minutos o menos"
   },
   "modal": {
     "total_practices": "Total de prácticas creadas",
@@ -125,6 +131,7 @@
     "day_header": "Día",
     "start_time_header": "Hora de inicio",
     "end_time_header": "Hora de fin",
+    "type_header": "Tipo",
     "loading_details": "Cargando detalles...",
     "subjects_and_schedules": "Materias y horarios",
     "no_subjects_scheduled": "No hay materias programadas para este grupo.",
@@ -349,5 +356,10 @@
     "confirm_reindex_message": "Esto actualizará la base de conocimientos de Controly con los datos más recientes. Este proceso puede tardar un poco y el chat brevemente no estará disponible. ¿Estás seguro de que deseas continuar?",
     "confirm_reindex_button": "Sí, actualizar",
     "cancel_button": "Cancelar"
+  },
+  "error": {
+    "lab_conflict": "Conflicto de laboratorio para '{{subject}} ({{group}})' el {{day}} entre {{start_time}} y {{end_time}}. Las {{room_count}} salas de laboratorio ya están reservadas para prácticas por otros profesores en este horario.",
+    "multiple_practices": "Solo puedes asignar una sesión de práctica por semana para la Materia: '{{subject}}' y el Grupo: '{{group}}'.",
+    "practice_duration": "La práctica para el grupo '{{group}}' el {{day}} excede la duración máxima de {{max_minutes}} minutos."
   }
 }

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import date, datetime, time
+from src.models.schedule import ScheduleType
 
 class PracticeStats(BaseModel):
     subject_name: str
@@ -119,6 +120,7 @@ class ScheduleEntry(BaseModel):
     subject_name: str
     group_name: str
     group_id: int
+    schedule_type: ScheduleType 
 
 class WeeklySchedule(BaseModel):
     monday: List[ScheduleEntry]

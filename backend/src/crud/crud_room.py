@@ -56,3 +56,7 @@ def get_monthly_availability_for_room(db: Session, room_id: int, year: int, mont
 def get_room_by_id(db: Session, room_id: int) -> room.Room | None:
     """Retrieves a single room by its ID."""
     return db.query(room.Room).filter(room.Room.room_id == room_id).first()
+
+def get_total_room_count(db: Session) -> int:
+    """Returns the total number of lab rooms in the system."""
+    return db.query(room.Room).count()

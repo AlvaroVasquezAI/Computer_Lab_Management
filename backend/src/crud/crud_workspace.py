@@ -337,6 +337,7 @@ def is_practice_deletable(db: Session, practice_id: int) -> bool:
 def get_teacher_weekly_schedule(db: Session, teacher_id: int):
     """
     Fetches the full weekly schedule for a teacher, organized by day of the week.
+    NOW INCLUDES the schedule_type (CLASS or PRACTICE).
     """
     schedules_query = (
         db.query(
@@ -345,7 +346,8 @@ def get_teacher_weekly_schedule(db: Session, teacher_id: int):
             schedule.Schedule.end_time,
             subject.Subject.subject_name,
             group.Group.group_name,
-            group.Group.group_id
+            group.Group.group_id,
+            schedule.Schedule.schedule_type  
         )
         .join(subject.Subject, schedule.Schedule.subject_id == subject.Subject.subject_id)
         .join(group.Group, schedule.Schedule.group_id == group.Group.group_id)
@@ -365,7 +367,8 @@ def get_teacher_weekly_schedule(db: Session, teacher_id: int):
                 "end_time": item.end_time,
                 "subject_name": item.subject_name,
                 "group_name": item.group_name,
-                "group_id": item.group_id
+                "group_id": item.group_id,
+                "schedule_type": item.schedule_type
             })
 
     day_map = {1: "monday", 2: "tuesday", 3: "wednesday", 4: "thursday", 5: "friday"}

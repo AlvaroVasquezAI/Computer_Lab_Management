@@ -39,16 +39,13 @@
 .sessions-list::-webkit-scrollbar {
   width: 6px;
 }
-
 .sessions-list::-webkit-scrollbar-track {
   background: transparent;
 }
-
 .sessions-list::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 10px;
 }
-
 body[data-theme='dark'] .sessions-list::-webkit-scrollbar-thumb {
     background-color: rgba(255, 255, 255, 0.2);
 }
@@ -60,11 +57,13 @@ body[data-theme='dark'] .sessions-list::-webkit-scrollbar-thumb {
     border-radius: 8px;
     background-color: var(--input-bg);
     color: var(--input-text);
-    font-size: 0.9rem;
-    font-weight: 500;
     cursor: pointer;
     text-align: center;
     transition: background-color 0.2s, transform 0.1s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .session-button:focus {
@@ -74,6 +73,30 @@ body[data-theme='dark'] .sessions-list::-webkit-scrollbar-thumb {
 .session-button:hover {
     background-color: var(--sidebar-hover-bg);
     transform: scale(1.02);
+}
+
+.session-group-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.type-tag {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.type-tag.class {
+    background-color: var(--sidebar-hover-bg);
+    color: var(--text-secondary);
+}
+
+.type-tag.practice {
+    background-color: var(--background-card-main);
+    color: var(--text-on-card);
 }
 
 .no-sessions-placeholder {
@@ -93,4 +116,16 @@ body[data-theme='dark'] .sessions-list::-webkit-scrollbar-thumb {
 .group-schedule-card p svg {
     font-size: 1.2rem;
     color: var(--text-secondary);
+}
+
+.type-tag-modal {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-left: 0.5rem;
+}
+.type-tag-modal.class {
+    color: var(--text-secondary);
+}
+.type-tag-modal.practice {
+    color: var(--background-card-main);
 }

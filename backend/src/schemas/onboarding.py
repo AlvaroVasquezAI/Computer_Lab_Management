@@ -1,12 +1,14 @@
 from pydantic import BaseModel, EmailStr
 from typing import List, Optional
 from datetime import time
+from src.models.schedule import ScheduleType
 
 # A single row in the schedule table
 class ScheduleItem(BaseModel):
     day_of_week: int  
     start_time: time
     end_time: time
+    schedule_type: Optional[ScheduleType] = ScheduleType.CLASS
 
 # A group, associated with its schedule for a specific subject
 class GroupWithSchedule(BaseModel):

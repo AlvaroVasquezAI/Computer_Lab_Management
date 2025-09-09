@@ -2,29 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import apiClient from '../../services/api';
-import { useAuth } from '../../context/AuthContext'; 
+import { useAuth } from '../../context/AuthContext';
 import './SignUpPage.css';
-import DetailsForm from '../../components/specific/DetailsForm';
+
+import DetailsForm from '../../components/specific/DetailsForm'; 
 import SubjectManager from '../../components/specific/SubjectManager';
-import SubjectList from '../../components/specific/SubjectList';
-import GroupTags from '../../components/specific/GroupTags';
+import SubjectSummaryCard from '../../components/specific/SubjectSummaryCard';
 
 const SignUpPage = ({ isEditMode = false }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const { login } = useAuth(); 
-    const { teacherId } = useParams(); 
+    const { login } = useAuth();
+    const { teacherId } = useParams();
 
     const [teacherDetails, setTeacherDetails] = useState({ name: '', email: '', password: '', role: 'teacher' });
     const [subjects, setSubjects] = useState([]);
+    const [healthStatuses, setHealthStatuses] = useState([]);
     
     const [existingSubjects, setExistingSubjects] = useState([]);
     const [existingGroups, setExistingGroups] = useState([]);
     const [loading, setLoading] = useState(false);
     const [pageLoading, setPageLoading] = useState(isEditMode);
+    const [apiError, setApiError] = useState('');
     
     const [editingSubjectIndex, setEditingSubjectIndex] = useState(null);
     const [editingSubjectData, setEditingSubjectData] = useState(null);
+    
+    const [managerKey, setManagerKey] = useState(0);
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -41,6 +45,7 @@ const SignUpPage = ({ isEditMode = false }) => {
         fetchInitialData();
         
         if (isEditMode && teacherId) {
+            setPageLoading(true);
             apiClient.get(`/admin/teachers/${teacherId}/onboarding-data`)
                 .then(response => {
                     const data = response.data;
@@ -51,14 +56,33 @@ const SignUpPage = ({ isEditMode = false }) => {
                         role: data.role,
                     });
                     setSubjects(data.subjects);
-                    setPageLoading(false); 
                 })
                 .catch(err => {
                     console.error("Failed to fetch teacher data for editing", err);
+                })
+                .finally(() => {
                     setPageLoading(false);
                 });
         }
     }, [isEditMode, teacherId]);
+
+    useEffect(() => {
+        const statuses = subjects.map((subject, index) => {
+            let status = 'ok';
+            let message = '';
+
+            for (const group of subject.groups) {
+                const practiceSessions = group.schedule.filter(s => s.schedule_type === 'PRACTICE');
+                if (practiceSessions.length > 1) {
+                    status = 'error';
+                    message = `Group '${group.group_name}' has more than one practice session.`;
+                    break; 
+                }
+            }
+            return { status, message, isActive: index === editingSubjectIndex };
+        });
+        setHealthStatuses(statuses);
+    }, [subjects, editingSubjectIndex]);
 
     const handleAddOrUpdateSubject = (subjectData) => {
         if (editingSubjectIndex !== null) {
@@ -67,10 +91,11 @@ const SignUpPage = ({ isEditMode = false }) => {
             );
             setSubjects(updatedSubjects);
         } else {
-            setSubjects([...subjects, subjectData]);
+            setSubjects(prevSubjects => [...prevSubjects, subjectData]);
         }
         setEditingSubjectIndex(null);
         setEditingSubjectData(null);
+        setManagerKey(prevKey => prevKey + 1);
     };
 
     const handleDeleteSubject = (indexToDelete) => {
@@ -82,6 +107,8 @@ const SignUpPage = ({ isEditMode = false }) => {
     const handleEditSubject = (indexToEdit) => {
         setEditingSubjectIndex(indexToEdit);
         setEditingSubjectData(subjects[indexToEdit]);
+        setManagerKey(prevKey => prevKey + 1);
+        document.querySelector('.right-column').scrollIntoView({ behavior: 'smooth' });
     };
 
     const handleSubmit = async () => {
@@ -94,6 +121,7 @@ const SignUpPage = ({ isEditMode = false }) => {
             return;
         }
         setLoading(true);
+        setApiError('');
 
         try {
             if (isEditMode) {
@@ -127,8 +155,15 @@ const SignUpPage = ({ isEditMode = false }) => {
             }
         } catch (error) {
             console.error("Operation failed", error);
-            const errorMsg = error.response?.data?.detail || "An unknown error occurred.";
-            alert(`Failed to save: ${errorMsg}`);
+            const errorDetail = error.response?.data?.detail;
+            
+            if (typeof errorDetail === 'object' && errorDetail.key) {
+                setApiError(t(errorDetail.key, errorDetail.params));
+            } else if (typeof errorDetail === 'string') {
+                setApiError(errorDetail);
+            } else {
+                setApiError("An unknown error occurred.");
+            }
         } finally {
             setLoading(false);
         }
@@ -150,22 +185,23 @@ const SignUpPage = ({ isEditMode = false }) => {
             <div className="signup-grid">
                 <div className="left-column">
                     <DetailsForm details={teacherDetails} setDetails={setTeacherDetails} isEditMode={isEditMode} />
-                    <div className="card">
-                        <h3>{t('signup.subjects')}</h3>
-                        <SubjectList 
-                            subjects={subjects} 
-                            onDelete={handleDeleteSubject} 
-                            onEdit={handleEditSubject}
-                        />
-                    </div>
-                    <div className="card">
-                        <h3>{t('signup.all_groups')}</h3>
-                        <GroupTags subjects={subjects} />
+                    
+                    <div className="subject-card-list">
+                        {subjects.map((subject, index) => (
+                            <SubjectSummaryCard
+                                key={index}
+                                subject={subject}
+                                index={index}
+                                onEdit={handleEditSubject}
+                                onDelete={handleDeleteSubject}
+                                healthStatus={healthStatuses[index] || { status: 'ok', message: '', isActive: false }}
+                            />
+                        ))}
                     </div>
                 </div>
                 <div className="right-column">
                     <SubjectManager 
-                        key={editingSubjectIndex} 
+                        key={managerKey}
                         existingSubjects={existingSubjects}
                         existingGroups={existingGroups}
                         onAddSubject={handleAddOrUpdateSubject}
@@ -174,9 +210,12 @@ const SignUpPage = ({ isEditMode = false }) => {
                 </div>
             </div>
             <footer className="signup-footer">
-                <button onClick={handleSubmit} className="submit-button" disabled={loading}>
+                {apiError && <p className="error-message" style={{ marginBottom: '15px' }}>{apiError}</p>}
+                
+                <button onClick={handleSubmit} className="button-primary submit-button" disabled={loading}>
                     {loading ? '...' : (isEditMode ? t('admin_page.save_changes_button') : t('signup.save_changes_button'))}
                 </button>
+
                 {!isEditMode && (
                     <p className="tertiary-action">
                         {t('signup.go_to_login_prompt')}{' '}

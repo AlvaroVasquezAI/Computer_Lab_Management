@@ -1,6 +1,12 @@
-from sqlalchemy import Column, Integer, Time, ForeignKey
+from sqlalchemy import Column, Integer, Time, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from src.database import Base
+import enum
+
+class ScheduleType(str, enum.Enum):
+    CLASS = "CLASS"
+    PRACTICE = "PRACTICE"
+
 
 class Schedule(Base):
     __tablename__ = "schedules"
@@ -11,6 +17,8 @@ class Schedule(Base):
     day_of_week = Column(Integer, nullable=False) 
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
+
+    schedule_type = Column(Enum(ScheduleType), nullable=False, default=ScheduleType.CLASS, server_default=ScheduleType.CLASS.value)
 
     # Relationships
     teacher = relationship("Teacher", back_populates="schedules")

@@ -26,12 +26,15 @@ const WorkspaceSchedule = ({ scheduleData }) => {
                         <div className="sessions-list">
                             {scheduleData[day] && scheduleData[day].length > 0 ? (
                                 scheduleData[day].map((session, index) => (
-                                    <button 
-                                        key={index} 
+                                    <button
+                                        key={index}
                                         className="session-button"
                                         onClick={() => handleSessionClick(session)}
                                     >
-                                        {session.group_name}
+                                        <span className="session-group-name">{session.group_name}</span>
+                                        <span className={`type-tag ${session.schedule_type.toLowerCase()}`}>
+                                            {session.schedule_type === 'PRACTICE' ? 'Practice' : 'Class'}
+                                        </span>
                                     </button>
                                 ))
                             ) : (
@@ -45,7 +48,7 @@ const WorkspaceSchedule = ({ scheduleData }) => {
             </div>
 
             {selectedSchedule && (
-                <ScheduleDetailModal 
+                <ScheduleDetailModal
                     details={selectedSchedule}
                     onClose={() => setSelectedSchedule(null)}
                 />
