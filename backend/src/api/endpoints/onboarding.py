@@ -4,7 +4,7 @@ from src.database import get_db
 from src.schemas import onboarding as onboarding_schema
 from src.crud import crud_teacher, crud_subject, crud_group, crud_schedule, crud_room
 from src.models.schedule import Schedule, ScheduleType
-from datetime import datetime
+from datetime import datetime, time
 
 router = APIRouter()
 
@@ -160,3 +160,23 @@ def onboard_new_teacher(
         )
 
     return {"message": "Teacher successfully onboarded."}
+
+@router.get("/check-practice-availability")
+def check_practice_availability(
+    day_of_week: int,
+    start_time: time,
+    end_time: time,
+    db: Session = Depends(get_db)
+):
+    """
+    Checks if there is at least one lab room available for a potential
+    practice session at a specific day and time.
+    """
+    total_rooms = crud_room.get_total_room_count(db)
+    conflicting_practices_in_db = crud_schedule.count_conflicting_practices(
+        db, day_of_week=day_of_week, start_time=start_time, end_time=end_time
+    )
+    
+    is_available = (conflicting_practices_in_db < total_rooms)
+    
+    return {"is_available": is_available}

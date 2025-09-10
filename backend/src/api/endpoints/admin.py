@@ -257,7 +257,8 @@ def get_teacher_data_for_edit(teacher_id: int, db: Session = Depends(get_db)):
         schedules_by_subject[subject_name][group_name].append({
             "day_of_week": sch.day_of_week,
             "start_time": sch.start_time,
-            "end_time": sch.end_time
+            "end_time": sch.end_time,
+            "schedule_type": sch.schedule_type  
         })
     
     subjects_list = []

@@ -122,7 +122,8 @@
       "class": "Clase",
       "practice": "Práctica"
     },
-    "practice_duration_limit_tooltip": "La práctica debe ser de 90 minutos o menos"
+    "practice_duration_limit_tooltip": "La práctica debe ser de 90 minutos o menos",
+    "no_labs_available_tooltip": "No hay laboratorios disponibles en este horario."
   },
   "modal": {
     "total_practices": "Total de prácticas creadas",
@@ -361,5 +362,11 @@
     "lab_conflict": "Conflicto de laboratorio para '{{subject}} ({{group}})' el {{day}} entre {{start_time}} y {{end_time}}. Las {{room_count}} salas de laboratorio ya están reservadas para prácticas por otros profesores en este horario.",
     "multiple_practices": "Solo puedes asignar una sesión de práctica por semana para la Materia: '{{subject}}' y el Grupo: '{{group}}'.",
     "practice_duration": "La práctica para el grupo '{{group}}' el {{day}} excede la duración máxima de {{max_minutes}} minutos."
+  },
+  "validation": {
+    "required": "Este campo es obligatorio.",
+    "email_invalid": "Por favor, introduce una dirección de correo válida.",
+    "email_in_use": "Este correo ya está en uso. Por favor, intenta con otro.",
+    "password_short": "La contraseña debe tener al menos 4 caracteres."
   }
 }

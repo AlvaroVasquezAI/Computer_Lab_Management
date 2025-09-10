@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -88,3 +88,11 @@ def forgot_password(
         )
         
     return {"message": "If an account with this email exists, a password reset email has been sent."}
+
+@router.get("/check-email", status_code=status.HTTP_200_OK)
+def check_email_exists(email: EmailStr, db: Session = Depends(get_db)):
+    """
+    Check if an email address is already registered in the system.
+    """
+    teacher = crud_teacher.get_teacher_by_email(db, email=email)
+    return {"exists": teacher is not None}

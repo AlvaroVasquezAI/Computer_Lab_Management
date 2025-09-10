@@ -122,7 +122,8 @@
       "class": "Class",
       "practice": "Practice"
     },
-    "practice_duration_limit_tooltip": "Practice must be 90 minutes or less"
+    "practice_duration_limit_tooltip": "Practice must be 90 minutes or less",
+    "no_labs_available_tooltip": "No labs available at this time."
   },
   "modal": {
     "total_practices": "Total Practices Created",
@@ -361,5 +362,11 @@
     "lab_conflict": "Lab conflict for '{{subject}} ({{group}})' on {{day}} between {{start_time}} and {{end_time}}. All {{room_count}} lab rooms are already booked for practice by other teachers at this time.",
     "multiple_practices": "You can only assign one practice session per week for Subject: '{{subject}}' and Group: '{{group}}'.",
     "practice_duration": "Practice for group '{{group}}' on {{day}} exceeds the maximum duration of {{max_minutes}} minutes."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "email_invalid": "Please enter a valid email address.",
+    "email_in_use": "This email is already in use. Please try another.",
+    "password_short": "Password must be at least 4 characters long."
   }
 }
