@@ -123,7 +123,8 @@
       "practice": "Práctica"
     },
     "practice_duration_limit_tooltip": "La práctica debe ser de 90 minutos o menos",
-    "no_labs_available_tooltip": "No hay laboratorios disponibles en este horario."
+    "no_labs_available_tooltip": "No hay laboratorios disponibles en este horario.",
+    "add_time_slot": "Añadir modulo"
   },
   "modal": {
     "total_practices": "Prácticas",
@@ -137,7 +138,8 @@
     "subjects_and_schedules": "Materias y horarios",
     "no_subjects_scheduled": "No hay materias programadas para este grupo.",
     "group_header": "Grupo",
-    "time_header": "Hora"
+    "time_header": "Hora",
+    "practice_title": "Práctica"
   },
   "workspace": {
     "title": "Gestión",

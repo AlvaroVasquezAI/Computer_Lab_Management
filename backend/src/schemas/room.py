@@ -12,9 +12,15 @@ class Room(BaseModel):
 class BookingTeacher(BaseModel):
     teacher_name: str
 
+class BookingSubject(BaseModel):
+    subject_name: str
+    class Config:
+        from_attributes = True
+        
 class BookingPractice(BaseModel):
     title: str
-    teacher: BookingTeacher 
+    teacher: BookingTeacher
+    subject: BookingSubject 
 
 class BookingGroup(BaseModel):
     group_name: str

@@ -123,7 +123,8 @@
       "practice": "Practice"
     },
     "practice_duration_limit_tooltip": "Practice must be 90 minutes or less",
-    "no_labs_available_tooltip": "No labs available at this time."
+    "no_labs_available_tooltip": "No labs available at this time.",
+    "add_time_slot": "Add module"
   },
   "modal": {
     "total_practices": "Practices",
@@ -137,7 +138,8 @@
     "subjects_and_schedules": "Subjects & Schedules",
     "no_subjects_scheduled": "No subjects are scheduled for this group.",
     "group_header": "Group",
-    "time_header": "Time"
+    "time_header": "Time",
+    "practice_title": "Practice"
   },
   "workspace": {
     "title": "Workspace",

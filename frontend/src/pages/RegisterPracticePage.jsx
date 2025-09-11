@@ -65,17 +65,14 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }
   const excludedDates = useMemo(() => {
     return existingBookings
       .filter(booking => booking.group_id === group.group_id)
-      .map(booking => {
-        const [year, month, day] = booking.date.split('-').map(Number);
-        return new Date(Date.UTC(year, month - 1, day));
-      });
+      .map(booking => new Date(booking.date + 'T00:00:00')); 
   }, [existingBookings, group.group_id]);
 
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
     const dayOfWeek = date.getDay();
-    const schedule = group.schedules.find(s => s.day_of_week === dayOfWeek);
+    const schedule = group.schedules.find(s => s.day_of_week === dayOfWeek && s.schedule_type === 'PRACTICE');
     setScheduleForDate(schedule);
     setSelectedRoomId('');
     setAvailableRooms([]);
@@ -115,7 +112,6 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }
         <DatePicker
           selected={selectedDate}
           onChange={handleDateChange}
-          highlightDates={scheduleDays.practiceDates} 
           excludeDates={excludedDates}
           minDate={today}
           maxDate={twoWeeksFromNow}
@@ -126,18 +122,27 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }
             const day = date.getDay();
             return group.schedules.some(s => s.day_of_week === day && s.schedule_type === 'PRACTICE');
           }}
-          dayClassName={date => { 
-            const todayClass = date.getDate() === new Date().getDate() && date.getMonth() === new Date().getMonth()
-              ? "custom-today-date"
-              : "";
-            
-            const isClassDay = scheduleDays.classDates.some(
-              classDate => classDate.toDateString() === date.toDateString()
-            );
+          dayClassName={date => {
+              const classNames = [];
+              const today = new Date();
 
-            const classDayClass = isClassDay ? 'class-day-unselectable' : '';
-            
-            return `${todayClass} ${classDayClass}`.trim();
+              if (date.toDateString() === today.toDateString()) {
+                  classNames.push("custom-today-date");
+              }
+              
+              const isPracticeDayOfWeek = group.schedules.some(
+                  s => s.day_of_week === date.getDay() && s.schedule_type === 'PRACTICE'
+              );
+
+              const isExcluded = excludedDates.some(
+                  excludedDate => excludedDate.toDateString() === date.toDateString()
+              );
+
+              if (isPracticeDayOfWeek && !isExcluded) {
+                  classNames.push('react-datepicker__day--highlighted');
+              }
+
+              return classNames.join(' ');
           }}
         />
         {scheduleForDate && (

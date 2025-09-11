@@ -11,6 +11,7 @@ def get_bookings_for_room_on_date(db: Session, room_id: int, target_date: date):
         db.query(booking.Booking)
         .options(
             joinedload(booking.Booking.practice).joinedload(practice.Practice.teacher),
+            joinedload(booking.Booking.practice).joinedload(practice.Practice.subject),
             joinedload(booking.Booking.group),
         )
         .filter(

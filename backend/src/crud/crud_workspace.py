@@ -423,19 +423,23 @@ def get_monthly_practice_progress(db: Session, teacher_id: int):
         groups_progress_list = []
         subject_total_goal = 0
         subject_total_completed = 0
+        counted_practice_days_for_subject = set()
 
         for grp in groups_for_subject:
             group_goal = 0
+
             practice_schedules = db.query(schedule.Schedule).filter(
                 schedule.Schedule.teacher_id == teacher_id,
                 schedule.Schedule.subject_id == subj.subject_id,
                 schedule.Schedule.group_id == grp.group_id,
                 schedule.Schedule.schedule_type == schedule.ScheduleType.PRACTICE
             ).all()
-            
+
             for sched in practice_schedules:
-                num_days = count_specific_days_in_month(current_year, current_month, sched.day_of_week)
-                group_goal += num_days
+                if sched.day_of_week not in counted_practice_days_for_subject:
+                    num_days = count_specific_days_in_month(current_year, current_month, sched.day_of_week)
+                    group_goal += num_days
+                    counted_practice_days_for_subject.add(sched.day_of_week)
 
             group_completed = db.query(func.count(booking.Booking.booking_id)).join(
                 practice.Practice, booking.Booking.practice_id == practice.Practice.practice_id
@@ -446,16 +450,17 @@ def get_monthly_practice_progress(db: Session, teacher_id: int):
                 booking.Booking.practice_date >= start_of_month,
                 booking.Booking.practice_date < today
             ).scalar() or 0
+            
+            subject_total_goal += group_goal 
+            subject_total_completed += group_completed
 
-            if group_goal > 0:
+            if group_goal > 0 or group_completed > 0:
                 groups_progress_list.append({
                     "group_name": grp.group_name,
                     "completed_count": group_completed,
                     "total_goal": group_goal
                 })
-                subject_total_goal += group_goal
-                subject_total_completed += group_completed
-        
+
         if subject_total_goal > 0:
             final_results.append({
                 "subject_name": subj.subject_name,

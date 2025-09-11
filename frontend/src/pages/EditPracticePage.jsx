@@ -149,22 +149,38 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings, 
                 <DatePicker
                     selected={selectedDate}
                     onChange={handleDateChange}
-                    highlightDates={highlightDates}
                     excludeDates={excludedDates}
-                    minDate={today} 
+                    minDate={today}
                     maxDate={twoWeeksFromNow}
                     placeholderText="mm/dd/yyyy"
                     dateFormat="MM/dd/yyyy"
                     className="custom-datepicker-input"
                     filterDate={(date) => {
                         const day = date.getDay();
-                        return group.schedules.some(s => s.day_of_week === day);
+                        return group.schedules.some(s => s.day_of_week === day && s.schedule_type === 'PRACTICE');
                     }}
-                    dayClassName={date =>
-                        date.getDate() === new Date().getDate() && date.getMonth() === new Date().getMonth()
-                        ? "custom-today-date"
-                        : undefined
-                    }
+                    dayClassName={date => {
+                        const classNames = [];
+                        const today = new Date();
+                        
+                        if (date.toDateString() === today.toDateString()) {
+                            classNames.push("custom-today-date");
+                        }
+                        
+                        const isPracticeDayOfWeek = group.schedules.some(
+                            s => s.day_of_week === date.getDay() && s.schedule_type === 'PRACTICE'
+                        );
+
+                        const isExcluded = excludedDates.some(
+                            excludedDate => excludedDate.toDateString() === date.toDateString()
+                        );
+
+                        if (isPracticeDayOfWeek && !isExcluded) {
+                            classNames.push('react-datepicker__day--highlighted');
+                        }
+
+                        return classNames.join(' ');
+                    }}
                 />
                 {scheduleForDate && (
                     <div className="schedule-time-display">
