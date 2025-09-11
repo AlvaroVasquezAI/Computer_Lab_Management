@@ -33,7 +33,9 @@ const WorkspaceSchedule = ({ scheduleData }) => {
                                     >
                                         <span className="session-group-name">{session.group_name}</span>
                                         <span className={`type-tag ${session.schedule_type.toLowerCase()}`}>
-                                            {session.schedule_type === 'PRACTICE' ? 'Practice' : 'Class'}
+                                            {session.schedule_type === 'PRACTICE' 
+                                                ? t('signup.schedule_type.practice', 'Practice') 
+                                                : t('signup.schedule_type.class', 'Class')}
                                         </span>
                                     </button>
                                 ))

@@ -14,6 +14,7 @@ class ScheduleDetail(BaseModel):
     day_of_week: int
     start_time: time
     end_time: time
+    schedule_type: ScheduleType
 
     class Config:
         from_attributes = True
@@ -128,3 +129,14 @@ class WeeklySchedule(BaseModel):
     wednesday: List[ScheduleEntry]
     thursday: List[ScheduleEntry]
     friday: List[ScheduleEntry]
+
+class GroupProgress(BaseModel):
+    group_name: str
+    completed_count: int
+    total_goal: int
+
+class MonthlyProgress(BaseModel):
+    subject_name: str
+    total_completed: int
+    total_goal: int
+    groups_progress: List[GroupProgress]

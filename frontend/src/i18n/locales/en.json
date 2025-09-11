@@ -126,7 +126,7 @@
     "no_labs_available_tooltip": "No labs available at this time."
   },
   "modal": {
-    "total_practices": "Total Practices Created",
+    "total_practices": "Practices",
     "groups_and_schedules": "Groups & Schedules",
     "no_groups_scheduled": "No groups are scheduled for this subject.",
     "day_header": "Day",

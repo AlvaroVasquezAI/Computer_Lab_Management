@@ -31,15 +31,15 @@ def get_teacher_groups(
     """
     return crud_workspace.get_groups_by_teacher(db, teacher_id=current_teacher.teacher_id)
 
-@router.get("/stats/practices-per-subject", response_model=List[workspace_schema.PracticeStats])
-def get_teacher_practice_stats(
+@router.get("/monthly-progress", response_model=List[workspace_schema.MonthlyProgress])
+def get_monthly_progress(
     db: Session = Depends(get_db),
     current_teacher: Teacher = Depends(get_current_teacher)
 ):
     """
-    Get the count of practices per subject for the logged-in teacher.
+    Gets the monthly practice progress (completed vs. goal) for each of the teacher's subjects.
     """
-    return crud_workspace.get_practice_stats_by_teacher(db, teacher_id=current_teacher.teacher_id)
+    return crud_workspace.get_monthly_practice_progress(db, teacher_id=current_teacher.teacher_id)
 
 @router.get("/subjects/{subject_id}", response_model=workspace_schema.SubjectDetail)
 def get_subject_details(

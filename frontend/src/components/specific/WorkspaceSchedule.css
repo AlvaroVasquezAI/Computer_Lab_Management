@@ -129,3 +129,9 @@ body[data-theme='dark'] .sessions-list::-webkit-scrollbar-thumb {
 .type-tag-modal.practice {
     color: var(--background-card-main);
 }
+
+@media (max-width: 768px) {
+    .schedule-card-container {
+        grid-template-columns: 1fr;
+    }
+}

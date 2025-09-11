@@ -188,8 +188,8 @@
 }
 
 .error-text {
-    font-size: 0.9rem;
-    color: #b91c1c;
+  font-size: 0.9rem;
+  color: #b91c1c;
 }
 
 body[data-theme='dark'] .form-field input[type="text"],
@@ -201,8 +201,8 @@ body[data-theme='dark'] .room-selector-wrapper select {
 }
 
 body[data-theme='dark'] .group-card {
-    background-color: var(--background-card-main);
-    border-color: var(--sidebar-hover-bg);
+  background-color: var(--background-card-main);
+  border-color: var(--sidebar-hover-bg);
 }
 
 .submit-button.with-icon {
@@ -245,20 +245,20 @@ body[data-theme='dark'] .submit-button.with-icon:hover:not(:disabled) {
 }
 
 @media (max-width: 768px) {
-    .form-top-section {
-        grid-template-columns: 1fr;
-    }
-    .form-details {
-        height: auto;
-        gap: 1.5rem;
-    }
-    .form-field {
-        grid-template-columns: 1fr;
-    }
-    .form-field label {
-        text-align: left;
-        margin-bottom: -0.5rem;
-    }
+  .form-top-section {
+      grid-template-columns: 1fr;
+  }
+  .form-details {
+      height: auto;
+      gap: 1.5rem;
+  }
+  .form-field {
+      grid-template-columns: 1fr;
+  }
+  .form-field label {
+      text-align: left;
+      margin-bottom: -0.5rem;
+  }
 }
 
 .custom-datepicker-input {
@@ -291,7 +291,7 @@ body[data-theme='dark'] .submit-button.with-icon:hover:not(:disabled) {
   color: var(--text-primary);
 }
 .react-datepicker__navigation-icon::before {
-    border-color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 .react-datepicker__day--outside-month {
   color: var(--text-secondary);
@@ -367,4 +367,28 @@ body[data-theme='dark'] .submit-button.with-icon:hover:not(:disabled) {
 
 .page-title {
   margin-bottom: 0 !important; 
+}
+
+.react-datepicker__day.class-day-unselectable {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  font-weight: normal;
+  border-radius: 50%;
+}
+
+.react-datepicker__day.class-day-unselectable:hover {
+  background-color: #e5e7eb;
+  border-radius: 50%;
+}
+
+body[data-theme='dark'] .react-datepicker__day.class-day-unselectable {
+  background-color: #374151;
+  color: #6b7280;
+  border-radius: 50%;
+}
+
+body[data-theme='dark'] .react-datepicker__day.class-day-unselectable:hover {
+  background-color: #374151;
+  border-radius: 50%;
 }

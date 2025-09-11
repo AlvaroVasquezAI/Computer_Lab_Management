@@ -63,16 +63,18 @@ const GroupDetailModal = ({ groupId, onClose, teacherIdForAdmin = null }) => {
                     <div key={subject.subject_name} className="group-schedule-card">
                         <h4>{subject.subject_name}</h4>
                         <div className="schedule-table">
-                            <div className="schedule-header">
-                                <div>{t('modal.day_header')}</div>
-                                <div>{t('modal.start_time_header')}</div>
-                                <div>{t('modal.end_time_header')}</div>
-                            </div>
                             {subject.schedules.map(sch => (
                                 <div key={sch.day_of_week} className="schedule-row">
                                     <div><DayOfWeek dayNumber={sch.day_of_week} /></div>
                                     <div>{sch.start_time.substring(0, 5)}</div>
                                     <div>{sch.end_time.substring(0, 5)}</div>
+                                     <div>
+                                      <span className={`type-tag-modal ${sch.schedule_type.toLowerCase()}`}>
+                                        {sch.schedule_type === 'PRACTICE'
+                                          ? t('signup.schedule_type.practice')
+                                          : t('signup.schedule_type.class')}
+                                      </span>
+                                    </div>
                                 </div>
                             ))}
                         </div>

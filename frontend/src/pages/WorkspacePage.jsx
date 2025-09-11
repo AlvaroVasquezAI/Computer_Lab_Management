@@ -5,7 +5,9 @@ import apiClient from '../services/api';
 import SubjectDetailModal from '../components/specific/SubjectDetailModal';
 import GroupDetailModal from '../components/specific/GroupDetailModal';
 import WorkspaceSchedule from '../components/specific/WorkspaceSchedule';
-import WorkspaceStats from '../components/specific/WorkspaceStats';
+import MonthlyProgressChart from '../components/specific/MonthlyProgressChart';
+import ProgressDetailModal from '../components/specific/ProgressDetailModal';
+import InfoCard from '../components/specific/InfoCard';
 import { FaPlus, FaSearch, FaCalendarDay, FaCalendarAlt, FaUsers, FaBook, FaChartPie } from 'react-icons/fa';
 import './WorkspacePage.css';
 
@@ -21,24 +23,33 @@ const WorkspacePage = () => {
   const [selectedSubjectId, setSelectedSubjectId] = useState(null);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
 
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+  const [selectedSubjectData, setSelectedSubjectData] = useState(null);
+
   useEffect(() => {
     const fetchWorkspaceData = async () => {
       try {
         setLoading(true);
-        const subjectsPromise = apiClient.get('/workspace/subjects');
-        const groupsPromise = apiClient.get('/workspace/groups');
-        const schedulePromise = apiClient.get('/workspace/schedule');
-        const statsPromise = apiClient.get('/workspace/stats/practices-per-subject');
 
         const [subjectsRes, groupsRes, scheduleRes, statsRes] = await Promise.all([
-          subjectsPromise,
-          groupsPromise,
-          schedulePromise,
-          statsPromise,
+          apiClient.get('/workspace/subjects'),
+          apiClient.get('/workspace/groups'),
+          apiClient.get('/workspace/schedule'),
+          apiClient.get('/workspace/monthly-progress'),
         ]);
 
-        setSubjects(subjectsRes.data);
-        setGroups(groupsRes.data);
+        const detailedSubjectsPromise = subjectsRes.data.map(s => 
+          apiClient.get(`/workspace/subjects/${s.subject_id}`)
+        );
+        const detailedGroupsPromise = groupsRes.data.map(g => 
+          apiClient.get(`/workspace/groups/${g.group_id}`)
+        );
+
+        const detailedSubjectsResponses = await Promise.all(detailedSubjectsPromise);
+        const detailedGroupsResponses = await Promise.all(detailedGroupsPromise);
+
+        setSubjects(detailedSubjectsResponses.map(res => res.data));
+        setGroups(detailedGroupsResponses.map(res => res.data));
         setWeeklySchedule(scheduleRes.data);
         setStats(statsRes.data);
         setError(null);
@@ -51,6 +62,11 @@ const WorkspacePage = () => {
     };
     fetchWorkspaceData();
   }, [t]);
+
+  const handleChartClick = (subjectData) => {
+    setSelectedSubjectData(subjectData);
+    setIsProgressModalOpen(true);
+  };
 
   if (loading) return <div>{t('workspace.loading')}</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -86,48 +102,65 @@ const WorkspacePage = () => {
 
           <div className="q3-stats workspace-card">
             <div className="card-header">
-                <FaChartPie />
-                <h2>{t('workspace.statistics_title', 'Statistics')}</h2>
+              <FaChartPie />
+              <h2>{t('workspace.stats_subtitle', 'Monthly Progress')}</h2>
             </div>
-            <WorkspaceStats stats={stats} />
+            <div className="progress-charts-container">
+              {stats.length > 0 ? (
+                stats.map(item => (
+                  <MonthlyProgressChart
+                    key={item.subject_name}
+                    subject={item.subject_name}
+                    completed={item.total_completed} 
+                    total={item.total_goal}
+                    onClick={() => handleChartClick(item)} 
+                  />
+                ))
+              ) : (
+                <p className="stats-empty-message">{t('workspace.stats_empty')}</p>
+              )}
+            </div>
           </div>
           
           <div className="q4-lists lists-container-quadrant">
             <div className="workspace-card">
-                <div className="card-header">
-                    <FaBook />
-                    <h2>{t('workspace.subjects_title')}</h2>
-                </div>
-                <div className="card-items-list">
-                    {subjects.length > 0 ? subjects.map(subject => (
-                        <button 
-                            key={subject.subject_id} 
-                            className="item-button"
-                            onClick={() => setSelectedSubjectId(subject.subject_id)}
-                        >
-                            {subject.subject_name}
-                        </button>
-                    )) : <p>{t('workspace.subjects_empty')}</p>}
-                </div>
+              <div className="card-header">
+                <FaBook />
+                <h2>{t('workspace.subjects_title')}</h2>
+              </div>
+              <div className="card-items-grid">
+                {subjects.length > 0 ? subjects.map(subject => (
+                  <InfoCard
+                    key={subject.subject_id}
+                    title={subject.subject_name}
+                    practiceCount={subject.total_practice_count}
+                    tags={subject.groups.map(g => g.group_name)}
+                    tagsLabel={t('signup.groups')}
+                    onCardClick={() => setSelectedSubjectId(subject.subject_id)}
+                  />
+                )) : <p>{t('workspace.subjects_empty')}</p>}
+              </div>
             </div>
             <div className="workspace-card">
                 <div className="card-header">
                     <FaUsers />
                     <h2>{t('workspace.groups_title')}</h2>
                 </div>
-                <div className="card-items-list">
+                <div className="card-items-grid">
                     {groups.length > 0 ? groups.map(group => (
-                        <button 
-                            key={group.group_id} 
-                            className="item-button"
-                            onClick={() => setSelectedGroupId(group.group_id)}
-                        >
-                            {group.group_name}
-                        </button>
+                        <InfoCard
+                            key={group.group_id}
+                            title={group.group_name}
+                            practiceCount={group.total_practice_count}
+                            tags={group.subjects.map(s => s.subject_name)}
+                            tagsLabel={t('signup.subjects')}
+                            onCardClick={() => setSelectedGroupId(group.group_id)}
+                        />
                     )) : <p>{t('workspace.groups_empty')}</p>}
                 </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -141,6 +174,13 @@ const WorkspacePage = () => {
         <GroupDetailModal 
           groupId={selectedGroupId} 
           onClose={() => setSelectedGroupId(null)} 
+        />
+      )}
+      {isProgressModalOpen && (
+        <ProgressDetailModal
+          isOpen={isProgressModalOpen}
+          onClose={() => setIsProgressModalOpen(false)}
+          subjectData={selectedSubjectData}
         />
       )}
     </>

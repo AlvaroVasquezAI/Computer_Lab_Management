@@ -82,9 +82,10 @@
 }
 .schedule-header, .schedule-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1fr; 
   padding: 0.5rem;
   text-align: left;
+  align-items: center; 
 }
 .schedule-header {
   font-weight: bold;

@@ -9,11 +9,16 @@ import GroupDetailModal from '../components/specific/GroupDetailModal';
 import PracticeDetailModal from '../components/specific/PracticeDetailModal';
 import DeleteConfirmationModal from '../components/specific/DeleteConfirmationModal';
 import DeleteTeacherModal from '../components/specific/DeleteTeacherModal';
-import { FaArrowLeft, FaUserCircle, FaPencilAlt, FaTrash, FaCalendarAlt, FaBook, FaUsers, FaClipboardList, FaDownload, FaEye, FaEdit } from 'react-icons/fa';
+import MonthlyProgressChart from '../components/specific/MonthlyProgressChart';
+import ProgressDetailModal from '../components/specific/ProgressDetailModal';
+import './WorkspacePage.css';
+import InfoCard from '../components/specific/InfoCard';
+import { FaArrowLeft, FaUserCircle, FaPencilAlt, FaTrash, FaCalendarAlt, FaBook, FaUsers, FaClipboardList, FaDownload, FaEye, FaEdit, FaChartPie } from 'react-icons/fa';
 
 import './TeacherDetailPage.css';
 import '../pages/WorkspacePage.css';
 import '../pages/ConsultPracticesPage.css';
+
 
 const TeacherDetailPage = () => {
     const { t } = useTranslation();
@@ -30,12 +35,21 @@ const TeacherDetailPage = () => {
     const [practiceToDelete, setPracticeToDelete] = useState(null);
     const [teacherToDelete, setTeacherToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [progressStats, setProgressStats] = useState([]);
+
+    const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+    const [selectedSubjectData, setSelectedSubjectData] = useState(null);
     
     const fetchDetails = async () => {
         try {
             setLoading(true);
-            const response = await apiClient.get(`/admin/teachers/${teacherId}`);
-            setDetails(response.data);
+            const [detailsResponse, progressResponse] = await Promise.all([
+                apiClient.get(`/admin/teachers/${teacherId}`),
+                apiClient.get(`/admin/teachers/${teacherId}/monthly-progress`)
+            ]);
+            
+            setDetails(detailsResponse.data);
+            setProgressStats(progressResponse.data); 
         } catch (error) {
             console.error("Failed to fetch teacher details", error);
         } finally {
@@ -123,6 +137,11 @@ const TeacherDetailPage = () => {
         } finally { setIsDeleting(false); }
     };
 
+    const handleChartClick = (subjectData) => {
+        setSelectedSubjectData(subjectData);
+        setIsProgressModalOpen(true);
+    };
+
     if (loading) return <p>Loading teacher details...</p>;
     if (!details) return <p>Teacher not found.</p>;
 
@@ -193,14 +212,51 @@ const TeacherDetailPage = () => {
                     <div className="grid-col-right">
                         <section className="detail-section-card">
                             <h3 className="detail-section-title"><FaBook /> {t('teacher_detail_page.subjects')}</h3>
-                            <div className="card-items-list">
-                                {details.subjects.map(s => <button key={s.subject_id} className="item-button" onClick={() => setSelectedSubjectId(s.subject_id)}>{s.subject_name}</button>)}
+                            <div className="card-items-grid">
+                                {details.subjects && details.subjects.map(subject => (
+                                    <InfoCard
+                                        key={subject.subject_id}
+                                        title={subject.subject_name}
+                                        practiceCount={subject.total_practice_count}
+                                        tags={subject.groups.map(g => g.group_name)}
+                                        tagsLabel={t('signup.groups')}
+                                        onCardClick={() => setSelectedSubjectId(subject.subject_id)}
+                                    />
+                                ))}
                             </div>
                         </section>
                         <section className="detail-section-card">
                             <h3 className="detail-section-title"><FaUsers /> {t('teacher_detail_page.groups')}</h3>
-                            <div className="card-items-list">
-                                {details.groups.map(g => <button key={g.group_id} className="item-button" onClick={() => setSelectedGroupId(g.group_id)}>{g.group_name}</button>)}
+                            <div className="card-items-grid">
+                                {details.groups && details.groups.map(group => (
+                                    <InfoCard
+                                        key={group.group_id}
+                                        title={group.group_name}
+                                        practiceCount={group.total_practice_count}
+                                        tags={group.subjects.map(s => s.subject_name)}
+                                        tagsLabel={t('signup.subjects')}
+                                        onCardClick={() => setSelectedGroupId(group.group_id)}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+
+                        <section className="detail-section-card">
+                            <h3 className="detail-section-title"><FaChartPie /> {t('workspace.stats_subtitle', 'Monthly Progress')}</h3>
+                            <div className="progress-charts-container">
+                                {progressStats.length > 0 ? (
+                                    progressStats.map(item => (
+                                        <MonthlyProgressChart
+                                            key={item.subject_name}
+                                            subject={item.subject_name}
+                                            completed={item.total_completed}
+                                            total={item.total_goal}
+                                            onClick={() => handleChartClick(item)}
+                                        />
+                                    ))
+                                ) : (
+                                    <p className="no-practices-message">{t('workspace.stats_empty')}</p>
+                                )}
                             </div>
                         </section>
                     </div>
@@ -217,6 +273,14 @@ const TeacherDetailPage = () => {
                     onConfirm={handleConfirmDeleteTeacher}
                     onClose={() => setTeacherToDelete(null)}
                     isDeleting={isDeleting}
+                />
+            )}
+
+            {isProgressModalOpen && (
+                <ProgressDetailModal
+                    isOpen={isProgressModalOpen}
+                    onClose={() => setIsProgressModalOpen(false)}
+                    subjectData={selectedSubjectData}
                 />
             )}
         </>

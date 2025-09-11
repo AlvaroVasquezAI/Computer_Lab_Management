@@ -15,8 +15,8 @@ class TeacherForAdminList(BaseModel):
 class AdminTeacherDetail(BaseModel):
     teacher: TeacherForAdminList
     schedule: workspace_schema.WeeklySchedule
-    subjects: List[subject_schema.Subject]
-    groups: List[group_schema.Group]
+    subjects: List[workspace_schema.SubjectDetail]     
+    groups: List[workspace_schema.GroupDetailWithSubjects] 
     practices: List[workspace_schema.PracticeListItem]
 
 class RoomCreate(BaseModel):

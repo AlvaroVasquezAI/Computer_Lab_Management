@@ -236,10 +236,6 @@
         flex-grow: 1;
     }
 
-    .teacher-detail-grid .schedule-card-container {
-        grid-template-columns: 1fr;
-    }
-
     .teacher-detail-grid .practices-grid {
         grid-template-columns: 1fr;
     }

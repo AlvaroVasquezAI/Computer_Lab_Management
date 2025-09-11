@@ -23,7 +23,7 @@ const Footer = () => {
                         <FaSchool />
                     </a>
                     <a 
-                        href="mailto:contact@yourschool.edu" 
+                        href="ctrlpluslab.upiit@gmail.com" 
                         aria-label="Email"
                     >
                         <FaEnvelope />

@@ -1,0 +1,16 @@
+.modal-content.progress-detail-modal {
+    max-width: 800px;
+    padding: 2.5rem 2rem 2rem 2rem;
+}
+
+.progress-detail-modal .modal-title {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.group-charts-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}

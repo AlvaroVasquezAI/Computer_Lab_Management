@@ -12,22 +12,33 @@ def get_all_teachers_for_admin(db: Session):
 
 def get_full_teacher_details_for_admin(db: Session, teacher_id: int):
     """
-    Aggregates all information for a single teacher for the admin detail view.
+    Aggregates all information for a single teacher for the admin detail view,
+    now including detailed subject and group info.
     """
     db_teacher = db.query(teacher.Teacher).filter(teacher.Teacher.teacher_id == teacher_id).first()
     if not db_teacher:
         return None
 
     teacher_schedule = crud_workspace.get_teacher_weekly_schedule(db, teacher_id=teacher_id)
-    teacher_subjects = crud_workspace.get_subjects_by_teacher(db, teacher_id=teacher_id)
-    teacher_groups = crud_workspace.get_groups_by_teacher(db, teacher_id=teacher_id)
     teacher_practices = crud_workspace.get_practices_for_teacher(db, teacher_id=teacher_id)
+
+    simple_subjects = crud_workspace.get_subjects_by_teacher(db, teacher_id=teacher_id)
+    simple_groups = crud_workspace.get_groups_by_teacher(db, teacher_id=teacher_id)
+
+    detailed_subjects = [
+        crud_workspace.get_subject_details_for_teacher(db, teacher_id=teacher_id, subject_id=s.subject_id)
+        for s in simple_subjects
+    ]
+    detailed_groups = [
+        crud_workspace.get_group_details_for_teacher(db, teacher_id=teacher_id, group_id=g.group_id)
+        for g in simple_groups
+    ]
 
     return {
         "teacher": db_teacher,
         "schedule": teacher_schedule,
-        "subjects": teacher_subjects,
-        "groups": teacher_groups,
+        "subjects": [s for s in detailed_subjects if s],
+        "groups": [g for g in detailed_groups if g],     
         "practices": teacher_practices,
     }
 
@@ -154,7 +165,8 @@ def update_teacher_by_admin(db: Session, teacher_id: int, update_data: admin_sch
                     group_id=db_group.group_id,
                     day_of_week=sch_item.day_of_week,
                     start_time=sch_item.start_time,
-                    end_time=sch_item.end_time
+                    end_time=sch_item.end_time,
+                    schedule_type=sch_item.schedule_type
                 )
                 db.add(new_db_schedule)
     

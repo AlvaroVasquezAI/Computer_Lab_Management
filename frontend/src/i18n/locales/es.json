@@ -126,7 +126,7 @@
     "no_labs_available_tooltip": "No hay laboratorios disponibles en este horario."
   },
   "modal": {
-    "total_practices": "Total de prácticas creadas",
+    "total_practices": "Prácticas",
     "groups_and_schedules": "Grupos y horarios",
     "no_groups_scheduled": "No hay grupos programados para esta materia.",
     "day_header": "Día",

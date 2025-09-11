@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, distinct
 from src.models import schedule, subject, group, practice, room, booking
 from collections import defaultdict
+from calendar import monthrange
 
 def get_subjects_by_teacher(db: Session, teacher_id: int):
     """
@@ -389,3 +390,78 @@ def count_practices_for_subject(db: Session, teacher_id: int, subject_name: str)
     ).scalar() or 0
 
     return f"The teacher has {practice_count} practices for the subject '{subject_name}'."
+
+def get_monthly_practice_progress(db: Session, teacher_id: int):
+    """
+    Calculates the number of completed practices vs. the total goal for the current month,
+    for each subject taught by the teacher, with a breakdown per group.
+    """
+    
+    def count_specific_days_in_month(year, month, day_of_week):
+        python_day_of_week = day_of_week - 1
+        count = 0
+        num_days_in_month = monthrange(year, month)[1]
+        for day_num in range(1, num_days_in_month + 1):
+            if date(year, month, day_num).weekday() == python_day_of_week:
+                count += 1
+        return count
+
+    today = date.today()
+    current_year = today.year
+    current_month = today.month
+    start_of_month = date(current_year, current_month, 1)
+    
+    final_results = []
+    teacher_subjects = get_subjects_by_teacher(db, teacher_id=teacher_id)
+
+    for subj in teacher_subjects:
+        groups_for_subject = db.query(group.Group).join(schedule.Schedule).filter(
+            schedule.Schedule.teacher_id == teacher_id,
+            schedule.Schedule.subject_id == subj.subject_id
+        ).distinct().all()
+
+        groups_progress_list = []
+        subject_total_goal = 0
+        subject_total_completed = 0
+
+        for grp in groups_for_subject:
+            group_goal = 0
+            practice_schedules = db.query(schedule.Schedule).filter(
+                schedule.Schedule.teacher_id == teacher_id,
+                schedule.Schedule.subject_id == subj.subject_id,
+                schedule.Schedule.group_id == grp.group_id,
+                schedule.Schedule.schedule_type == schedule.ScheduleType.PRACTICE
+            ).all()
+            
+            for sched in practice_schedules:
+                num_days = count_specific_days_in_month(current_year, current_month, sched.day_of_week)
+                group_goal += num_days
+
+            group_completed = db.query(func.count(booking.Booking.booking_id)).join(
+                practice.Practice, booking.Booking.practice_id == practice.Practice.practice_id
+            ).filter(
+                practice.Practice.teacher_id == teacher_id,
+                practice.Practice.subject_id == subj.subject_id,
+                booking.Booking.group_id == grp.group_id,
+                booking.Booking.practice_date >= start_of_month,
+                booking.Booking.practice_date < today
+            ).scalar() or 0
+
+            if group_goal > 0:
+                groups_progress_list.append({
+                    "group_name": grp.group_name,
+                    "completed_count": group_completed,
+                    "total_goal": group_goal
+                })
+                subject_total_goal += group_goal
+                subject_total_completed += group_completed
+        
+        if subject_total_goal > 0:
+            final_results.append({
+                "subject_name": subj.subject_name,
+                "total_completed": subject_total_completed,
+                "total_goal": subject_total_goal,
+                "groups_progress": groups_progress_list
+            })
+
+    return final_results

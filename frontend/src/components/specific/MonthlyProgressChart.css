@@ -1,0 +1,74 @@
+.progress-chart-card {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.2s;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+    width: 180px;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.progress-chart-card:hover {
+    background-color: var(--sidebar-hover-bg);
+}
+
+.chart-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.donut-chart {
+    transform: rotate(-90deg);
+}
+
+.donut-background, .donut-progress {
+    fill: none;
+    stroke-width: 10;
+}
+
+.donut-background {
+    stroke: var(--sidebar-hover-bg);
+}
+
+.donut-progress {
+    stroke: var(--background-card-main);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s ease-out;
+}
+
+.chart-text {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-percentage {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.chart-ratio {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.chart-subject-name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--text-primary);
+}

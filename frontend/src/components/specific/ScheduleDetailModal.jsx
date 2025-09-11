@@ -16,15 +16,17 @@ const ScheduleDetailModal = ({ details, onClose }) => {
         <h2 className="modal-title">{details.subject_name}</h2>
         
         <div className="group-schedule-card">
-            <p><FaUsers /> <strong>{t('modal.group_header', 'Group')}:</strong> {details.group_name}</p>
-            <p><FaClock /> <strong>{t('modal.time_header', 'Time')}:</strong> {details.start_time.substring(0, 5)} - {details.end_time.substring(0, 5)}</p>
-            <p>
-              <FaChalkboardTeacher /> 
-              <strong>Type:</strong> 
-              <span className={`type-tag-modal ${details.schedule_type.toLowerCase()}`}>
-                {details.schedule_type === 'PRACTICE' ? 'Practice' : 'Class'}
-              </span>
-            </p>
+          <p><FaUsers /> <strong>{t('modal.group_header', 'Group')}:</strong> {details.group_name}</p>
+          <p><FaClock /> <strong>{t('modal.time_header', 'Time')}:</strong> {details.start_time.substring(0, 5)} - {details.end_time.substring(0, 5)}</p>
+          <p>
+            <FaChalkboardTeacher /> 
+            <strong>{t('modal.type_header', 'Type')}:</strong> 
+            <span className={`type-tag-modal ${details.schedule_type.toLowerCase()}`}>
+            {details.schedule_type === 'PRACTICE' 
+                ? t('signup.schedule_type.practice', 'Practice') 
+                : t('signup.schedule_type.class', 'Class')}
+            </span>
+          </p>
         </div>
       </div>
     </div>

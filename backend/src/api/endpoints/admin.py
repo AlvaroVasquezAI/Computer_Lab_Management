@@ -384,3 +384,17 @@ def update_teacher_role(
     db.refresh(db_teacher)
     
     return db_teacher
+
+@router.get(
+    "/teachers/{teacher_id}/monthly-progress",
+    response_model=List[workspace_schema.MonthlyProgress],
+    dependencies=[Depends(get_current_admin_user)]
+)
+def get_teacher_monthly_progress_by_admin(
+    teacher_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Gets the monthly practice progress for a specific teacher. (Admin only)
+    """
+    return crud_workspace.get_monthly_practice_progress(db, teacher_id=teacher_id)

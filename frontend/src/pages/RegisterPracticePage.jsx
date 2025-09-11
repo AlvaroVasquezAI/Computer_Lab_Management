@@ -32,25 +32,42 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }
     }
   }, []);
 
-  const highlightDates = useMemo(() => {
-    const dates = [];
-    const scheduledDaysOfWeek = group.schedules.map(s => s.day_of_week);
-    for (let i = 0; i < 15; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      if (scheduledDaysOfWeek.includes(date.getDay())) {
-        dates.push(date);
+  const scheduleDays = useMemo(() => {
+    const practiceDates = [];
+    const classDates = [];
+
+    const practiceDaysOfWeek = group.schedules
+      .filter(s => s.schedule_type === 'PRACTICE')
+      .map(s => s.day_of_week);
+
+    const classDaysOfWeek = group.schedules
+      .filter(s => s.schedule_type === 'CLASS')
+      .map(s => s.day_of_week);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < 15; i++) { 
+      const futureDate = new Date(today);
+      futureDate.setDate(today.getDate() + i);
+      const dayOfWeek = futureDate.getDay();
+
+      if (practiceDaysOfWeek.includes(dayOfWeek)) {
+        practiceDates.push(futureDate);
+      }
+      if (classDaysOfWeek.includes(dayOfWeek)) {
+        classDates.push(futureDate);
       }
     }
-    return dates;
+    return { practiceDates, classDates };
   }, [group.schedules]);
   
   const excludedDates = useMemo(() => {
     return existingBookings
       .filter(booking => booking.group_id === group.group_id)
       .map(booking => {
-          const [year, month, day] = booking.date.split('-').map(Number);
-          return new Date(Date.UTC(year, month - 1, day));
+        const [year, month, day] = booking.date.split('-').map(Number);
+        return new Date(Date.UTC(year, month - 1, day));
       });
   }, [existingBookings, group.group_id]);
 
@@ -98,7 +115,7 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }
         <DatePicker
           selected={selectedDate}
           onChange={handleDateChange}
-          highlightDates={highlightDates}
+          highlightDates={scheduleDays.practiceDates} 
           excludeDates={excludedDates}
           minDate={today}
           maxDate={twoWeeksFromNow}
@@ -107,18 +124,26 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }
           className="custom-datepicker-input"
           filterDate={(date) => {
             const day = date.getDay();
-            return group.schedules.some(s => s.day_of_week === day);
+            return group.schedules.some(s => s.day_of_week === day && s.schedule_type === 'PRACTICE');
           }}
-          dayClassName={date =>
-            date.getDate() === new Date().getDate() && date.getMonth() === new Date().getMonth()
+          dayClassName={date => { 
+            const todayClass = date.getDate() === new Date().getDate() && date.getMonth() === new Date().getMonth()
               ? "custom-today-date"
-              : undefined
-          }
+              : "";
+            
+            const isClassDay = scheduleDays.classDates.some(
+              classDate => classDate.toDateString() === date.toDateString()
+            );
+
+            const classDayClass = isClassDay ? 'class-day-unselectable' : '';
+            
+            return `${todayClass} ${classDayClass}`.trim();
+          }}
         />
         {scheduleForDate && (
-            <div className="schedule-time-display">
-                {scheduleForDate.start_time.substring(0, 5)} - {scheduleForDate.end_time.substring(0, 5)}
-            </div>
+          <div className="schedule-time-display">
+            {scheduleForDate.start_time.substring(0, 5)} - {scheduleForDate.end_time.substring(0, 5)}
+          </div>
         )}
       </div>
       
@@ -148,256 +173,256 @@ const GroupScheduler = ({ group, onGroupDataChange, allRooms, existingBookings }
 };
 
 const RegisterPracticePage = () => {
-    const { t, i18n } = useTranslation();
-    const navigate = useNavigate();
-    const [teacherSubjects, setTeacherSubjects] = useState([]);
-    const [allRooms, setAllRooms] = useState([]);
-    const [selectedSubjectId, setSelectedSubjectId] = useState('');
-    const [groupsForSubject, setGroupsForSubject] = useState([]);
-    const [existingBookings, setExistingBookings] = useState([]);
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const [teacherSubjects, setTeacherSubjects] = useState([]);
+  const [allRooms, setAllRooms] = useState([]);
+  const [selectedSubjectId, setSelectedSubjectId] = useState('');
+  const [groupsForSubject, setGroupsForSubject] = useState([]);
+  const [existingBookings, setExistingBookings] = useState([]);
+  
+  const [practiceName, setPracticeName] = useState('');
+  const [practiceObjective, setPracticeObjective] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [groupBookings, setGroupBookings] = useState({});
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [summaryData, setSummaryData] = useState(null);
+
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+
+
+  const filePreviewUrl = useMemo(() => {
+    if (selectedFile) {
+      return URL.createObjectURL(selectedFile);
+    }
+    return null;
+  }, [selectedFile]);
+
+  useEffect(() => {
+    apiClient.get('/workspace/subjects')
+      .then(response => setTeacherSubjects(response.data))
+      .catch(err => console.error("Failed to fetch subjects", err));
     
-    const [practiceName, setPracticeName] = useState('');
-    const [practiceObjective, setPracticeObjective] = useState('');
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [groupBookings, setGroupBookings] = useState({});
+    apiClient.post('/practices/availability', { practice_date: '1970-01-01', start_time: '00:00', end_time: '00:01' })
+      .then(res => setAllRooms(res.data))
+      .catch(err => console.error("Failed to fetch rooms", err));
+  }, []);
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [summaryData, setSummaryData] = useState(null);
+  useEffect(() => {
+    if (!selectedSubjectId) {
+      setGroupsForSubject([]);
+      setExistingBookings([]);
+      setGroupBookings({});
+      return;
+    }
 
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [analysisResult, setAnalysisResult] = useState(null);
-    const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
-
-
-    const filePreviewUrl = useMemo(() => {
-        if (selectedFile) {
-            return URL.createObjectURL(selectedFile);
-        }
-        return null;
-    }, [selectedFile]);
-
-    useEffect(() => {
-        apiClient.get('/workspace/subjects')
-            .then(response => setTeacherSubjects(response.data))
-            .catch(err => console.error("Failed to fetch subjects", err));
-        
-        apiClient.post('/practices/availability', { practice_date: '1970-01-01', start_time: '00:00', end_time: '00:01' })
-            .then(res => setAllRooms(res.data))
-            .catch(err => console.error("Failed to fetch rooms", err));
-    }, []);
-
-    useEffect(() => {
-        if (!selectedSubjectId) {
-            setGroupsForSubject([]);
-            setExistingBookings([]);
-            setGroupBookings({});
-            return;
-        }
-
-        const fetchGroupData = async () => {
-            try {
-                const groupsPromise = apiClient.get(`/practices/subjects/${selectedSubjectId}/groups`);
-                const bookingsPromise = apiClient.get(`/practices/subjects/${selectedSubjectId}/bookings`);
-                const [groupsRes, bookingsRes] = await Promise.all([groupsPromise, bookingsPromise]);
-                
-                setGroupsForSubject(groupsRes.data);
-                setExistingBookings(bookingsRes.data);
-                setGroupBookings({});
-            } catch (err) {
-                console.error("Failed to fetch group data", err);
-            }
-        };
-        fetchGroupData();
-    }, [selectedSubjectId]);
-
-    const handleGroupDataChange = useCallback((groupId, data) => {
-        setGroupBookings(prev => ({ ...prev, [groupId]: data }));
-    }, []);
-
-    const isFormValid = useMemo(() => {
-        const bookings = Object.values(groupBookings).filter(Boolean);
-        return practiceName && 
-               practiceObjective && 
-               selectedSubjectId && 
-               selectedFile && 
-               groupsForSubject.length > 0 && 
-               bookings.length === groupsForSubject.length;
-    }, [practiceName, practiceObjective, selectedSubjectId, selectedFile, groupBookings, groupsForSubject.length]);
-    
-    const resetForm = () => {
-        setSelectedSubjectId('');
-        setGroupsForSubject([]);
-        setExistingBookings([]);
-        setPracticeName('');
-        setPracticeObjective('');
-        setSelectedFile(null);
-        setGroupBookings({});
-        setError('');
-        setSummaryData(null);
-    };
-
-    const handleAnalyze = async () => {
-      if (!selectedFile) return;
-      setIsAnalyzing(true);
-      setError('');
-      setAnalysisResult(null);
-
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-
-      formData.append('lang', i18n.language);
-
+    const fetchGroupData = async () => {
       try {
-        const response = await apiClient.post('/analysis/analyze-pdf', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        setAnalysisResult(response.data);
-        setIsAnalysisModalOpen(true);
+        const groupsPromise = apiClient.get(`/practices/subjects/${selectedSubjectId}/groups`);
+        const bookingsPromise = apiClient.get(`/practices/subjects/${selectedSubjectId}/bookings`);
+        const [groupsRes, bookingsRes] = await Promise.all([groupsPromise, bookingsPromise]);
+        
+        setGroupsForSubject(groupsRes.data);
+        setExistingBookings(bookingsRes.data);
+        setGroupBookings({});
       } catch (err) {
-          const errorMsg = err.response?.data?.detail || "Analysis failed. Please try again.";
-          setError(errorMsg);
-      } finally {
-          setIsAnalyzing(false);
+        console.error("Failed to fetch group data", err);
       }
     };
+    fetchGroupData();
+  }, [selectedSubjectId]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!isFormValid) {
-            alert("Please fill in all fields and schedule all displayed groups.");
-            return;
-        }
-        setLoading(true);
-        setError('');
+  const handleGroupDataChange = useCallback((groupId, data) => {
+    setGroupBookings(prev => ({ ...prev, [groupId]: data }));
+  }, []);
 
-        const formData = new FormData();
-        formData.append('name', practiceName);
-        formData.append('objective', practiceObjective);
-        formData.append('subject_id', selectedSubjectId);
-        formData.append('file', selectedFile);
-        
-        const validBookings = Object.values(groupBookings).filter(Boolean);
-        formData.append('bookings_data', JSON.stringify(validBookings));
+  const isFormValid = useMemo(() => {
+    const bookings = Object.values(groupBookings).filter(Boolean);
+    return practiceName && 
+            practiceObjective && 
+            selectedSubjectId && 
+            selectedFile && 
+            groupsForSubject.length > 0 && 
+            bookings.length === groupsForSubject.length;
+  }, [practiceName, practiceObjective, selectedSubjectId, selectedFile, groupBookings, groupsForSubject.length]);
+  
+  const resetForm = () => {
+    setSelectedSubjectId('');
+    setGroupsForSubject([]);
+    setExistingBookings([]);
+    setPracticeName('');
+    setPracticeObjective('');
+    setSelectedFile(null);
+    setGroupBookings({});
+    setError('');
+    setSummaryData(null);
+  };
 
-        try {
-            await apiClient.post('/practices/practices', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            const subjectName = teacherSubjects.find(s => s.subject_id === parseInt(selectedSubjectId))?.subject_name;
-            setSummaryData({
-                practiceName,
-                practiceObjective,
-                subjectName,
-                fileName: selectedFile.name,
-                bookings: validBookings,
-            });
-        } catch (err) {
-            const errorMsg = err.response?.data?.detail || t('register_practice.error_message');
-            setError(errorMsg);
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleAnalyze = async () => {
+    if (!selectedFile) return;
+    setIsAnalyzing(true);
+    setError('');
+    setAnalysisResult(null);
 
-    return (
-        <>
-            <div className="register-practice-container">
-                <div className="page-header-container">
-                    <div className="back-button-wrapper">
-                        <button onClick={() => navigate(-1)} className="back-button">
-                            <FaArrowLeft /> {t('common.go_back')}
-                        </button>
-                    </div>
-                    <h1 className="page-title">{t('register_practice.title')}</h1>
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    formData.append('lang', i18n.language);
+
+    try {
+      const response = await apiClient.post('/analysis/analyze-pdf', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setAnalysisResult(response.data);
+      setIsAnalysisModalOpen(true);
+    } catch (err) {
+        const errorMsg = err.response?.data?.detail || "Analysis failed. Please try again.";
+        setError(errorMsg);
+    } finally {
+        setIsAnalyzing(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isFormValid) {
+      alert("Please fill in all fields and schedule all displayed groups.");
+      return;
+    }
+    setLoading(true);
+    setError('');
+
+    const formData = new FormData();
+    formData.append('name', practiceName);
+    formData.append('objective', practiceObjective);
+    formData.append('subject_id', selectedSubjectId);
+    formData.append('file', selectedFile);
+    
+    const validBookings = Object.values(groupBookings).filter(Boolean);
+    formData.append('bookings_data', JSON.stringify(validBookings));
+
+    try {
+      await apiClient.post('/practices/practices', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      const subjectName = teacherSubjects.find(s => s.subject_id === parseInt(selectedSubjectId))?.subject_name;
+      setSummaryData({
+        practiceName,
+        practiceObjective,
+        subjectName,
+        fileName: selectedFile.name,
+        bookings: validBookings,
+      });
+    } catch (err) {
+        const errorMsg = err.response?.data?.detail || t('register_practice.error_message');
+        setError(errorMsg);
+        console.error(err);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  return (
+    <>
+        <div className="register-practice-container">
+          <div className="page-header-container">
+              <div className="back-button-wrapper">
+                <button onClick={() => navigate(-1)} className="back-button">
+                  <FaArrowLeft /> {t('common.go_back')}
+                </button>
+              </div>
+              <h1 className="page-title">{t('register_practice.title')}</h1>
+          </div>
+          <form onSubmit={handleSubmit} className="practice-form">
+            <div className="form-top-section">
+              <div className="form-details">
+                <div className="form-field">
+                  <label htmlFor="subject">{t('register_practice.subject')}:</label>
+                  <select id="subject" value={selectedSubjectId} onChange={e => setSelectedSubjectId(e.target.value)} required>
+                    <option value="">{t('register_practice.select_subject_placeholder')}</option>
+                    {teacherSubjects.map(sub => <option key={sub.subject_id} value={sub.subject_id}>{sub.subject_name}</option>)}
+                  </select>
                 </div>
-                <form onSubmit={handleSubmit} className="practice-form">
-                    <div className="form-top-section">
-                        <div className="form-details">
-                            <div className="form-field">
-                                <label htmlFor="subject">{t('register_practice.subject')}:</label>
-                                <select id="subject" value={selectedSubjectId} onChange={e => setSelectedSubjectId(e.target.value)} required>
-                                    <option value="">{t('register_practice.select_subject_placeholder')}</option>
-                                    {teacherSubjects.map(sub => <option key={sub.subject_id} value={sub.subject_id}>{sub.subject_name}</option>)}
-                                </select>
-                            </div>
-                            <div className="form-field">
-                                <label htmlFor="name">{t('register_practice.name')}:</label>
-                                <input type="text" id="name" value={practiceName} onChange={e => setPracticeName(e.target.value)} placeholder={t('register_practice.name_placeholder')} required />
-                            </div>
-                            <div className="form-field">
-                                <label htmlFor="objective">{t('register_practice.objective')}:</label>
-                                <input type="text" id="objective" value={practiceObjective} onChange={e => setPracticeObjective(e.target.value)} placeholder={t('register_practice.objective_placeholder')} required />
-                            </div>
-                        </div>
-                        <div className="form-upload">
-                            <label htmlFor="file-upload" className="file-upload-label">
-                                {filePreviewUrl ? (
-                                    <embed 
-                                        src={filePreviewUrl} 
-                                        type="application/pdf"
-                                        className="pdf-preview-embed"
-                                    />
-                                ) : (
-                                    <>
-                                        <FaUpload />
-                                        <span>{t('register_practice.upload_file')}</span>
-                                    </>
-                                )}
-                            </label>
-                            <input id="file-upload" type="file" onChange={e => setSelectedFile(e.target.files[0])} accept=".pdf" required />
-                            <p className="file-name">{selectedFile ? `${t('register_practice.file_selected')} ${selectedFile.name}` : t('register_practice.no_file_selected')}</p>
-                            {selectedFile && (
-                              <button 
-                              type="button" 
-                              onClick={handleAnalyze} 
-                              className="submit-button with-icon"
-                              disabled={isAnalyzing}
-                              style={{marginTop: '1rem'}}
-                              >
-                              <span className="button-icon"></span> 
-                              
-                              {isAnalyzing ? t('analysis_modal.analyzing_button') : t('analysis_modal.analyze_button')}
-                              </button>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="form-groups-section">
-                        <h3 className="groups-title">{t('register_practice.groups_title')}</h3>
-                        <div className="groups-grid">
-                            {groupsForSubject.length > 0 ? (
-                                groupsForSubject.map(group => (
-                                    <GroupScheduler 
-                                        key={group.group_id} 
-                                        group={group} 
-                                        onGroupDataChange={handleGroupDataChange} 
-                                        allRooms={allRooms}
-                                        existingBookings={existingBookings}
-                                    />
-                                ))
-                            ) : (
-                                selectedSubjectId && <p>{t('register_practice.no_groups_for_subject')}</p>
-                            )}
-                        </div>
-                    </div>
-                    
-                    {error && <p className="error-message">{error}</p>}
-
-                    <button type="submit" className="submit-button" disabled={loading || !isFormValid}>
-                        {loading ? t('register_practice.registering_button') : t('register_practice.register_button')}
-                    </button>
-                </form>
+                <div className="form-field">
+                  <label htmlFor="name">{t('register_practice.name')}:</label>
+                  <input type="text" id="name" value={practiceName} onChange={e => setPracticeName(e.target.value)} placeholder={t('register_practice.name_placeholder')} required />
+                </div>
+                <div className="form-field">
+                  <label htmlFor="objective">{t('register_practice.objective')}:</label>
+                  <input type="text" id="objective" value={practiceObjective} onChange={e => setPracticeObjective(e.target.value)} placeholder={t('register_practice.objective_placeholder')} required />
+                </div>
+              </div>
+              <div className="form-upload">
+                <label htmlFor="file-upload" className="file-upload-label">
+                  {filePreviewUrl ? (
+                    <embed 
+                      src={filePreviewUrl} 
+                      type="application/pdf"
+                      className="pdf-preview-embed"
+                    />
+                  ) : (
+                    <>
+                      <FaUpload />
+                      <span>{t('register_practice.upload_file')}</span>
+                    </>
+                  )}
+                </label>
+                <input id="file-upload" type="file" onChange={e => setSelectedFile(e.target.files[0])} accept=".pdf" required />
+                <p className="file-name">{selectedFile ? `${t('register_practice.file_selected')} ${selectedFile.name}` : t('register_practice.no_file_selected')}</p>
+                {selectedFile && (
+                  <button 
+                  type="button" 
+                  onClick={handleAnalyze} 
+                  className="submit-button with-icon"
+                  disabled={isAnalyzing}
+                  style={{marginTop: '1rem'}}
+                  >
+                  <span className="button-icon"></span> 
+                  
+                  {isAnalyzing ? t('analysis_modal.analyzing_button') : t('analysis_modal.analyze_button')}
+                  </button>
+                )}
+              </div>
             </div>
-            {summaryData && <PracticeSummaryModal summary={summaryData} onClose={resetForm} />}
-            {isAnalysisModalOpen && analysisResult && (
-              <AnalysisResultModal
-                result={analysisResult}
-                onClose={() => setIsAnalysisModalOpen(false)}
-              />
-            )}
-        </>
-    );
+
+            <div className="form-groups-section">
+              <h3 className="groups-title">{t('register_practice.groups_title')}</h3>
+              <div className="groups-grid">
+                {groupsForSubject.length > 0 ? (
+                  groupsForSubject.map(group => (
+                    <GroupScheduler 
+                      key={group.group_id} 
+                      group={group} 
+                      onGroupDataChange={handleGroupDataChange} 
+                      allRooms={allRooms}
+                      existingBookings={existingBookings}
+                    />
+                  ))
+                ) : (
+                  selectedSubjectId && <p>{t('register_practice.no_groups_for_subject')}</p>
+                )}
+              </div>
+            </div>
+              
+            {error && <p className="error-message">{error}</p>}
+
+            <button type="submit" className="submit-button" disabled={loading || !isFormValid}>
+              {loading ? t('register_practice.registering_button') : t('register_practice.register_button')}
+            </button>
+          </form>
+        </div>
+        {summaryData && <PracticeSummaryModal summary={summaryData} onClose={resetForm} />}
+        {isAnalysisModalOpen && analysisResult && (
+          <AnalysisResultModal
+            result={analysisResult}
+            onClose={() => setIsAnalysisModalOpen(false)}
+          />
+        )}
+    </>
+  );
 };
 export default RegisterPracticePage;
