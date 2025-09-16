@@ -8,9 +8,10 @@ const DetailsForm = ({ details, setDetails, isEditMode, validation, onValidate }
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        const processedValue = name === 'name' ? value.toUpperCase() : value;
         setDetails(prevDetails => ({
             ...prevDetails,
-            [name]: value
+            [name]: processedValue
         }));
     };
 

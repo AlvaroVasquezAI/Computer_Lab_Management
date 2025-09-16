@@ -46,6 +46,20 @@ const SubjectManager = ({ existingSubjects, existingGroups, onAddSubject, initia
     const [isFetchingSchedule, setIsFetchingSchedule] = useState(false);
     const scheduleFetchTimeout = useRef(null);
 
+    const hasExistingPractice = useMemo(() => {
+        if (!groupDbSchedule || !groupDbSchedule.group_busy_slots) {
+            return false;
+        }
+        for (const day in groupDbSchedule.group_busy_slots) {
+            for (const slot of groupDbSchedule.group_busy_slots[day]) {
+                if (slot.schedule_type === 'PRACTICE' && slot.subject_name === subjectName) {
+                    return true; 
+                }
+            }
+        }
+        return false;
+    }, [groupDbSchedule, subjectName]);
+
     const otherTeacherBusySlots = useMemo(() => {
         if (editingGroupIndex === null) {
             return teacherTempSchedule;
@@ -73,6 +87,26 @@ const SubjectManager = ({ existingSubjects, existingGroups, onAddSubject, initia
         });
         return filteredSchedule;
     }, [teacherTempSchedule, editingGroupIndex, groupsForSubject]);
+
+    const tempBusySlotsForThisSubject = useMemo(() => {
+        const busySlots = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+        
+        groupsForSubject.forEach((group, index) => {
+            if (editingGroupIndex !== null && index === editingGroupIndex) {
+                return;
+            }
+
+            group.schedule.forEach(slot => {
+                if (busySlots[slot.day_of_week]) {
+                    busySlots[slot.day_of_week].push({
+                        start_time: slot.start_time,
+                        end_time: slot.end_time
+                    });
+                }
+            });
+        });
+        return busySlots;
+    }, [groupsForSubject, editingGroupIndex]);
 
     useEffect(() => {
         if (initialData) {
@@ -121,15 +155,6 @@ const SubjectManager = ({ existingSubjects, existingGroups, onAddSubject, initia
         }
 
         if (field === 'schedule_type' && value === 'PRACTICE') {
-            const isPracticeInOtherGroups = groupsForSubject.some((group, grpIndex) => 
-                editingGroupIndex !== grpIndex && group.schedule.some(s => s.schedule_type === 'PRACTICE')
-            );
-            
-            if (isPracticeInOtherGroups) {
-                alert("A practice session is already defined in another group for this subject. Only one is allowed.");
-                return; 
-            }
-       
             newSchedule = newSchedule.map((day, i) => {
                 if (i === index) return { ...day, schedule_type: 'PRACTICE' }; 
                 if (day.schedule_type === 'PRACTICE') return { ...day, schedule_type: 'CLASS' }; 
@@ -229,6 +254,7 @@ const SubjectManager = ({ existingSubjects, existingGroups, onAddSubject, initia
             ...(otherTeacherBusySlots[dayId] || []),
             ...(groupDbSchedule.teacher_busy_slots[dayId] || []),
             ...(groupDbSchedule.group_busy_slots[dayId] || []),
+            ...(tempBusySlotsForThisSubject[dayId] || []),
             ...internalBusySlotsForDay
         ];
     };
@@ -273,7 +299,7 @@ const SubjectManager = ({ existingSubjects, existingGroups, onAddSubject, initia
                 <h3>{initialData ? t('signup.edit_subject') : t('signup.add_subject')}</h3>
                 <div className="add-subject-controls">
                     <input className="subject-input" list="subjects-datalist" value={subjectName}
-                        onChange={(e) => setSubjectName(e.target.value)} placeholder={t('signup.subject_placeholder')} />
+                        onChange={(e) => setSubjectName(e.target.value.toUpperCase())} placeholder={t('signup.subject_placeholder')} />
                     <datalist id="subjects-datalist">
                         {existingSubjects.map(s => <option key={s.subject_id} value={s.subject_name} />)}
                     </datalist>
@@ -297,7 +323,7 @@ const SubjectManager = ({ existingSubjects, existingGroups, onAddSubject, initia
                 <div className="group-schedule-builder">
                     <div className="group-selector">
                         <input className="group-input" list="groups-datalist" value={currentGroupName}
-                            onChange={(e) => setCurrentGroupName(e.target.value)} placeholder={t('signup.group_name_placeholder')}
+                            onChange={(e) => setCurrentGroupName(e.target.value.toUpperCase())} placeholder={t('signup.group_name_placeholder')}
                             disabled={isGroupSchedulerDisabled} />
                         <datalist id="groups-datalist">
                             {existingGroups.map(g => <option key={g.group_id} value={g.group_name} />)}
@@ -309,10 +335,11 @@ const SubjectManager = ({ existingSubjects, existingGroups, onAddSubject, initia
                             const durationMinutes = (slot.start_time && slot.end_time) ? (new Date(`1970-01-01T${slot.end_time}`) - new Date(`1970-01-01T${slot.start_time}`)) / 60000 : 0;
                             const isDurationTooLong = durationMinutes > 90;
                             const isEnabled = slot.start_time && slot.end_time;
-                            const isPracticeDisabled = !isEnabled || isDurationTooLong || !slot.isPracticeSlotAvailable;
+                            const isPracticeDisabled = !isEnabled || isDurationTooLong || !slot.isPracticeSlotAvailable || hasExistingPractice;
                             let tooltip = '';
                             if (isEnabled) {
-                                if (isDurationTooLong) tooltip = t('signup.practice_duration_limit_tooltip');
+                                if (hasExistingPractice) tooltip = t('signup.practice_already_exists_tooltip');
+                                else if (isDurationTooLong) tooltip = t('signup.practice_duration_limit_tooltip');
                                 else if (!slot.isPracticeSlotAvailable) tooltip = t('signup.no_labs_available_tooltip');
                             }
 

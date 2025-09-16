@@ -124,7 +124,8 @@
     },
     "practice_duration_limit_tooltip": "Practice must be 90 minutes or less",
     "no_labs_available_tooltip": "No labs available at this time.",
-    "add_time_slot": "Add module"
+    "add_time_slot": "Add module",
+    "practice_already_exists_tooltip": "This group already has a practice scheduled for the week by other teacher."
   },
   "modal": {
     "total_practices": "Practices",

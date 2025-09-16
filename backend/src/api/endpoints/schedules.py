@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from src.database import get_db
-from src.models import schedule as schedule_model, group as group_model
+from src.models import schedule as schedule_model, group as group_model, subject as subject_model
 from typing import Optional
 
 router = APIRouter()
@@ -23,19 +23,26 @@ def get_schedule_availability(
     db_group = db.query(group_model.Group).filter(group_model.Group.group_name == group_name).first()
     
     if db_group:
-        query = db.query(schedule_model.Schedule).filter(schedule_model.Schedule.group_id == db_group.group_id)
+        query = db.query(
+            schedule_model.Schedule, 
+            subject_model.Subject.subject_name
+        ).join(
+            subject_model.Subject, schedule_model.Schedule.subject_id == subject_model.Subject.subject_id
+        ).filter(schedule_model.Schedule.group_id == db_group.group_id)
         
         if teacher_id_to_exclude:
             query = query.filter(schedule_model.Schedule.teacher_id != teacher_id_to_exclude)
             
         group_schedules = query.all()
         
-        for sch in group_schedules:
+        for sch, subject_name in group_schedules:
             if sch.day_of_week not in group_busy_slots:
                 group_busy_slots[sch.day_of_week] = []
             group_busy_slots[sch.day_of_week].append({
                 "start_time": sch.start_time.strftime('%H:%M:%S'),
-                "end_time": sch.end_time.strftime('%H:%M:%S')
+                "end_time": sch.end_time.strftime('%H:%M:%S'),
+                "schedule_type": sch.schedule_type.value,
+                "subject_name": subject_name
             })
 
     teacher_busy_slots = {}
