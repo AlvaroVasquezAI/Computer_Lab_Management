@@ -816,8 +816,8 @@ You must have the following software installed on your host machine before you b
 First, clone the project repository to your local machine.
 
 ```sh
-git clone https://github.com/AlvaroVasquezAI/ctrlpluslab.git
-cd ctrlpluslab
+git clone https://github.com/AlvaroVasquezAI/Ctrl-Plus-Lab.git
+cd Ctrl-Plus-Lab
 ```
 
 **2. Configure Environment Variables**
