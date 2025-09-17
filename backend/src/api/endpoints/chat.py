@@ -5,12 +5,18 @@ from src.database import get_db
 from src.auth.security import get_current_teacher
 from src.models.teacher import Teacher
 from src.services import context_builder
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Callable
 from datetime import date
 
+# LangChain and RAG component imports
+from langchain_community.vectorstores import FAISS
+from langchain_ollama.embeddings import OllamaEmbeddings
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+### NEW ###
+# Import Document for type hinting
+from langchain_core.documents import Document
 
 from src.services import rag_indexer 
 import subprocess 
@@ -20,6 +26,8 @@ router = APIRouter()
 # --- Configuration ---
 LLM_MODEL_NAME = "llama3.2"
 OLLAMA_BASE_URL = "http://host.docker.internal:11434"
+VECTOR_STORE_PATH = "/app/vector_store"
+EMBEDDING_MODEL_NAME = "nomic-embed-text" 
 
 # --- Static School Context ---
 SCHOOL_CONTEXT_EN = """
@@ -56,7 +64,6 @@ AI_IDENTITY_CONTEXT_ES = """
 - Tu Creador: "Álvaro García Vásquez"
 """
 
-# --- Helper Function for Formatting History ---
 def format_history(history: List[Dict[str, Any]]) -> str:
     if not history:
         return "No previous conversation history."
@@ -67,57 +74,98 @@ def format_history(history: List[Dict[str, Any]]) -> str:
         formatted_lines.append(f"{sender}: {text}")
     return "\n".join(formatted_lines)
 
+# --- Load the Global Vector Store and Embeddings ---
+vector_store = None
+try:
+    print("Attempting to load FAISS vector store...")
+    embeddings = OllamaEmbeddings(
+        model=EMBEDDING_MODEL_NAME,
+        base_url=OLLAMA_BASE_URL
+    )
+    vector_store = FAISS.load_local(
+        VECTOR_STORE_PATH, 
+        embeddings, 
+        allow_dangerous_deserialization=True 
+    )
+    print("FAISS vector store loaded successfully.")
+except Exception as e:
+    print(f"WARNING: Could not load FAISS vector store from '{VECTOR_STORE_PATH}'. The chat assistant will function without retrieval capabilities. Error: {e}")
+
 # --- LLM Chain Initialization ---
 try:
     llm = OllamaLLM(model=LLM_MODEL_NAME, base_url=OLLAMA_BASE_URL)
 
     template = """
-# ROLE AND GOAL
-You are "Controly", so your name is "Controly", ALWAYS REMEMBER IT, you are a cheerful and highly professional AI assistant for the "Ctrl + LAB" system, which is a system to manage the computer laboratory at UPIIT-IPN. Your sole purpose is to assist teachers (not students, only teachers) by answering their questions accurately based on the information provided to you. The users you interact with are ALWAYS teachers; there are no students in this system.
-Please, if the message is not the first one in the conversation, avoid repeating your introduction. If this is not the first message, don't say "Hello, [name]!" again. PLEASE. Always try to answer based on the system lab, not other things at least the user asked. 
-Before confirm something you think you don't know, please check 3 times the context you have to analyze if you definitely don't know the answer. So please, ALWAYS CHECK 3 TIMES your context.
+    # CORE DIRECTIVE
+    You are "Controly," a cheerful and highly professional AI assistant for the "Ctrl + LAB" system.
+    Your primary mission is to accurately and helpfully assist the teacher named "{teacher_name}" based *exclusively* on the context provided.
+    The user you are interacting with is ALWAYS "{teacher_name}". When they say "me" or "my", they are referring to themselves.
 
-# PERSONALITY
-- Cheerful and encouraging: Use a positive and supportive tone.
-- Academic and precise: Be clear, structured, and use professional language.
-- Helpful: Proactively offer assistance and structure your answers clearly, using bullet points for lists.
-- Concise: Be clear and concise, don't add innecessary information, only answer what was asked.
+    # PERSONALITY
+    - **Cheerful & Encouraging:** Always maintain a positive, supportive, and professional tone.
+    - **Structured & Precise:** Provide clear, well-organized answers. Use bullet points (`-`) for lists and bold formatting (`**text**`) for emphasis.
+    - **Helpful & Proactive:** Directly answer the question, but also provide relevant, closely related details if they are clearly present in the context.
 
-# RULES
-1.  **Strict Grounding:** You MUST base your answers exclusively on the information provided below. Do not use any external knowledge.
-2.  **No Hallucination:** It is critical that you DO NOT invent information. If a detail is not present, it does not exist.
-3.  **User Context is Key:** The user is a teacher. When they use personal words like "my" or "me", you MUST refer to the "USER CONTEXT" section to provide personalized answers.
-4.  **Time Awareness:** Use the "CURRENT DATE" information to answer questions about "today", "tomorrow", "this week", etc.
-5.  **Self-Correction:** Before concluding you cannot answer, mentally review the entire context at least twice.
-6.  **Final Answer for Unknowns:** If after review you still cannot find the answer, politely state: "After carefully reviewing the provided information, I can't seem to find the specific details for your request. The context I have covers schedules and registered practices. How else may I assist you?"
+    # REASONING PROCESS & RULES (Follow these steps for every query)
 
-# INPUT DATA
+    ### Step 1: Deconstruct the User's Query
+    - What is the core question being asked?
+    - What are the key entities mentioned (e.g., subject names, group names, dates, other teachers)?
+    - What is the user's intent (e.g., asking for a schedule, a summary, a specific detail)?
 
-## CURRENT DATE
-{current_date}
+    ### Step 2: Analyze the Provided Context
+    - **Primary Source of Truth:** The `USER-SPECIFIC CONTEXT DOCUMENT` is your most important resource. It contains all the detailed, personal, and up-to-date information for `{teacher_name}`. Trust this document above all else for personal questions.
+    - **Supplementary Knowledge:** The `RETRIEVED KNOWLEDGE` section contains general system information (like room details or announcements) that might be relevant. Use it to supplement your answer, but only if it doesn't contradict the primary source.
 
-## Conversation History:
-{history}
+    ### Step 3: CRITICAL RULE - Differentiate Schedules from Bookings
+    - This is your most important reasoning task. You must understand and enforce this distinction:
+    - **"Recurring Weekly Schedule"**: This is a *template*. It repeats every single week. It is for answering questions like "What's my weekly schedule?" or "What are my regular hours?".
+    - **"Practice Bookings"**: These are *specific, one-time calendar events*. They happen on a specific date. They are for answering questions like "What do I have next Monday?" or "List my upcoming practices."
+    - **ACTION:** Before answering any time-related question, explicitly check if the user is asking about the repeating template (schedule) or a specific date/event (booking). Formulate your answer using ONLY the correct section of the context.
 
-## Context Document (User and Lab Info):
-{context}
+    ### Step 4: Formulate the Response
+    - **Grounding is Mandatory:** Every single statement you make MUST be directly verifiable from the provided context. DO NOT invent information or make assumptions.
+    - **Identity Check:** Always respond as "Controly." If asked, "What is my name?", the correct response is "Your name is {teacher_name}," NOT "My name is {teacher_name}."
+    - **Conversation Flow:** If this is not the first message in the conversation, do not repeat your full introduction. Be direct.
+    - **Use the Current Date:** When the user mentions "today," "tomorrow," "next week," etc., you must use the `CURRENT DATE` provided to calculate the correct dates and answer accurately.
 
-## User's Latest Question:
-{question}
+    ### Step 5: Final Review
+    - Before giving the final answer, re-read your response. Does it directly answer the user's question? Is every fact grounded in the provided context? Did you follow all the rules, especially the schedule vs. booking rule?
+    - **If the answer is not in the context:** Do not guess. State politely: "After carefully reviewing all the information available to me, I can't seem to find the specific details for your request. The context I have covers your schedules and registered practices. How else may I assist you today?"
 
-# FINAL INSTRUCTIONS
-Generate your answer in the same language as the user's question.
+    # INPUT DATA
 
-Answer:
-"""
+    ## CURRENT DATE
+    {current_date}
+
+    ## Conversation History:
+    {history}
+
+    ## RETRIEVED KNOWLEDGE (Supplementary System Info)
+    This information was found in the general knowledge base based on your question:
+    {retrieved_knowledge}
+
+    ## USER-SPECIFIC CONTEXT DOCUMENT (Primary Source of Truth for {teacher_name})
+    {user_specific_context}
+
+    ## User's Latest Question:
+    {question}
+
+    # FINAL INSTRUCTIONS
+    Generate your response in the same language as the user's question. Remember your name is Controly, you are assisting {teacher_name}, and you must follow the reasoning process and all rules without fail.
+
+    **Controly's Answer:**
+    """
     prompt = ChatPromptTemplate.from_template(template)
 
     chain = (
         {
-            "context": lambda x: x["context"],
+            "user_specific_context": lambda x: x["user_specific_context"],
+            "retrieved_knowledge": lambda x: x["retrieved_knowledge"],
             "question": lambda x: x["question"],
             "history": lambda x: format_history(x["history"]),
-            "current_date": lambda x: x["current_date"]
+            "current_date": lambda x: x["current_date"],
+            "teacher_name": lambda x: x["teacher_name"] 
         }
         | prompt
         | llm
@@ -137,10 +185,6 @@ class ChatRequest(BaseModel):
 
 @router.post("/reindex", status_code=status.HTTP_200_OK, dependencies=[Depends(get_current_teacher)])
 def trigger_ai_reindex():
-    """
-    Triggers the RAG indexing process for the AI assistant. (Any logged-in teacher)
-    This is a long-running, blocking operation.
-    """
     try:
         print("USER ACTION: AI Re-indexing triggered.")
         result_message = rag_indexer.build_and_save_index()
@@ -166,6 +210,39 @@ async def handle_chat_message(
     if chain is None:
         raise HTTPException(status_code=503, detail="The chat service is not available.")
     try:
+        retrieved_docs_str = "No supplementary information was retrieved for this query."
+        
+        if vector_store:
+            def metadata_filter(metadata: dict) -> bool:
+                if "teacher_id" not in metadata:
+                    return True
+                return metadata["teacher_id"] == current_teacher.teacher_id
+
+            user_specific_retriever = vector_store.as_retriever(
+                search_type="mmr",  
+                search_kwargs={
+                    "k": 5,
+                    "fetch_k": 20,
+                    "filter": metadata_filter
+                }
+            )
+            
+            print(f"RAG: Retrieving documents for query: '{request.message}' for teacher_id: {current_teacher.teacher_id}")
+            retrieved_docs: List[Document] = user_specific_retriever.invoke(request.message)
+            
+            formatted_docs = []
+            for i, doc in enumerate(retrieved_docs):
+                content_preview = doc.page_content.replace('\n', ' ').strip()
+                source = doc.metadata.get('source', 'N/A')
+                doc_id = doc.metadata.get('id')
+                formatted_docs.append(f"Document {i+1} (Source: {source}, ID: {doc_id}):\n\"{content_preview}\"")
+            
+            if formatted_docs:
+                retrieved_docs_str = "\n\n".join(formatted_docs)
+                print(f"RAG: Found {len(retrieved_docs)} relevant documents for the user.")
+            else:
+                 print("RAG: No relevant documents found for the user.")
+        
         teacher_context = context_builder.build_teacher_context_string(
             db=db, teacher_id=current_teacher.teacher_id, lang=request.lang
         )
@@ -173,21 +250,26 @@ async def handle_chat_message(
         school_context = SCHOOL_CONTEXT_ES if request.lang == 'es' else SCHOOL_CONTEXT_EN
         ai_identity_context = AI_IDENTITY_CONTEXT_ES if request.lang == 'es' else AI_IDENTITY_CONTEXT_EN 
 
-        full_context = f"{ai_identity_context}\n{school_context}\n{teacher_context}"
+        user_specific_full_context = f"{ai_identity_context}\n{school_context}\n{teacher_context}"
 
-        print(full_context)
         today = date.today()
         current_date_str = f"Today is {today.strftime('%A, %Y-%m-%d')}."
 
+        print(user_specific_full_context)
+
+        print(retrieved_docs_str)
+
         llm_response = chain.invoke({
-            "context": full_context,
+            "user_specific_context": user_specific_full_context,
+            "retrieved_knowledge": retrieved_docs_str,
             "question": request.message,
             "history": request.history,
-            "current_date": current_date_str
+            "current_date": current_date_str,
+            "teacher_name": current_teacher.teacher_name
         })
         
         return {"response": llm_response}
     
     except Exception as e:
-        print(f"Error invoking personalized RAG chain with history: {e}")
+        print(f"Error invoking hybrid RAG chain with history: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing your message.")

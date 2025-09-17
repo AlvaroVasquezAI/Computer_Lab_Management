@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session, joinedload
 from collections import defaultdict
 from src.models import teacher, subject, group, room, schedule, practice, booking
+from datetime import date
 
-# --- Translation Dictionaries ---
 TRANSLATIONS = {
     'en': {
         'room_header': "ROOM {room_name}",
@@ -10,34 +10,45 @@ TRANSLATIONS = {
         'room_name': "Name",
         'room_capacity': "Capacity",
         'people': "people",
-        'profile_header': "Profile Info for {teacher_name}",
+        'profile_header': "Profile Info for {teacher_name}, this is the person who needs your help and your responses. You must help this person",
         'profile_id': "ID",
         'profile_email': "Email",
         'profile_name': "Name",
         'profile_role': "Role",
-        'weekly_schedule_header': "Weekly Schedule",
+        'weekly_schedule_header_detailed': "Teacher's Recurring Weekly Schedule",
+        'weekly_schedule_intro': "This is the teacher's standard, repeating schedule for every week. It shows their regular classes and designated time slots for practices.",
         'day_monday': "Monday",
         'day_tuesday': "Tuesday",
         'day_wednesday': "Wednesday",
         'day_thursday': "Thursday",
         'day_friday': "Friday",
         'no_classes': "No classes scheduled.",
-        'schedule_entry': "{group_name}: from {start_time} to {end_time} with {subject_name}",
+        'schedule_entry': "{group_name}: from {start_time} to {end_time} with {subject_name} ({schedule_type})",
+        'type_class': 'Class',
+        'type_practice': 'Practice',
         'subjects_header': "Teacher's Subjects",
         'subject_entry': "{group_name}: {day_name}, from {start_time} to {end_time}",
         'groups_header': "Teacher's Groups",
         'group_entry': "{subject_name}: {day_name}, from {start_time} to {end_time}",
-        'practices_header': "Teacher's Practices Registered",
-        'no_practices': "No practices registered.",
         'practice_title': "Practice",
         'practice_subject': "Subject",
         'practice_sessions': "Sessions",
         'session_entry': "Group: {group_name}, Room: {room_name}, Date: {date} {start_time}-{end_time}",
+        'no_sessions_booked': '--- No sessions booked for this practice.',
         'main_header': "This document contains all available information for the current user and the lab.",
         'user_context_header': "===== USER CONTEXT =====",
         'lab_context_header': "===== GENERAL LAB CONTEXT =====",
-        'teacher_list_header': "LIST OF ALL TEACHERS IN THE SYSTEM", 
-        'teacher_list_entry': "- Name: {name}, ID: {id}, Email: {email}" 
+        'teacher_list_header': "LIST OF ALL TEACHERS IN THE SYSTEM",
+        'teacher_list_entry': "- Name: {name}, ID: {id}, Email: {email}",
+        "practices_future_header_detailed": "Upcoming One-Time Practice Bookings",
+        "practices_future_intro": "These are specific lab sessions that are scheduled for a future date.",
+        "no_practices_future": "No upcoming practices registered.",
+        "practices_past_header_detailed": "Completed One-Time Practice Bookings",
+        "practices_past_intro": "These are specific lab sessions whose scheduled date has already passed.",
+        "no_practices_past": "No past practices found.",
+        "context_summary_header": "IMPORTANT DEFINITIONS FOR THIS USER",
+        "context_summary_schedule": "- The 'Weekly Schedule' is a template that repeats every week. It shows recurring classes and practice slots.",
+        "context_summary_bookings": "- 'Practice Bookings' are specific, one-time events that have been scheduled on a calendar date."
     },
     'es': {
         'room_header': "SALA {room_name}",
@@ -45,36 +56,75 @@ TRANSLATIONS = {
         'room_name': "Nombre",
         'room_capacity': "Capacidad",
         'people': "personas",
-        'profile_header': "Información de Perfil para {teacher_name}",
+        'profile_header': "Información de Perfil para {teacher_name}, a esta persona tú debes ayudar y responder sus preguntas. A esta persona debes asistir.",
         'profile_id': "ID",
         'profile_email': "Correo electrónico",
         'profile_name': "Nombre",
         'profile_role': "Rol",
-        'weekly_schedule_header': "Horario Semanal",
+        'weekly_schedule_header_detailed': "Horario Semanal Recurrente del Profesor",
+        'weekly_schedule_intro': "Este es el horario estándar y repetitivo del profesor para cada semana. Muestra sus clases regulares y los espacios designados para prácticas.",
         'day_monday': "Lunes",
         'day_tuesday': "Martes",
         'day_wednesday': "Miércoles",
         'day_thursday': "Jueves",
         'day_friday': "Viernes",
         'no_classes': "No hay clases programadas.",
-        'schedule_entry': "{group_name}: de {start_time} a {end_time} con {subject_name}",
+        'schedule_entry': "{group_name}: de {start_time} a {end_time} con {subject_name} ({schedule_type})",
+        'type_class': 'Clase',
+        'type_practice': 'Práctica',
         'subjects_header': "Materias del Profesor",
         'subject_entry': "{group_name}: {day_name}, de {start_time} a {end_time}",
         'groups_header': "Grupos del Profesor",
         'group_entry': "{subject_name}: {day_name}, de {start_time} a {end_time}",
-        'practices_header': "Prácticas Registradas del Profesor",
-        'no_practices': "No hay prácticas registradas.",
         'practice_title': "Práctica",
         'practice_subject': "Materia",
         'practice_sessions': "Sesiones",
         'session_entry': "Grupo: {group_name}, Sala: {room_name}, Fecha: {date} {start_time}-{end_time}",
+        'no_sessions_booked': '--- No hay sesiones reservadas para esta práctica.',
         'main_header': "Este documento contiene toda la información disponible para el usuario actual y el laboratorio.",
         'user_context_header': "===== CONTEXTO DEL USUARIO =====",
         'lab_context_header': "===== CONTEXTO GENERAL DEL LABORATORIO =====",
-        'teacher_list_header': "LISTA DE TODOS LOS PROFESORES DEL SISTEMA", 
-        'teacher_list_entry': "- Nombre: {name}, ID: {id}, Correo: {email}"            
+        'teacher_list_header': "LISTA DE TODOS LOS PROFESORES DEL SISTEMA",
+        'teacher_list_entry': "- Nombre: {name}, ID: {id}, Correo: {email}",
+        "practices_future_header_detailed": "Reservas de Prácticas Próximas (Eventos Únicos)",
+        "practices_future_intro": "Estas son sesiones de laboratorio específicas que están programadas para una fecha futura.",
+        "no_practices_future": "No hay próximas prácticas registradas.",
+        "practices_past_header_detailed": "Reservas de Prácticas Completadas (Eventos Únicos)",
+        "practices_past_intro": "Estas son sesiones de laboratorio específicas cuya fecha programada ya ha pasado.",
+        "no_practices_past": "No se encontraron prácticas pasadas.",
+        "context_summary_header": "DEFINICIONES IMPORTANTES PARA ESTE USUARIO",
+        "context_summary_schedule": "- El 'Horario Semanal' es una plantilla que se repite cada semana. Muestra clases recurrentes y espacios de práctica.",
+        "context_summary_bookings": "- Las 'Reservas de Prácticas' son eventos únicos y específicos que han sido agendados en una fecha del calendario."
     }
 }
+
+def _format_detailed_practice_list(practices_list, t, header_key, intro_key, no_items_key):
+    """Formats a list of practices with their full booking details."""
+    lines = [f"{t[header_key]}:", f"{t[intro_key]}"]
+    
+    if not practices_list:
+        lines.append(f"- {t[no_items_key]}")
+        return "\n".join(lines)
+
+    for p in sorted(practices_list, key=lambda x: x.title):
+        lines.append(f"- {t['practice_title']}: {p.title}")
+        lines.append(f"-- {t['practice_subject']}: {p.subject.subject_name}")
+        lines.append(f"-- {t['practice_sessions']}:")
+        if p.bookings:
+            # Sort bookings by date and time to ensure a logical order
+            sorted_bookings = sorted(p.bookings, key=lambda x: (x.practice_date, x.start_time))
+            for b in sorted_bookings:
+                lines.append(f"--- " + t['session_entry'].format(
+                    group_name=b.group.group_name,
+                    room_name=b.room.room_name,
+                    date=b.practice_date.strftime('%Y-%m-%d'),
+                    start_time=b.start_time.strftime('%H:%M'),
+                    end_time=b.end_time.strftime('%H:%M')
+                ))
+        else:
+            lines.append(t['no_sessions_booked'])
+            
+    return "\n".join(lines)
 
 def build_lab_context_string(db: Session, lang: str = 'en') -> str:
     """Builds a string containing general information about the lab rooms AND all teachers."""
@@ -134,15 +184,17 @@ def build_teacher_context_string(db: Session, teacher_id: int, lang: str = 'en')
     
     weekly_schedule_by_day = defaultdict(list)
     for s in teacher_schedules:
+        schedule_type_translation = t.get('type_class', 'Class') if s.schedule_type.value == 'CLASS' else t.get('type_practice', 'Practice')
         entry = f"--- " + t['schedule_entry'].format(
             group_name=s.group.group_name,
             start_time=s.start_time.strftime('%H:%M'),
             end_time=s.end_time.strftime('%H:%M'),
-            subject_name=s.subject.subject_name
+            subject_name=s.subject.subject_name,
+            schedule_type=schedule_type_translation
         )
         weekly_schedule_by_day[t[day_map_keys[s.day_of_week]]].append(entry)
 
-    weekly_schedule_lines = [f"{t['weekly_schedule_header']}:"]
+    weekly_schedule_lines = [f"{t['weekly_schedule_header_detailed']}:", f"{t['weekly_schedule_intro']}"]
     for day_key in day_map_keys.values():
         day_name = t[day_key]
         weekly_schedule_lines.append(f"- {day_name}:")
@@ -193,36 +245,53 @@ def build_teacher_context_string(db: Session, teacher_id: int, lang: str = 'en')
         joinedload(practice.Practice.bookings).joinedload(booking.Booking.room)
     ).filter(practice.Practice.teacher_id == teacher_id).order_by(practice.Practice.title).all()
 
-    practices_lines = [f"{t['practices_header']}:"]
-    if not teacher_practices:
-        practices_lines.append(f"- {t['no_practices']}")
-    else:
-        for p in teacher_practices:
-            practices_lines.append(f"- {t['practice_title']}: {p.title}")
-            practices_lines.append(f"-- {t['practice_subject']}: {p.subject.subject_name}")
-            practices_lines.append(f"-- {t['practice_sessions']}:")
-            if p.bookings:
-                for b in sorted(p.bookings, key=lambda x: (x.practice_date, x.start_time)):
-                    practices_lines.append(f"--- " + t['session_entry'].format(
-                        group_name=b.group.group_name,
-                        room_name=b.room.room_name,
-                        date=b.practice_date.strftime('%Y-%m-%d'),
-                        start_time=b.start_time.strftime('%H:%M'),
-                        end_time=b.end_time.strftime('%H:%M')
-                    ))
-            else:
-                practices_lines.append("--- No sessions booked for this practice.")
-    practices_info = "\n".join(practices_lines)
+    today = date.today()
+    past_practices = []
+    future_practices = []
+
+    for p in teacher_practices:
+        latest_booking_date = None
+        if p.bookings:
+            latest_booking_date = max(b.practice_date for b in p.bookings)
+        
+        if latest_booking_date and latest_booking_date < today:
+            past_practices.append(p)
+        else:
+            future_practices.append(p)
+
+    future_practices_info = _format_detailed_practice_list(
+        practices_list=future_practices,
+        t=t,
+        header_key='practices_future_header_detailed',
+        intro_key='practices_future_intro',
+        no_items_key='no_practices_future'
+    )
+    
+    past_practices_info = _format_detailed_practice_list(
+        practices_list=past_practices,
+        t=t,
+        header_key='practices_past_header_detailed',
+        intro_key='practices_past_intro',
+        no_items_key='no_practices_past'
+    )
+
+    context_summary_info = (
+        f"{t['context_summary_header']}:\n"
+        f"{t['context_summary_schedule']}\n"
+        f"{t['context_summary_bookings']}"
+    )
 
     # Assemble the final document
     final_context = (
         f"{t['main_header']}\n\n"
         f"{t['user_context_header']}\n\n"
         f"{profile_info}\n\n"
+        f"{context_summary_info}\n\n"
         f"{weekly_schedule_info}\n\n"
         f"{subjects_info}\n\n"
         f"{groups_info}\n\n"
-        f"{practices_info}\n\n"
+        f"{future_practices_info}\n\n"
+        f"{past_practices_info}\n\n"
         f"{t['lab_context_header']}\n\n"
         f"{build_lab_context_string(db, lang)}"
     )
