@@ -1,10 +1,5 @@
 <br/>
 <p align="center">
-  <a href="https://github.com/your-username/your-repo-name">
-    <!-- You can add your project logo here -->
-    <!-- <img src="path/to/logo.png" alt="Ctrl+LAB Logo" width="120" height="120"> -->
-  </a>
-
   <h1 align="center">Ctrl + LAB</h1>
 
   <p align="center">
@@ -39,6 +34,10 @@ The system provides real-time room availability, preventing scheduling conflicts
 The standout feature of Ctrl + LAB is **"Controly,"** an **AI assistant** integrated directly into the platform. Powered by a hybrid Retrieval--Augmented Generation (RAG) architecture, Controly allows teachers to interact conversationally, asking simple questions about their personal schedules, registered practices, and institutional data to receive instant, accurate, and context-aware answers.
 
 This project is fully containerized with Docker, ensuring easy setup, portability, and a consistent development environment across all systems.
+
+<p align="center">
+  <img src="ctrlpluslab/overview.png" alt="Project Showcase Collage" width="100%">
+</p>
 
 ### **Table of Contents**
 
